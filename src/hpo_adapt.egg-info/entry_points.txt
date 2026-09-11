@@ -1,0 +1,2 @@
+[console_scripts]
+hpo-adapt = hpo_adapt.pipeline:main

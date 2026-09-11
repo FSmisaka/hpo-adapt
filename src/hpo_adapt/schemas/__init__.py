@@ -1,0 +1,86 @@
+"""Core structured schemas used for all inter-module communication (spec.md)."""
+
+from hpo_adapt.schemas.action import (
+    HYPERPARAMETER_ACTIONS,
+    ActionType,
+    RLAction,
+)
+from hpo_adapt.schemas.diagnostic import (
+    BoolMetric,
+    BoundaryConcentrationEntry,
+    BudgetStatus,
+    ConfigurationDiversity,
+    CoverageStatus,
+    DiagnosticConfig,
+    DiagnosticMeta,
+    DiagnosticState,
+    GoodRegionEntry,
+    CategoricalGoodRegionEntry,
+    ImportanceEntry,
+    Metric,
+    MetricStatus,
+    OptimizationStatus,
+    SearchSpaceStatus,
+    safe_get,
+)
+from hpo_adapt.schemas.experience import (
+    ActionRecord,
+    Diagnosis,
+    Experience,
+    Outcome,
+    TaskSignature,
+)
+from hpo_adapt.schemas.setup import (
+    BudgetSpec,
+    Distribution,
+    EvaluationSpec,
+    HyperparameterSpec,
+    OptimizerSpec,
+    Setup,
+)
+from hpo_adapt.schemas.task import (
+    HyperparameterMetadata,
+    ObjectiveDirection,
+    ResourceConstraints,
+    TaskSpec,
+)
+from hpo_adapt.schemas.trial import TrialLog, TrialState
+
+__all__ = [
+    "ActionRecord",
+    "ActionType",
+    "BoolMetric",
+    "BoundaryConcentrationEntry",
+    "BudgetSpec",
+    "BudgetStatus",
+    "CategoricalGoodRegionEntry",
+    "ConfigurationDiversity",
+    "CoverageStatus",
+    "Diagnosis",
+    "DiagnosticConfig",
+    "DiagnosticMeta",
+    "DiagnosticState",
+    "Distribution",
+    "EvaluationSpec",
+    "Experience",
+    "GoodRegionEntry",
+    "HYPERPARAMETER_ACTIONS",
+    "HyperparameterMetadata",
+    "HyperparameterSpec",
+    "ImportanceEntry",
+    "Metric",
+    "MetricStatus",
+    "ObjectiveDirection",
+    "OptimizationStatus",
+    "OptimizerSpec",
+    "Outcome",
+    "RLAction",
+    "ResourceConstraints",
+    "SearchSpaceStatus",
+    "Setup",
+    "TaskSignature",
+    "TaskSpec",
+    "TrialLog",
+    "TrialState",
+    "safe_get",
+]

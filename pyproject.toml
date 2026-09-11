@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hpo-adapt"
+version = "0.1.0"
+description = "Diagnostic-driven adaptive HPO setup control with tabular Q-Learning and agent memory."
+requires-python = ">=3.11"
+dependencies = [
+    "optuna>=3.6",
+    "scikit-learn>=1.4",
+    "pydantic>=2.6",
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "mypy>=1.8"]
+
+[project.scripts]
+hpo-adapt = "hpo_adapt.pipeline:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+check_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = "optuna.*"
+ignore_missing_imports = true
