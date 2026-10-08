@@ -1,0 +1,1651 @@
+{
+ "phase": "main",
+ "tag": "full",
+ "task": "branin",
+ "method": {
+  "name": "adapt-rl-guided",
+  "kind": "adapt",
+  "optimizer": null,
+  "epsilon_start": 0.2,
+  "epsilon_end": 0.05,
+  "epsilon_decay": null
+ },
+ "method_name": "adapt-rl-guided",
+ "seed": 6,
+ "budget": 120,
+ "episodes": 1,
+ "fn": "single",
+ "result": {
+  "steps": [
+   {
+    "round_index": 0,
+    "setup_id": "setup_000",
+    "trials_used": 40,
+    "phase_best": -1.0376267801260346,
+    "cumulative_best": -1.0376267801260346,
+    "diagnosis": "PROMISING_REGION_IDENTIFIED",
+    "action": {
+     "action": "SHIFT_SEARCH_REGION",
+     "candidate_hyperparameter": "x1",
+     "parameters": {
+      "target_region": [
+       -2.8476597080162502,
+       -2.738060057001331
+      ]
+     },
+     "confidence": 0.1429,
+     "q_value": 0.0,
+     "reason": "tabular Q-learning selection; agrees with rule-based recommendation"
+    },
+    "action_valid": true,
+    "reward": 0.08616412327003456,
+    "terminated": false,
+    "setup_after_id": "setup_001",
+    "changes": [
+     {
+      "hyperparameter": "x1",
+      "old": {
+       "name": "x1",
+       "type": "float",
+       "low": -5.0,
+       "high": 0.75,
+       "distribution": "uniform",
+       "default": -3.0
+      },
+      "new": {
+       "name": "x1",
+       "type": "float",
+       "low": -5.0,
+       "high": 0.08214011749120953,
+       "distribution": "uniform",
+       "default": -3.0
+      },
+      "reason": "tabular Q-learning selection; agrees with rule-based recommendation target_region=[-2.8476597080162502, -2.738060057001331]; width preserved."
+     }
+    ],
+    "search_space": [
+     {
+      "name": "x1",
+      "type": "float",
+      "low": -5.0,
+      "high": 0.75,
+      "choices": null,
+      "distribution": "uniform",
+      "default": -3.0,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'x1'.",
+      "confidence": 0.7
+     },
+     {
+      "name": "x2",
+      "type": "float",
+      "low": 3.75,
+      "high": 11.25,
+      "choices": null,
+      "distribution": "uniform",
+      "default": 7.5,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'x2'.",
+      "confidence": 0.7
+     }
+    ],
+    "diagnostic_state": {
+     "optimization": {
+      "best_objective": {
+       "value": -1.0376267801260346,
+       "status": "VALID"
+      },
+      "recent_improvement": {
+       "value": 1.6056822669457917,
+       "status": "VALID"
+      },
+      "relative_improvement": {
+       "value": 0.6074515814372896,
+       "status": "VALID"
+      },
+      "stagnation": {
+       "value": false,
+       "status": "VALID"
+      },
+      "marginal_gain": {
+       "value": 0.08028411334728959,
+       "status": "VALID"
+      }
+     },
+     "search_space": {
+      "importance": {
+       "x1": {
+        "global_importance": 0.744311,
+        "local_importance": 0.681522,
+        "rank": 1,
+        "status": "VALID"
+       },
+       "x2": {
+        "global_importance": 0.255689,
+        "local_importance": 0.318478,
+        "rank": 2,
+        "status": "VALID"
+       }
+      },
+      "boundary_concentration": {
+       "x1": {
+        "all": 0.05,
+        "good": 0.0,
+        "upper": 0.0,
+        "lower": 0.0,
+        "status": "VALID"
+       },
+       "x2": {
+        "all": 0.2,
+        "good": 0.75,
+        "upper": 0.75,
+        "lower": 0.0,
+        "status": "VALID"
+       }
+      },
+      "good_region": {
+       "x1": {
+        "mean": -2.797378249415338,
+        "lower": -2.8476597080162502,
+        "upper": -2.738060057001331,
+        "width_ratio": 0.01906080887215984,
+        "status": "VALID"
+       },
+       "x2": {
+        "mean": 10.972376322101361,
+        "lower": 10.80561726296059,
+        "upper": 11.120897099826495,
+        "width_ratio": 0.04203731158212065,
+        "status": "VALID"
+       }
+      },
+      "good_region_categorical": {},
+      "configuration_diversity": {
+       "recent": 0.22305072931430067,
+       "global": 0.28813681504470284,
+       "ratio": 0.7741139275748443,
+       "status": "VALID"
+      },
+      "coverage": {
+       "overall": 0.9,
+       "per_hyperparameter": {
+        "x1": 0.9,
+        "x2": 0.9
+       },
+       "status": "VALID"
+      }
+     },
+     "budget": {
+      "total_trials": 120,
+      "completed_trials": 40,
+      "budget_consumed": {
+       "value": 0.3333333333333333,
+       "status": "VALID"
+      },
+      "budget_remaining": {
+       "value": 0.6666666666666667,
+       "status": "VALID"
+      },
+      "marginal_gain_per_trial": {
+       "value": 0.08028411334728959,
+       "status": "VALID"
+      },
+      "marginal_gain_per_second": {
+       "value": 78.01766127832366,
+       "status": "VALID"
+      }
+     },
+     "meta": {
+      "num_complete_trials": 40,
+      "num_failed_trials": 0,
+      "num_pruned_trials": 0,
+      "failure_rate": 0.0,
+      "analysis_window": 20,
+      "data_sufficient": true
+     }
+    },
+    "trials": [
+     {
+      "trial_id": 0,
+      "params": {
+       "x1": 0.13394587075700928,
+       "x2": 6.239848539758829
+      },
+      "value": 19.716176420193268,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 1,
+      "params": {
+       "x1": -0.2779325424174671,
+       "x2": 4.0627246929393745
+      },
+      "value": 24.937672958160032,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 2,
+      "params": {
+       "x1": -4.380974090368184,
+       "x2": 8.212890481546802
+      },
+      "value": 59.27478564987772,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 3,
+      "params": {
+       "x1": -1.9535501673912758,
+       "x2": 6.891055714174907
+      },
+      "value": 13.765656228679344,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 4,
+      "params": {
+       "x1": -3.071404866678357,
+       "x2": 8.418895741470676
+      },
+      "value": 14.015437370945763,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 5,
+      "params": {
+       "x1": -2.480686799873974,
+       "x2": 9.269115797615177
+      },
+      "value": 4.586384581239666,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 6,
+      "params": {
+       "x1": -2.0212906310042045,
+       "x2": 8.091439501696179
+      },
+      "value": 8.546854029513652,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 7,
+      "params": {
+       "x1": -1.2892081986003356,
+       "x2": 11.176682035300622
+      },
+      "value": 21.135287050498192,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 8,
+      "params": {
+       "x1": -0.2858153676994122,
+       "x2": 6.849007011121356
+      },
+      "value": 19.36158934342801,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 9,
+      "params": {
+       "x1": 0.03853901743810764,
+       "x2": 9.92819574427891
+      },
+      "value": 35.51020505774297,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 10,
+      "params": {
+       "x1": -3.4917994810048834,
+       "x2": 5.541544826902533
+      },
+      "value": 58.60013055781146,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 11,
+      "params": {
+       "x1": -1.8188984621521134,
+       "x2": 8.607743402575275
+      },
+      "value": 8.15819389501912,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 12,
+      "params": {
+       "x1": -4.634529997922581,
+       "x2": 10.690981946972645
+      },
+      "value": 39.0687548683796,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 13,
+      "params": {
+       "x1": -1.7985099649515033,
+       "x2": 9.470744523386529
+      },
+      "value": 7.870188630430576,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 14,
+      "params": {
+       "x1": -3.6480869139325787,
+       "x2": 10.57508032461267
+      },
+      "value": 10.310503872530962,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 15,
+      "params": {
+       "x1": -4.523617191886199,
+       "x2": 3.9525839826150007
+      },
+      "value": 149.58400180628985,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 16,
+      "params": {
+       "x1": -0.7394760162618503,
+       "x2": 9.800171604194936
+      },
+      "value": 23.60771176485731,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 17,
+      "params": {
+       "x1": -2.5970120350699846,
+       "x2": 10.075381892870542
+      },
+      "value": 2.6433090470718263,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 18,
+      "params": {
+       "x1": -4.888384901601922,
+       "x2": 7.215394894968292
+      },
+      "value": 104.84267728567536,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 19,
+      "params": {
+       "x1": -3.0911407000395585,
+       "x2": 9.818397340715629
+      },
+      "value": 5.874040118800407,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 20,
+      "params": {
+       "x1": -2.4147725625509526,
+       "x2": 5.803811757140873
+      },
+      "value": 25.799012935983377,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 21,
+      "params": {
+       "x1": -2.5994935725348864,
+       "x2": 9.540306636897071
+      },
+      "value": 3.932816263247147,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 22,
+      "params": {
+       "x1": -2.8385679741818106,
+       "x2": 11.108702236959376
+      },
+      "value": 1.0376267801260346,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 23,
+      "params": {
+       "x1": -4.1325884812597735,
+       "x2": 9.373688850685738
+      },
+      "value": 34.00006728440461,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 24,
+      "params": {
+       "x1": -2.7206084989240726,
+       "x2": 10.77303347103694
+      },
+      "value": 1.5032903291128799,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 25,
+      "params": {
+       "x1": -2.470252648023853,
+       "x2": 10.71428523387285
+      },
+      "value": 2.4829410292880105,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 26,
+      "params": {
+       "x1": -2.3097973325397048,
+       "x2": 10.67786079423428
+      },
+      "value": 3.638773252734368,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 27,
+      "params": {
+       "x1": -0.9803895979921808,
+       "x2": 8.610373779002032
+      },
+      "value": 16.19852197895447,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 28,
+      "params": {
+       "x1": -2.985537224908874,
+       "x2": 10.87243026843204
+      },
+      "value": 1.5670407342764474,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 29,
+      "params": {
+       "x1": -4.055572624134568,
+       "x2": 11.246822006024955
+      },
+      "value": 15.238053058027097,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 30,
+      "params": {
+       "x1": -4.93121669435283,
+       "x2": 9.745742409622636
+      },
+      "value": 64.5645262060923,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 31,
+      "params": {
+       "x1": -2.7787803591816016,
+       "x2": 11.126123469626688
+      },
+      "value": 1.1039603493589965,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 32,
+      "params": {
+       "x1": -1.8493142946375052,
+       "x2": 10.393249355814525
+      },
+      "value": 8.385638246875732,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 33,
+      "params": {
+       "x1": -2.851556165373867,
+       "x2": 10.88164611078244
+      },
+      "value": 1.2940099597084682,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 34,
+      "params": {
+       "x1": -2.1705406417425506,
+       "x2": 11.24596318813032
+      },
+      "value": 5.977046939581787,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 35,
+      "params": {
+       "x1": -1.3255975639330206,
+       "x2": 4.166958751201951
+      },
+      "value": 29.72595903785494,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 36,
+      "params": {
+       "x1": -1.3555848328576616,
+       "x2": 10.411668174428367
+      },
+      "value": 16.12021972319407,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 37,
+      "params": {
+       "x1": -2.9285387438126276,
+       "x2": 9.084388598090111
+      },
+      "value": 7.820660075466664,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 38,
+      "params": {
+       "x1": -4.150878989197103,
+       "x2": 10.111785279749776
+      },
+      "value": 27.176883386726313,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 39,
+      "params": {
+       "x1": -3.658554388210066,
+       "x2": 8.595358872065162
+      },
+      "value": 26.21155216839911,
+      "state": "COMPLETE"
+     }
+    ]
+   },
+   {
+    "round_index": 1,
+    "setup_id": "setup_001",
+    "trials_used": 40,
+    "phase_best": -0.9136330178024569,
+    "cumulative_best": -0.9136330178024569,
+    "diagnosis": "SEARCH_SPACE_TRUNCATION",
+    "action": {
+     "action": "EXPAND_SEARCH_SPACE",
+     "candidate_hyperparameter": "x2",
+     "parameters": {
+      "direction": "upper"
+     },
+     "confidence": 0.1429,
+     "q_value": 0.0,
+     "reason": "tabular Q-learning selection; agrees with rule-based recommendation"
+    },
+    "action_valid": true,
+    "reward": 0.5169503958923681,
+    "terminated": false,
+    "setup_after_id": "setup_002",
+    "changes": [
+     {
+      "hyperparameter": "x2",
+      "old": {
+       "name": "x2",
+       "type": "float",
+       "low": 3.75,
+       "high": 11.25,
+       "distribution": "uniform",
+       "default": 7.5
+      },
+      "new": {
+       "name": "x2",
+       "type": "float",
+       "low": 3.75,
+       "high": 15.0,
+       "distribution": "uniform",
+       "default": 7.5
+      },
+      "reason": "tabular Q-learning selection; agrees with rule-based recommendation Expanded range by 50% of width (upper)."
+     }
+    ],
+    "search_space": [
+     {
+      "name": "x1",
+      "type": "float",
+      "low": -5.0,
+      "high": 0.08214011749120953,
+      "choices": null,
+      "distribution": "uniform",
+      "default": -3.0,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'x1'.",
+      "confidence": 0.7
+     },
+     {
+      "name": "x2",
+      "type": "float",
+      "low": 3.75,
+      "high": 11.25,
+      "choices": null,
+      "distribution": "uniform",
+      "default": 7.5,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'x2'.",
+      "confidence": 0.7
+     }
+    ],
+    "diagnostic_state": {
+     "optimization": {
+      "best_objective": {
+       "value": -0.9136330178024569,
+       "status": "VALID"
+      },
+      "recent_improvement": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "relative_improvement": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "stagnation": {
+       "value": true,
+       "status": "VALID"
+      },
+      "marginal_gain": {
+       "value": 0.0,
+       "status": "VALID"
+      }
+     },
+     "search_space": {
+      "importance": {
+       "x1": {
+        "global_importance": 0.634444,
+        "local_importance": 0.555801,
+        "rank": 1,
+        "status": "VALID"
+       },
+       "x2": {
+        "global_importance": 0.365556,
+        "local_importance": 0.444199,
+        "rank": 2,
+        "status": "VALID"
+       }
+      },
+      "boundary_concentration": {
+       "x1": {
+        "all": 0.05,
+        "good": 0.0,
+        "upper": 0.0,
+        "lower": 0.0,
+        "status": "VALID"
+       },
+       "x2": {
+        "all": 0.3125,
+        "good": 1.0,
+        "upper": 1.0,
+        "lower": 0.0,
+        "status": "VALID"
+       }
+      },
+      "good_region": {
+       "x1": {
+        "mean": -2.8651882399015296,
+        "lower": -2.946821121083185,
+        "upper": -2.8037967197638323,
+        "width_ratio": 0.028142553729895325,
+        "status": "VALID"
+       },
+       "x2": {
+        "mean": 11.17090898092452,
+        "lower": 11.12085226454401,
+        "upper": 11.221511582324176,
+        "width_ratio": 0.013421242370688683,
+        "status": "VALID"
+       }
+      },
+      "good_region_categorical": {},
+      "configuration_diversity": {
+       "recent": 0.17184587427514994,
+       "global": 0.248024520592618,
+       "ratio": 0.6928583792278513,
+       "status": "VALID"
+      },
+      "coverage": {
+       "overall": 0.95,
+       "per_hyperparameter": {
+        "x1": 1.0,
+        "x2": 0.9
+       },
+       "status": "VALID"
+      }
+     },
+     "budget": {
+      "total_trials": 120,
+      "completed_trials": 80,
+      "budget_consumed": {
+       "value": 0.6666666666666666,
+       "status": "VALID"
+      },
+      "budget_remaining": {
+       "value": 0.33333333333333337,
+       "status": "VALID"
+      },
+      "marginal_gain_per_trial": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "marginal_gain_per_second": {
+       "value": 0.0,
+       "status": "VALID"
+      }
+     },
+     "meta": {
+      "num_complete_trials": 80,
+      "num_failed_trials": 0,
+      "num_pruned_trials": 0,
+      "failure_rate": 0.0,
+      "analysis_window": 20,
+      "data_sufficient": true
+     }
+    },
+    "trials": [
+     {
+      "trial_id": 39,
+      "params": {
+       "x1": -3.1341176039284377,
+       "x2": 10.307262233144925
+      },
+      "value": 4.1953733330791145,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 40,
+      "params": {
+       "x1": -2.619963975441224,
+       "x2": 11.20734949060454
+      },
+      "value": 1.7017903520679687,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 41,
+      "params": {
+       "x1": -3.108398267092451,
+       "x2": 10.820150509054743
+      },
+      "value": 2.2941765940952004,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 42,
+      "params": {
+       "x1": -2.107995655378855,
+       "x2": 10.108677783411885
+      },
+      "value": 5.112590189790633,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 43,
+      "params": {
+       "x1": -3.329297931255478,
+       "x2": 10.887475957662899
+      },
+      "value": 3.955710510809901,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 44,
+      "params": {
+       "x1": -3.5997816891975143,
+       "x2": 9.929140814260675
+      },
+      "value": 13.465301803691336,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 45,
+      "params": {
+       "x1": -2.8586819407480384,
+       "x2": 10.592266673377342
+      },
+      "value": 1.808942656949566,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 46,
+      "params": {
+       "x1": -3.487897104667575,
+       "x2": 9.359626418791139
+      },
+      "value": 15.13799743404533,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 47,
+      "params": {
+       "x1": -1.629634579137991,
+       "x2": 9.951931919632983
+      },
+      "value": 10.457907705911614,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 48,
+      "params": {
+       "x1": -2.8552914027264027,
+       "x2": 6.334256934095112
+      },
+      "value": 28.48655394407085,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 49,
+      "params": {
+       "x1": -4.072541878948578,
+       "x2": 10.62058377897755
+      },
+      "value": 20.302094585983095,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 50,
+      "params": {
+       "x1": -3.951554622865262,
+       "x2": 5.536749578912488
+      },
+      "value": 80.28924750539277,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 51,
+      "params": {
+       "x1": -2.4907801382539283,
+       "x2": 10.983199415526888
+      },
+      "value": 2.4138062854568227,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 52,
+      "params": {
+       "x1": -2.9041837735337976,
+       "x2": 11.209860342693252
+      },
+      "value": 0.9136330178024569,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 53,
+      "params": {
+       "x1": -1.8422740971487948,
+       "x2": 10.969664610108008
+      },
+      "value": 9.978285625100792,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 54,
+      "params": {
+       "x1": -2.2084721134818452,
+       "x2": 9.301955624930075
+      },
+      "value": 5.000452514872733,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 55,
+      "params": {
+       "x1": -2.627871194831079,
+       "x2": 10.474597676362917
+      },
+      "value": 1.9913545649757678,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 56,
+      "params": {
+       "x1": -3.014635267187354,
+       "x2": 11.169332839734611
+      },
+      "value": 1.1185687019866795,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 57,
+      "params": {
+       "x1": -3.343291848023626,
+       "x2": 11.201421341834543
+      },
+      "value": 3.0355857297213764,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 58,
+      "params": {
+       "x1": -3.7127286081766133,
+       "x2": 10.97275300158497
+      },
+      "value": 9.309459169899712,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 59,
+      "params": {
+       "x1": -2.397860872058313,
+       "x2": 8.666412278368869
+      },
+      "value": 6.515421711634656,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 60,
+      "params": {
+       "x1": -2.73843314430485,
+       "x2": 10.921083254557908
+      },
+      "value": 1.3413852357108882,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 61,
+      "params": {
+       "x1": -2.844465869670887,
+       "x2": 11.21314984771742
+      },
+      "value": 0.9529154507100049,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 62,
+      "params": {
+       "x1": -2.673509281088903,
+       "x2": 8.850393746601585
+      },
+      "value": 6.846214303877327,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 63,
+      "params": {
+       "x1": -3.225581685388534,
+       "x2": 9.014110607696662
+      },
+      "value": 12.437428866455644,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 64,
+      "params": {
+       "x1": -2.814518017156217,
+       "x2": 11.20180472303937
+      },
+      "value": 0.992326873147083,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 65,
+      "params": {
+       "x1": -2.8834029660422766,
+       "x2": 9.689656732543165
+      },
+      "value": 4.612373212905989,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 66,
+      "params": {
+       "x1": -3.468361072305979,
+       "x2": 10.598567606765656
+      },
+      "value": 7.039599160177392,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 67,
+      "params": {
+       "x1": -3.04630826536509,
+       "x2": 11.24102229640661
+      },
+      "value": 1.0854316410255223,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 68,
+      "params": {
+       "x1": -2.376864106221377,
+       "x2": 10.431180447457642
+      },
+      "value": 3.085246431132956,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 69,
+      "params": {
+       "x1": -2.2674381462289306,
+       "x2": 9.686839872524542
+      },
+      "value": 4.1862643601951035,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 70,
+      "params": {
+       "x1": -1.5742014634165244,
+       "x2": 10.844027868383051
+      },
+      "value": 14.033085120326307,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 71,
+      "params": {
+       "x1": -2.82278150992644,
+       "x2": 10.250662923039236
+      },
+      "value": 2.4895576942574174,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 72,
+      "params": {
+       "x1": -0.4705913080850579,
+       "x2": 3.787077927328187
+      },
+      "value": 27.497702390613146,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 73,
+      "params": {
+       "x1": -2.8728265326818323,
+       "x2": 11.12605941922314
+      },
+      "value": 1.002722817962336,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 74,
+      "params": {
+       "x1": -3.3307313520533377,
+       "x2": 10.077317529953628
+      },
+      "value": 7.622867280096019,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 75,
+      "params": {
+       "x1": -3.0906244010778465,
+       "x2": 11.11678833627964
+      },
+      "value": 1.4872795251835902,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 76,
+      "params": {
+       "x1": -2.8218551274409993,
+       "x2": 11.14054951173031
+      },
+      "value": 1.0310013675669465,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 77,
+      "params": {
+       "x1": -3.027815350882029,
+       "x2": 10.553421869233533
+      },
+      "value": 2.554657669921901,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 78,
+      "params": {
+       "x1": -3.768762809781077,
+       "x2": 11.234194085208575
+      },
+      "value": 8.97918801777676,
+      "state": "COMPLETE"
+     }
+    ]
+   },
+   {
+    "round_index": 2,
+    "setup_id": "setup_002",
+    "trials_used": 40,
+    "phase_best": -0.4108756281195519,
+    "cumulative_best": -0.4108756281195519,
+    "diagnosis": "PROMISING_REGION_IDENTIFIED",
+    "action": null,
+    "action_valid": true,
+    "reward": null,
+    "terminated": false,
+    "setup_after_id": null,
+    "changes": [],
+    "search_space": [
+     {
+      "name": "x1",
+      "type": "float",
+      "low": -5.0,
+      "high": 0.08214011749120953,
+      "choices": null,
+      "distribution": "uniform",
+      "default": -3.0,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'x1'.",
+      "confidence": 0.7
+     },
+     {
+      "name": "x2",
+      "type": "float",
+      "low": 3.75,
+      "high": 15.0,
+      "choices": null,
+      "distribution": "uniform",
+      "default": 7.5,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'x2'.",
+      "confidence": 0.7
+     }
+    ],
+    "diagnostic_state": {
+     "optimization": {
+      "best_objective": {
+       "value": -0.4108756281195519,
+       "status": "VALID"
+      },
+      "recent_improvement": {
+       "value": 0.04418793247247549,
+       "status": "VALID"
+      },
+      "relative_improvement": {
+       "value": 0.09710276833407691,
+       "status": "VALID"
+      },
+      "stagnation": {
+       "value": false,
+       "status": "VALID"
+      },
+      "marginal_gain": {
+       "value": 0.0022093966236237743,
+       "status": "VALID"
+      }
+     },
+     "search_space": {
+      "importance": {
+       "x1": {
+        "global_importance": 0.559528,
+        "local_importance": 0.476791,
+        "rank": 1,
+        "status": "VALID"
+       },
+       "x2": {
+        "global_importance": 0.440472,
+        "local_importance": 0.523209,
+        "rank": 2,
+        "status": "VALID"
+       }
+      },
+      "boundary_concentration": {
+       "x1": {
+        "all": 0.03333333333333333,
+        "good": 0.0,
+        "upper": 0.0,
+        "lower": 0.0,
+        "status": "VALID"
+       },
+       "x2": {
+        "all": 0.03333333333333333,
+        "good": 0.0,
+        "upper": 0.0,
+        "lower": 0.0,
+        "status": "VALID"
+       }
+      },
+      "good_region": {
+       "x1": {
+        "mean": -3.087025423410505,
+        "lower": -3.257830171302702,
+        "upper": -2.9838399625019814,
+        "width_ratio": 0.053912368109987396,
+        "status": "VALID"
+       },
+       "x2": {
+        "mean": 12.098351136901103,
+        "lower": 11.769946219580914,
+        "upper": 12.35753880019048,
+        "width_ratio": 0.05223045160973909,
+        "status": "VALID"
+       }
+      },
+      "good_region_categorical": {},
+      "configuration_diversity": {
+       "recent": 0.07484390040458454,
+       "global": 0.19500806183645455,
+       "ratio": 0.38379898688169745,
+       "status": "VALID"
+      },
+      "coverage": {
+       "overall": 1.0,
+       "per_hyperparameter": {
+        "x1": 1.0,
+        "x2": 1.0
+       },
+       "status": "VALID"
+      }
+     },
+     "budget": {
+      "total_trials": 120,
+      "completed_trials": 120,
+      "budget_consumed": {
+       "value": 1.0,
+       "status": "VALID"
+      },
+      "budget_remaining": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "marginal_gain_per_trial": {
+       "value": 0.0022093966236237743,
+       "status": "VALID"
+      },
+      "marginal_gain_per_second": {
+       "value": 1.6535537154113802,
+       "status": "VALID"
+      }
+     },
+     "meta": {
+      "num_complete_trials": 120,
+      "num_failed_trials": 0,
+      "num_pruned_trials": 0,
+      "failure_rate": 0.0,
+      "analysis_window": 20,
+      "data_sufficient": true
+     }
+    },
+    "trials": [
+     {
+      "trial_id": 79,
+      "params": {
+       "x1": -2.7964087776641757,
+       "x2": 11.867739076229235
+      },
+      "value": 1.1395190774401023,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 80,
+      "params": {
+       "x1": -3.087552323777751,
+       "x2": 12.359693703284519
+      },
+      "value": 0.4550635605920274,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 81,
+      "params": {
+       "x1": -3.062244047841433,
+       "x2": 12.842303638374926
+      },
+      "value": 1.008189168600939,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 82,
+      "params": {
+       "x1": -3.5274177096924175,
+       "x2": 11.915192856091046
+      },
+      "value": 2.8019369731410824,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 83,
+      "params": {
+       "x1": -3.031792417564224,
+       "x2": 12.173499732168667
+      },
+      "value": 0.4821815738470875,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 84,
+      "params": {
+       "x1": -3.0804869773504797,
+       "x2": 13.040195514055037
+      },
+      "value": 1.2465301755150082,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 85,
+      "params": {
+       "x1": -2.531460780630045,
+       "x2": 11.850524514530761
+      },
+      "value": 3.122025118320322,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 86,
+      "params": {
+       "x1": -2.775477345252579,
+       "x2": 12.630592320456131
+      },
+      "value": 2.520046650495711,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 87,
+      "params": {
+       "x1": -3.310135624564264,
+       "x2": 12.98715456313539
+      },
+      "value": 0.6290103012269657,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 88,
+      "params": {
+       "x1": -3.2379390646940496,
+       "x2": 12.33814467234412
+      },
+      "value": 0.47565368192615914,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 89,
+      "params": {
+       "x1": -3.2662964440089843,
+       "x2": 12.22947281355144
+      },
+      "value": 0.5997372419839249,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 90,
+      "params": {
+       "x1": -2.2641558939382342,
+       "x2": 11.799025536911818
+      },
+      "value": 6.209828412298967,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 91,
+      "params": {
+       "x1": -3.2833964684365484,
+       "x2": 12.185311710986689
+      },
+      "value": 0.673836862613562,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 92,
+      "params": {
+       "x1": -3.269383922888443,
+       "x2": 11.697290147618727
+      },
+      "value": 1.2717620513406482,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 93,
+      "params": {
+       "x1": -2.4730930974244023,
+       "x2": 12.507668325937795
+      },
+      "value": 5.642888905915673,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 94,
+      "params": {
+       "x1": -3.805561354489818,
+       "x2": 12.380148498819134
+      },
+      "value": 4.829545596185976,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 95,
+      "params": {
+       "x1": -3.107448474402203,
+       "x2": 11.704842202763391
+      },
+      "value": 0.645001667731722,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 96,
+      "params": {
+       "x1": -3.0459700080478105,
+       "x2": 14.287994332987505
+      },
+      "value": 5.460441185430337,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 97,
+      "params": {
+       "x1": -2.166565875713952,
+       "x2": 12.3736936101203
+      },
+      "value": 9.987438822945213,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 98,
+      "params": {
+       "x1": -2.557372465284816,
+       "x2": 13.17446996825606
+      },
+      "value": 7.10276625589535,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 99,
+      "params": {
+       "x1": -3.267136496759825,
+       "x2": 13.147000744559305
+      },
+      "value": 0.7973907635557105,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 100,
+      "params": {
+       "x1": -3.577419289683327,
+       "x2": 14.041396211899075
+      },
+      "value": 1.776211778029239,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 101,
+      "params": {
+       "x1": -2.9970021084929375,
+       "x2": 11.88879816979057
+      },
+      "value": 0.499209525144529,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 102,
+      "params": {
+       "x1": -3.73527736453754,
+       "x2": 11.739137646382055
+      },
+      "value": 6.068171345371721,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 103,
+      "params": {
+       "x1": -3.7794275022541997,
+       "x2": 13.315148185047624
+      },
+      "value": 2.587669926683823,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 104,
+      "params": {
+       "x1": -3.260040294259219,
+       "x2": 12.77295335631501
+      },
+      "value": 0.5028955995754787,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 105,
+      "params": {
+       "x1": -3.4148069514808674,
+       "x2": 13.696242485688114
+      },
+      "value": 1.3267362719512494,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 106,
+      "params": {
+       "x1": -2.9541850793168067,
+       "x2": 11.64140306617121
+      },
+      "value": 0.6066550686981769,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 107,
+      "params": {
+       "x1": -2.8627360508400694,
+       "x2": 13.262153916468153
+      },
+      "value": 3.4879172572075245,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 108,
+      "params": {
+       "x1": -2.9869810228504794,
+       "x2": 11.81804529879608
+      },
+      "value": 0.5202330708502579,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 109,
+      "params": {
+       "x1": -2.6693361728863225,
+       "x2": 12.088901367166905
+      },
+      "value": 2.2854791993122516,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 110,
+      "params": {
+       "x1": -3.05888741559829,
+       "x2": 11.965030285629464
+      },
+      "value": 0.44162561434340086,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 111,
+      "params": {
+       "x1": -2.9428077642965773,
+       "x2": 11.671885565348884
+      },
+      "value": 0.596246704031405,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 112,
+      "params": {
+       "x1": -3.0804182647624594,
+       "x2": 11.764601877445896
+      },
+      "value": 0.5577644630746317,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 113,
+      "params": {
+       "x1": -3.111097004824493,
+       "x2": 12.083622957271286
+      },
+      "value": 0.4108756281195519,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 114,
+      "params": {
+       "x1": -2.9834909557965927,
+       "x2": 12.114465210867314
+      },
+      "value": 0.5584216683514623,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 115,
+      "params": {
+       "x1": -3.4251805901926637,
+       "x2": 12.586170536725007
+      },
+      "value": 0.9282536802003277,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 116,
+      "params": {
+       "x1": -3.5337504895904104,
+       "x2": 11.335891987152603
+      },
+      "value": 4.7414671753474344,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 117,
+      "params": {
+       "x1": -2.7160095685499757,
+       "x2": 11.54360192779565
+      },
+      "value": 1.3249756825859489,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 118,
+      "params": {
+       "x1": -2.9505878615913375,
+       "x2": 12.085016442266499
+      },
+      "value": 0.635024673485305,
+      "state": "COMPLETE"
+     }
+    ]
+   }
+  ],
+  "total_trials_used": 120,
+  "best_value": -0.4108756281195519,
+  "best_params": {
+   "x1": -3.111097004824493,
+   "x2": 12.083622957271286
+  },
+  "best_value_raw": 0.4108756281195519,
+  "terminated": false,
+  "q_table_size": 3,
+  "experiences_recorded": 2
+ },
+ "timings": {
+  "hpo": 0.148433,
+  "adapt": 0.982495,
+  "total": 1.130928
+ }
+}

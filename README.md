@@ -3,6 +3,8 @@
 Implementation of `spec.md`: combining **trajectory analysis** (CAVE-style diagnosis) with
 **agent-driven setup adaptation**, controlled by **tabular Q-Learning**.
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 ## The closed loop
 
 ```
@@ -55,9 +57,10 @@ Q-Learning defaults: `α=0.1, γ=0.9, ε: 1.0 → 0.05 (decay 0.995)`.
 
 ```bash
 pip install -e ".[dev]"
-pytest                                   # 109 tests
+pytest                                   # 126 tests
 hpo-adapt --task synthetic_mlp --max-rounds 4 --max-total-trials 120 --seed 3
 hpo-adapt --task branin --max-rounds 3                   # minimize-direction example
+hpo-adapt --task rf_digits                               # real-ML task (RandomForest + CV)
 hpo-adapt --task synthetic_mlp --json                    # machine-readable result
 ```
 
@@ -89,6 +92,7 @@ print(result.best_value_raw, result.best_params)
 
 ```bash
 python examples/real_ml_demo.py --fresh     # RandomForest on sklearn digits, 3 rounds
+hpo-adapt --task rf_digits                  # same task through the CLI
 ```
 
 The example is the template for plugging in your own task (register objective ->
@@ -98,6 +102,21 @@ changes, plus the final Agent Memory contents (`experiences` + `semantic_rules`)
 the learned Q-table. The memory SQLite file is kept on disk so you can inspect it
 directly (`sqlite3 rf_digits_memory.sqlite ...`). See the Chinese walkthrough in
 [README_CN.md](README_CN.md) for a metric-by-metric reading guide.
+
+## Reproducible experiments & paper
+
+Everything behind the tool paper lives in `experiments/` and `paper/`:
+
+```bash
+python experiments/run_all.py --phase all --tag full   # ~20 min, 240 runs (7 workers)
+python experiments/make_figures.py --tag full          # tidy CSVs per figure + case study
+```
+
+`experiments/results/full/figs/` then contains the exact data for every
+figure/table (`anytime.csv`, `main_summary.csv`, `episodes_summary.csv`,
+`case_study.json`, `overhead_summary.csv`); figure specifications are in
+`paper/FIGURES.md`, and `paper/paper.pdf` is the compiled 4-page tool paper
+(LaTeX sources in `paper/`).
 
 ## LLM backends (optional)
 
@@ -120,13 +139,32 @@ violates the schema or the task constraints is rejected.
 - **Internal maximized space**: the Diagnostic Engine and rewards operate on
   `ỹ = y (maximize) / −y (minimize)` per spec; `PipelineResult.best_value_raw` converts
   back to the original task direction.
+- **Cumulative diagnostics**: each round's DiagnosticState is computed over the whole
+  episode trajectory so far (CAVE-style), so importance becomes available as soon as
+  30 cumulative trials exist — not 30 trials within a single phase.
+- **Warm-started phases**: every new phase's Optuna study is seeded with all past
+  completed trials compatible with the current search space (no re-evaluation, no
+  budget consumption), so setup revisions inherit all previous knowledge.
+- **Evidence-gated STOP**: `STOP` is only selectable when stagnation is observed AND at
+  least half the global budget is consumed — ε-greedy exploration can no longer
+  terminate an episode prematurely.
 - **Insufficient data**: metrics below their minimum trial counts (5 / 20 / 30) return
   `INSUFFICIENT_DATA` instead of fabricated values; hyperparameter-targeted actions are
   unavailable while importance is not `VALID`.
 - **Invalid actions** (e.g., expanding a categorical parameter) never consume budget;
-  they receive the fixed penalty reward and are retried within the round.
+  they receive the fixed penalty reward and are retried within the round. When no
+  further phase can evaluate an action (budget exhausted or `max_rounds` reached), the
+  loop closes without selecting one — every executed action receives an outcome, a
+  reward, and a Q-update.
+- **Optimizers**: RANDOM, TPE (all tasks) and CMA-ES (purely numerical tasks such as
+  `branin`; the validator rejects it for tasks with categorical parameters).
 - **Memory writes** happen only after a complete adaptation step, and (by default) only
   successful interventions and useful negative experiences are persisted —
   `semantic_rules` aggregates every recorded outcome regardless.
-- Deterministic: fixed seeds everywhere (HPO samplers, surrogate forests, RL RNG);
-  `PipelineResult` is reproducible for a given seed + fresh memory.
+- **Seeding**: `--seed` / `PipelineConfig.seed` controls every stochastic source — HPO
+  sampling (via `evaluation.seed`), the RL controller, and the surrogate forests; a
+  given seed + fresh memory reproduces a run exactly.
+- **Observability**: `StepRecord` stores each round's search space, full
+  DiagnosticState, trial log projection, applied changes and (one-phase-delayed) reward;
+  `pipeline.timings` breaks wall-clock time into HPO vs. observe+decide layers
+  (`experiments/` builds all paper tables from these).

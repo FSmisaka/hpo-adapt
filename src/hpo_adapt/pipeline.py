@@ -16,8 +16,9 @@ Orchestration rules enforced here:
 import argparse
 import json
 import sys
+import time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -59,6 +60,22 @@ class PipelineConfig(BaseModel):
     max_invalid_action_attempts: int = 5
 
 
+class InitialSetupAgentLike(Protocol):
+    def generate(self, task: TaskSpec, memory_context: Optional[str] = None) -> Setup: ...
+
+
+class RevisedSetupAgentLike(Protocol):
+    def revise(
+        self,
+        task: TaskSpec,
+        current_setup: Setup,
+        diagnostic_state: DiagnosticState,
+        action: RLAction,
+        memory_context: Optional[str] = None,
+        remaining_global_trials: Optional[int] = None,
+    ) -> Any: ...
+
+
 class StepRecord(BaseModel):
     """Audit record of one adaptation step."""
 
@@ -82,6 +99,10 @@ class StepRecord(BaseModel):
     diagnostic_state: Optional[dict[str, Any]] = Field(
         default=None, description="Full DiagnosticState of this round"
     )
+    trials: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description="This round's TrialLogs (raw objective space) for anytime analysis",
+    )
 
 
 class PipelineResult(BaseModel):
@@ -97,6 +118,14 @@ class PipelineResult(BaseModel):
     experiences_recorded: int = 0
 
 
+def _audit_trials(trials: list[TrialLog]) -> list[dict[str, Any]]:
+    """Analysis projection of TrialLogs (wall-clock fields dropped for reproducibility)."""
+    return [
+        {"trial_id": t.trial_id, "params": dict(t.params), "value": t.value, "state": t.state.value}
+        for t in trials
+    ]
+
+
 class AdaptationPipeline:
     def __init__(
         self,
@@ -106,6 +135,8 @@ class AdaptationPipeline:
         controller: Optional[QController] = None,
         memory: Optional[MemoryStore] = None,
         rule_engine: Optional[RuleEngine] = None,
+        initial_agent: Optional["InitialSetupAgentLike"] = None,
+        revised_agent: Optional["RevisedSetupAgentLike"] = None,
     ) -> None:
         self.task = task
         self.config = config or PipelineConfig()
@@ -116,9 +147,12 @@ class AdaptationPipeline:
             config=QLearningConfig(seed=self.config.seed),
         )
         self.memory = memory or MemoryStore(self.config.memory_path)
-        self.initial_agent = create_initial_setup_agent(self.config.agent_backend)
-        self.revised_agent = create_revised_setup_agent(self.config.agent_backend)
+        self.initial_agent = initial_agent or create_initial_setup_agent(self.config.agent_backend)
+        self.revised_agent = revised_agent or create_revised_setup_agent(self.config.agent_backend)
         self.reward_config = RewardConfig()
+        # Wall-clock profile of the last run(): {'hpo', 'adapt', 'total'} in
+        # seconds. Kept OUTSIDE PipelineResult so results stay reproducible.
+        self.timings: dict[str, float] = {}
 
     # ------------------------------------------------------------------ helpers
     def _task_signature(self) -> TaskSignature:
@@ -148,17 +182,26 @@ class AdaptationPipeline:
         total_budget = task.resource_constraints.max_total_trials
         used = 0
         result = PipelineResult()
+        time_hpo = 0.0
+        time_adapt = 0.0
+        time_start = time.perf_counter()
 
         # Task -> Memory Retrieval -> Initial Setup Agent
         setup = require_valid_setup(
             self.initial_agent.generate(task, self.memory.format_context(self._task_signature())),
             task,
         )
+        # PipelineConfig.seed controls ALL stochastic sources: HPO sampling
+        # (via evaluation.seed) and the RL controller (via QLearningConfig.seed).
+        if setup.evaluation.seed != self.config.seed:
+            setup = setup.model_copy(deep=True)
+            setup.evaluation.seed = self.config.seed
 
         cumulative_best: Optional[float] = None
         best_params: Optional[dict[str, Any]] = None
         pending: Optional[dict[str, Any]] = None  # awaiting next-phase outcome
         previous_diagnostic: Optional[DiagnosticState] = None
+        all_trials: list[TrialLog] = []  # cumulative trajectory of this episode
 
         for round_index in range(self.config.max_rounds):
             remaining = total_budget - used
@@ -166,22 +209,28 @@ class AdaptationPipeline:
                 break
             exec_setup = self._clamp_phase_budget(setup, remaining)
 
-            # ---- HPO phase with the current (validated) setup
-            hpo_result = run_hpo(task, exec_setup)
+            # ---- HPO phase with the current (validated) setup; the optimizer
+            # is warm-started with the full trajectory so knowledge persists
+            # across setup revisions
+            t_hpo = time.perf_counter()
+            hpo_result = run_hpo(task, exec_setup, warm_start_trials=all_trials)
+            time_hpo += time.perf_counter() - t_hpo
             used_before = used
             used += len(hpo_result.trials)
+            all_trials.extend(hpo_result.trials)
             phase_best = self._to_internal(hpo_result.best_value)
             if phase_best is not None and (cumulative_best is None or phase_best > cumulative_best):
                 cumulative_best = phase_best
                 best_params = dict(hpo_result.best_params or {})
 
-            # ---- Diagnostic Engine (deterministic); budget status is GLOBAL
+            # ---- Diagnostic Engine (deterministic); analyzes the CUMULATIVE
+            # trajectory (CAVE-style), budget status is GLOBAL
             diagnostic = self.engine.run(
-                hpo_result.trials,
+                all_trials,
                 exec_setup,
                 task.direction,
                 total_budget=total_budget,
-                trials_used_before=used_before,
+                trials_used_before=0,
             )
             current_key = self.controller.observe(diagnostic, exec_setup)
 
@@ -216,6 +265,24 @@ class AdaptationPipeline:
             )
             previous_diagnostic = diagnostic
 
+            # ---- an action is only useful if another phase can evaluate it:
+            # close the episode (no action) when no further HPO phase will run,
+            # so every selected action receives an outcome, reward and Q-update.
+            has_next_phase = (round_index + 1 < self.config.max_rounds) and (
+                total_budget - used > 0
+            )
+            if not has_next_phase:
+                closing = StepRecord(round_index=round_index, setup_id=exec_setup.setup_id)
+                closing.trials_used = len(hpo_result.trials)
+                closing.phase_best = phase_best
+                closing.cumulative_best = cumulative_best
+                closing.diagnosis = diagnosis.primary
+                closing.search_space = [s.model_dump(mode="json") for s in exec_setup.search_space]
+                closing.diagnostic_state = diagnostic.model_dump(by_alias=True, mode="json")
+                closing.trials = _audit_trials(hpo_result.trials)
+                result.steps.append(closing)
+                break
+
             # ---- RL Action selection + Revised Setup execution
             action, revision, step = self._act(
                 exec_setup, diagnostic, rule_recommendation, memory_context, remaining
@@ -228,6 +295,7 @@ class AdaptationPipeline:
             step.diagnosis = diagnosis.primary
             step.search_space = [s.model_dump(mode="json") for s in exec_setup.search_space]
             step.diagnostic_state = diagnostic.model_dump(by_alias=True, mode="json")
+            step.trials = _audit_trials(hpo_result.trials)
             result.steps.append(step)
 
             if not step.action_valid:
@@ -284,6 +352,12 @@ class AdaptationPipeline:
         result.best_value_raw = self._to_raw(cumulative_best)
         result.q_table_size = len(self.controller.q_table)
         result.experiences_recorded = self.memory.experience_count()
+        time_end = time.perf_counter()
+        self.timings = {
+            "hpo": round(time_hpo, 6),
+            "adapt": round((time_end - time_start) - time_hpo, 6),
+            "total": round(time_end - time_start, 6),
+        }
         if self.config.qtable_path:
             self.controller.save(self.config.qtable_path)
         return result
@@ -400,7 +474,12 @@ def synthetic_mlp_task(max_total_trials: int = 120) -> TaskSpec:
         objective="synthetic_mlp",
         available_hyperparameters=[
             HyperparameterMetadata(
-                name="learning_rate", type="float", default=1e-3, low=1e-6, high=1.0, log=True
+                name="learning_rate",
+                type="float",
+                default=1e-2,  # sgd-family default; heuristic agent derives [1e-3, 1e-1]
+                low=1e-6,
+                high=1.0,
+                log=True,
             ),
             HyperparameterMetadata(name="batch_size", type="int", default=64, low=8, high=512),
             HyperparameterMetadata(
@@ -434,13 +513,50 @@ def branin_task(max_total_trials: int = 120) -> TaskSpec:
         resource_constraints=ResourceConstraints(
             max_total_trials=max_total_trials, max_trials_per_phase=_phase_budget(max_total_trials)
         ),
+        # CMA-ES only supports purely numerical search spaces; branin (x1, x2)
+        # qualifies, synthetic_mlp / rf_digits contain categorical parameters.
+        allowed_optimizers=["RANDOM", "TPE", "CMAES"],
+    )
+
+
+def rf_digits_task(
+    max_total_trials: int = 120, trials_per_phase: Optional[int] = None
+) -> TaskSpec:
+    """Real-ML task: RandomForest on sklearn digits, 3-fold CV accuracy."""
+    from hpo_adapt.schemas.task import HyperparameterMetadata, ResourceConstraints
+
+    return TaskSpec(
+        task_id="task_rf_digits",
+        task_type="classification",
+        description="RandomForest on sklearn digits; 3-fold CV accuracy.",
+        model_family="RandomForest",
+        dataset_signature="sklearn_digits_1797x64",
+        objective_name="cv_accuracy",
+        direction=ObjectiveDirection.MAXIMIZE,
+        objective="rf_digits_cv",
+        available_hyperparameters=[
+            HyperparameterMetadata(name="n_estimators", type="int", default=100, low=10, high=300),
+            HyperparameterMetadata(name="max_depth", type="int", default=8, low=2, high=32),
+            HyperparameterMetadata(name="min_samples_split", type="int", default=2, low=2, high=20),
+            HyperparameterMetadata(
+                name="max_features", type="categorical", default="sqrt", choices=["sqrt", "log2"]
+            ),
+        ],
+        resource_constraints=ResourceConstraints(
+            max_total_trials=max_total_trials,
+            max_trials_per_phase=trials_per_phase
+            if trials_per_phase is not None
+            else _phase_budget(max_total_trials),
+        ),
         allowed_optimizers=["RANDOM", "TPE"],
     )
 
 
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Diagnostic-driven adaptive HPO closed loop")
-    parser.add_argument("--task", choices=["synthetic_mlp", "branin"], default="synthetic_mlp")
+    parser.add_argument(
+        "--task", choices=["synthetic_mlp", "branin", "rf_digits"], default="synthetic_mlp"
+    )
     parser.add_argument("--max-rounds", type=int, default=4)
     parser.add_argument("--max-total-trials", type=int, default=120)
     parser.add_argument("--backend", choices=["heuristic", "llm"], default="heuristic")
@@ -454,6 +570,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         synthetic_mlp_task(args.max_total_trials)
         if args.task == "synthetic_mlp"
         else branin_task(args.max_total_trials)
+        if args.task == "branin"
+        else rf_digits_task(args.max_total_trials)
     )
     config = PipelineConfig(
         max_rounds=args.max_rounds,
@@ -470,7 +588,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     else:
         print(f"Task: {task.task_id} ({task.direction.value})  backend={config.agent_backend}")
         for step in result.steps:
-            action = (step.action or {}).get("action", "INVALID")
+            action = (step.action or {}).get("action", "NONE(no next phase)")
             target = (step.action or {}).get("candidate_hyperparameter")
             print(
                 f"round {step.round_index}: setup={step.setup_id} trials={step.trials_used} "

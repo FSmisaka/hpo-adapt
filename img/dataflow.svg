@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="2318" height="401" viewBox="0 0 2318 401" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif">
+  <defs>
+    <linearGradient id="modGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8b6fc6"/>
+      <stop offset="1" stop-color="#6f52b0"/>
+    </linearGradient>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M0 0 L9 5 L0 10 z" fill="#8b6fc6"/>
+    </marker>
+    <marker id="arrLoop" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M0 0 L9 5 L0 10 z" fill="#6b4fb5"/>
+    </marker>
+  </defs>
+  <rect width="2318" height="401" fill="#f6f2fc"/>
+  <rect x="28" y="12" width="46" height="20" fill="#ece2f9"/>
+  <path d="M 28 12 H 74 M 28 32 H 74 M 28 12 V 32" fill="none" stroke="#b7a0e2" stroke-width="2.5"/>
+  <text x="86" y="29" font-size="24.0" fill="#3d3360">数据对象 Data Store</text>
+  <circle cx="390" cy="22" r="11" fill="url(#modGrad)" stroke="#5b3f8f" stroke-width="2.5"/>
+  <text x="412" y="29" font-size="24.0" fill="#3d3360">处理模块 Process</text>
+  <path d="M 28.0 130.9 H 204.5 V 229.9 H 28.0 Z" fill="#ece2f9" stroke="none"/>
+  <path d="M 28.0 130.9 H 204.5 M 28.0 229.9 H 204.5 M 28.0 130.9 V 229.9" fill="none" stroke="#b7a0e2" stroke-width="2.5"/>
+  <text x="42.0" y="180.9" font-size="32.0" font-weight="700" fill="#3d3360">TaskSpec</text>
+  <text x="42.0" y="209.9" font-size="25.0" fill="#6f6399">任务规格</text>
+  <circle cx="364.9" cy="180.4" r="120.4" fill="url(#modGrad)" stroke="#5b3f8f" stroke-width="2.5"/>
+  <text x="364.9" y="190.4" text-anchor="middle" font-size="29.0" font-weight="700" fill="#ffffff">初始设置 Agent</text>
+  <path d="M 525.3 130.9 H 646.1 V 229.9 H 525.3 Z" fill="#ece2f9" stroke="none"/>
+  <path d="M 525.3 130.9 H 646.1 M 525.3 229.9 H 646.1 M 525.3 130.9 V 229.9" fill="none" stroke="#b7a0e2" stroke-width="2.5"/>
+  <text x="539.3" y="180.9" font-size="32.0" font-weight="700" fill="#3d3360">Setup</text>
+  <text x="539.3" y="209.9" font-size="25.0" fill="#6f6399">设置</text>
+  <circle cx="760.7" cy="180.4" r="74.6" fill="url(#modGrad)" stroke="#5b3f8f" stroke-width="2.5"/>
+  <text x="760.7" y="190.4" text-anchor="middle" font-size="29.0" font-weight="700" fill="#ffffff">经典 HPO</text>
+  <path d="M 875.2 130.9 H 1051.7 V 229.9 H 875.2 Z" fill="#ece2f9" stroke="none"/>
+  <path d="M 875.2 130.9 H 1051.7 M 875.2 229.9 H 1051.7 M 875.2 130.9 V 229.9" fill="none" stroke="#b7a0e2" stroke-width="2.5"/>
+  <text x="889.2" y="180.9" font-size="32.0" font-weight="700" fill="#3d3360">TrialLog</text>
+  <text x="889.2" y="209.9" font-size="25.0" fill="#6f6399">试验日志</text>
+  <circle cx="1165.7" cy="180.4" r="74.0" fill="url(#modGrad)" stroke="#5b3f8f" stroke-width="2.5"/>
+  <text x="1165.7" y="190.4" text-anchor="middle" font-size="29.0" font-weight="700" fill="#ffffff">诊断引擎</text>
+  <path d="M 1279.7 130.9 H 1586.1 V 229.9 H 1279.7 Z" fill="#ece2f9" stroke="none"/>
+  <path d="M 1279.7 130.9 H 1586.1 M 1279.7 229.9 H 1586.1 M 1279.7 130.9 V 229.9" fill="none" stroke="#b7a0e2" stroke-width="2.5"/>
+  <text x="1293.7" y="180.9" font-size="32.0" font-weight="700" fill="#3d3360">DiagnosticState</text>
+  <text x="1293.7" y="209.9" font-size="25.0" fill="#6f6399">诊断状态</text>
+  <circle cx="1706.8" cy="180.4" r="80.7" fill="url(#modGrad)" stroke="#5b3f8f" stroke-width="2.5"/>
+  <text x="1706.8" y="190.4" text-anchor="middle" font-size="29.0" font-weight="700" fill="#ffffff">RL 控制器</text>
+  <path d="M 1827.5 130.9 H 2005.5 V 229.9 H 1827.5 Z" fill="#ece2f9" stroke="none"/>
+  <path d="M 1827.5 130.9 H 2005.5 M 1827.5 229.9 H 2005.5 M 1827.5 130.9 V 229.9" fill="none" stroke="#b7a0e2" stroke-width="2.5"/>
+  <text x="1841.5" y="180.9" font-size="32.0" font-weight="700" fill="#3d3360">RLAction</text>
+  <text x="1841.5" y="209.9" font-size="25.0" fill="#6f6399">强化学习动作</text>
+  <circle cx="2165.9" cy="180.4" r="120.4" fill="url(#modGrad)" stroke="#5b3f8f" stroke-width="2.5"/>
+  <text x="2165.9" y="190.4" text-anchor="middle" font-size="29.0" font-weight="700" fill="#ffffff">修订设置 Agent</text>
+  <line x1="207.5" y1="180.4" x2="241.5" y2="180.4" stroke="#8b6fc6" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="488.3" y1="180.4" x2="522.3" y2="180.4" stroke="#8b6fc6" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="649.1" y1="180.4" x2="683.1" y2="180.4" stroke="#8b6fc6" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="838.2" y1="180.4" x2="872.2" y2="180.4" stroke="#8b6fc6" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="1054.7" y1="180.4" x2="1088.7" y2="180.4" stroke="#8b6fc6" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="1242.7" y1="180.4" x2="1276.7" y2="180.4" stroke="#8b6fc6" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="1589.1" y1="180.4" x2="1623.1" y2="180.4" stroke="#8b6fc6" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="1790.5" y1="180.4" x2="1824.5" y2="180.4" stroke="#8b6fc6" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="2008.5" y1="180.4" x2="2042.5" y2="180.4" stroke="#8b6fc6" stroke-width="3" marker-end="url(#arr)"/>
+  <path d="M 2165.9 300.8 V 360.8 H 585.7 V 232.9" fill="none" stroke="#6b4fb5" stroke-width="3" stroke-dasharray="8 5" marker-end="url(#arrLoop)"/>
+  <text x="1375.8" y="390.8" text-anchor="middle" font-size="22.0" fill="#6b4fb5">下一轮 Setup · 闭环反馈</text>
+</svg>

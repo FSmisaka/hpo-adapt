@@ -1,0 +1,2062 @@
+{
+ "phase": "main",
+ "tag": "full",
+ "task": "synthetic_mlp",
+ "method": {
+  "name": "adapt-random-action",
+  "kind": "adapt",
+  "optimizer": null,
+  "epsilon_start": 1.0,
+  "epsilon_end": 1.0,
+  "epsilon_decay": null
+ },
+ "method_name": "adapt-random-action",
+ "seed": 3,
+ "budget": 120,
+ "episodes": 1,
+ "fn": "single",
+ "result": {
+  "steps": [
+   {
+    "round_index": 0,
+    "setup_id": "setup_000",
+    "trials_used": 40,
+    "phase_best": 0.7378274129489064,
+    "cumulative_best": 0.7378274129489064,
+    "diagnosis": "SEARCH_SPACE_TRUNCATION",
+    "action": {
+     "action": "INCREASE_EXPLORATION",
+     "candidate_hyperparameter": "optimizer",
+     "parameters": {},
+     "confidence": 0.1429,
+     "q_value": 0.0,
+     "reason": "tabular Q-learning selection"
+    },
+    "action_valid": true,
+    "reward": -0.03333333333333333,
+    "terminated": false,
+    "setup_after_id": "setup_001",
+    "changes": [
+     {
+      "hyperparameter": "optimizer",
+      "old": {
+       "name": "TPE",
+       "n_startup_trials": 10
+      },
+      "new": {
+       "name": "TPE",
+       "n_startup_trials": 20
+      },
+      "reason": "tabular Q-learning selection Doubled TPE n_startup_trials for stronger random exploration."
+     }
+    ],
+    "search_space": [
+     {
+      "name": "learning_rate",
+      "type": "float",
+      "low": 0.001,
+      "high": 0.1,
+      "choices": null,
+      "distribution": "log_uniform",
+      "default": 0.01,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'learning_rate'.",
+      "confidence": 0.7
+     },
+     {
+      "name": "batch_size",
+      "type": "int",
+      "low": 8.0,
+      "high": 190.0,
+      "choices": null,
+      "distribution": "uniform",
+      "default": 64,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'batch_size'.",
+      "confidence": 0.7
+     },
+     {
+      "name": "optimizer_type",
+      "type": "categorical",
+      "low": null,
+      "high": null,
+      "choices": [
+       "adam",
+       "sgd"
+      ],
+      "distribution": "choice",
+      "default": "adam",
+      "depends_on": null,
+      "rationale": "Categories taken from task metadata for 'optimizer_type'.",
+      "confidence": 0.8
+     },
+     {
+      "name": "dropout",
+      "type": "float",
+      "low": 0.0,
+      "high": 0.325,
+      "choices": null,
+      "distribution": "uniform",
+      "default": 0.1,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'dropout'.",
+      "confidence": 0.7
+     }
+    ],
+    "diagnostic_state": {
+     "optimization": {
+      "best_objective": {
+       "value": 0.7378274129489064,
+       "status": "VALID"
+      },
+      "recent_improvement": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "relative_improvement": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "stagnation": {
+       "value": true,
+       "status": "VALID"
+      },
+      "marginal_gain": {
+       "value": 0.0,
+       "status": "VALID"
+      }
+     },
+     "search_space": {
+      "importance": {
+       "learning_rate": {
+        "global_importance": 0.786738,
+        "local_importance": 0.754073,
+        "rank": 1,
+        "status": "VALID"
+       },
+       "batch_size": {
+        "global_importance": 0.177617,
+        "local_importance": 0.186067,
+        "rank": 2,
+        "status": "VALID"
+       },
+       "dropout": {
+        "global_importance": 0.023898,
+        "local_importance": 0.028668,
+        "rank": 3,
+        "status": "VALID"
+       },
+       "optimizer_type": {
+        "global_importance": 0.011746,
+        "local_importance": 0.031192,
+        "rank": 4,
+        "status": "VALID"
+       }
+      },
+      "boundary_concentration": {
+       "learning_rate": {
+        "all": 0.375,
+        "good": 1.0,
+        "upper": 1.0,
+        "lower": 0.0,
+        "status": "VALID"
+       },
+       "batch_size": {
+        "all": 0.125,
+        "good": 0.0,
+        "upper": 0.0,
+        "lower": 0.0,
+        "status": "VALID"
+       },
+       "dropout": {
+        "all": 0.05,
+        "good": 0.0,
+        "upper": 0.0,
+        "lower": 0.0,
+        "status": "VALID"
+       }
+      },
+      "good_region": {
+       "learning_rate": {
+        "mean": 0.09305052171830441,
+        "lower": 0.08951107578241847,
+        "upper": 0.09780628543782226,
+        "width_ratio": 0.019244994276790616,
+        "status": "VALID"
+       },
+       "batch_size": {
+        "mean": 32.5,
+        "lower": 26.1,
+        "upper": 39.7,
+        "width_ratio": 0.07472527472527474,
+        "status": "VALID"
+       },
+       "dropout": {
+        "mean": 0.15435668566047372,
+        "lower": 0.13318222099573193,
+        "upper": 0.17616015436021853,
+        "width_ratio": 0.1322397949676511,
+        "status": "VALID"
+       }
+      },
+      "good_region_categorical": {
+       "optimizer_type": {
+        "category_frequency": {
+         "adam": 0.0,
+         "sgd": 1.0
+        },
+        "dominant_category": "sgd",
+        "dominant_ratio": 1.0,
+        "status": "VALID"
+       }
+      },
+      "configuration_diversity": {
+       "recent": 0.14734544323548265,
+       "global": 0.2859266128240857,
+       "ratio": 0.5153260713541036,
+       "status": "VALID"
+      },
+      "coverage": {
+       "overall": 0.8333333333333334,
+       "per_hyperparameter": {
+        "learning_rate": 0.8,
+        "batch_size": 0.8,
+        "dropout": 0.9
+       },
+       "status": "VALID"
+      }
+     },
+     "budget": {
+      "total_trials": 120,
+      "completed_trials": 40,
+      "budget_consumed": {
+       "value": 0.3333333333333333,
+       "status": "VALID"
+      },
+      "budget_remaining": {
+       "value": 0.6666666666666667,
+       "status": "VALID"
+      },
+      "marginal_gain_per_trial": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "marginal_gain_per_second": {
+       "value": 0.0,
+       "status": "VALID"
+      }
+     },
+     "meta": {
+      "num_complete_trials": 40,
+      "num_failed_trials": 0,
+      "num_pruned_trials": 0,
+      "failure_rate": 0.0,
+      "analysis_window": 20,
+      "data_sufficient": true
+     }
+    },
+    "trials": [
+     {
+      "trial_id": 0,
+      "params": {
+       "learning_rate": 0.012635598137381661,
+       "batch_size": 137,
+       "optimizer_type": "sgd",
+       "dropout": 0.29020776016298777
+      },
+      "value": 0.3445939109355083,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 1,
+      "params": {
+       "learning_rate": 0.06202777143105832,
+       "batch_size": 30,
+       "optimizer_type": "adam",
+       "dropout": 0.14326319918645686
+      },
+      "value": 0.6006788282914345,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 2,
+      "params": {
+       "learning_rate": 0.0011474992801226494,
+       "batch_size": 91,
+       "optimizer_type": "adam",
+       "dropout": 0.21978284314354268
+      },
+      "value": 0.3556407281097926,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 3,
+      "params": {
+       "learning_rate": 0.015195872284984637,
+       "batch_size": 12,
+       "optimizer_type": "adam",
+       "dropout": 0.13490788902827264
+      },
+      "value": 0.40579592908428375,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 4,
+      "params": {
+       "learning_rate": 0.0036902022009372985,
+       "batch_size": 134,
+       "optimizer_type": "adam",
+       "dropout": 0.17701093086034955
+      },
+      "value": 0.3250219096411958,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 5,
+      "params": {
+       "learning_rate": 0.03636047340681996,
+       "batch_size": 64,
+       "optimizer_type": "sgd",
+       "dropout": 0.3043246862046399
+      },
+      "value": 0.471661246334402,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 6,
+      "params": {
+       "learning_rate": 0.08953458911985716,
+       "batch_size": 131,
+       "optimizer_type": "adam",
+       "dropout": 0.12284806343188898
+      },
+      "value": 0.4922095366773074,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 7,
+      "params": {
+       "learning_rate": 0.0015290934139742013,
+       "batch_size": 127,
+       "optimizer_type": "adam",
+       "dropout": 0.07314271407294537
+      },
+      "value": 0.36096302873976216,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 8,
+      "params": {
+       "learning_rate": 0.006501893218690516,
+       "batch_size": 93,
+       "optimizer_type": "sgd",
+       "dropout": 0.14874807977996785
+      },
+      "value": 0.43916318696416484,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 9,
+      "params": {
+       "learning_rate": 0.052609942349580184,
+       "batch_size": 115,
+       "optimizer_type": "adam",
+       "dropout": 0.14775217454463271
+      },
+      "value": 0.41571014943536483,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 10,
+      "params": {
+       "learning_rate": 0.08936664831158783,
+       "batch_size": 66,
+       "optimizer_type": "adam",
+       "dropout": 0.03622218125814329
+      },
+      "value": 0.6094160101150381,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 11,
+      "params": {
+       "learning_rate": 0.055126305837382164,
+       "batch_size": 51,
+       "optimizer_type": "adam",
+       "dropout": 0.03528289786362104
+      },
+      "value": 0.5652869299572199,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 12,
+      "params": {
+       "learning_rate": 0.09983428374378461,
+       "batch_size": 24,
+       "optimizer_type": "sgd",
+       "dropout": 0.1398421192324213
+      },
+      "value": 0.7378274129489064,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 13,
+      "params": {
+       "learning_rate": 0.013889283954078409,
+       "batch_size": 42,
+       "optimizer_type": "adam",
+       "dropout": 0.05722950945366573
+      },
+      "value": 0.5094316431753647,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 14,
+      "params": {
+       "learning_rate": 0.0639362824015325,
+       "batch_size": 24,
+       "optimizer_type": "sgd",
+       "dropout": 0.2305174177241362
+      },
+      "value": 0.6221799978833428,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 15,
+      "params": {
+       "learning_rate": 0.06318088472802397,
+       "batch_size": 42,
+       "optimizer_type": "sgd",
+       "dropout": 0.23156345662990274
+      },
+      "value": 0.611271304890845,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 16,
+      "params": {
+       "learning_rate": 0.021043864947309605,
+       "batch_size": 9,
+       "optimizer_type": "sgd",
+       "dropout": 0.30902543604261373
+      },
+      "value": 0.3591435177549909,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 17,
+      "params": {
+       "learning_rate": 0.021417135127254676,
+       "batch_size": 24,
+       "optimizer_type": "sgd",
+       "dropout": 0.19589650177217718
+      },
+      "value": 0.5436986763871351,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 18,
+      "params": {
+       "learning_rate": 0.06066506242817514,
+       "batch_size": 85,
+       "optimizer_type": "sgd",
+       "dropout": 0.10236061491442844
+      },
+      "value": 0.5660222795642076,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 19,
+      "params": {
+       "learning_rate": 0.08490578714628165,
+       "batch_size": 84,
+       "optimizer_type": "sgd",
+       "dropout": 0.21357816440593197
+      },
+      "value": 0.5851164140619255,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 20,
+      "params": {
+       "learning_rate": 0.08728479277330821,
+       "batch_size": 9,
+       "optimizer_type": "sgd",
+       "dropout": 0.06386717895071158
+      },
+      "value": 0.5777884251140856,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 21,
+      "params": {
+       "learning_rate": 0.042256290924830964,
+       "batch_size": 25,
+       "optimizer_type": "sgd",
+       "dropout": 0.10185049728928894
+      },
+      "value": 0.6043509271424857,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 22,
+      "params": {
+       "learning_rate": 0.08628177675963689,
+       "batch_size": 24,
+       "optimizer_type": "sgd",
+       "dropout": 0.25330312388719844
+      },
+      "value": 0.6500067411496214,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 23,
+      "params": {
+       "learning_rate": 0.03878339144219074,
+       "batch_size": 81,
+       "optimizer_type": "sgd",
+       "dropout": 0.24673617066189776
+      },
+      "value": 0.47020616352982997,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 24,
+      "params": {
+       "learning_rate": 0.09077484273719245,
+       "batch_size": 10,
+       "optimizer_type": "adam",
+       "dropout": 0.31445286585814186
+      },
+      "value": 0.4552648760822623,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 25,
+      "params": {
+       "learning_rate": 0.026466698031039966,
+       "batch_size": 38,
+       "optimizer_type": "sgd",
+       "dropout": 0.268234878283326
+      },
+      "value": 0.5355334177281745,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 26,
+      "params": {
+       "learning_rate": 0.0899859595869524,
+       "batch_size": 32,
+       "optimizer_type": "sgd",
+       "dropout": 0.16729874200101863
+      },
+      "value": 0.714403165549574,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 27,
+      "params": {
+       "learning_rate": 0.0798474643052922,
+       "batch_size": 34,
+       "optimizer_type": "sgd",
+       "dropout": 0.18219851741301155
+      },
+      "value": 0.6743011202520288,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 28,
+      "params": {
+       "learning_rate": 0.0912866961553813,
+       "batch_size": 8,
+       "optimizer_type": "sgd",
+       "dropout": 0.15228273548549814
+      },
+      "value": 0.5528267926424892,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 29,
+      "params": {
+       "learning_rate": 0.08930755415190393,
+       "batch_size": 31,
+       "optimizer_type": "sgd",
+       "dropout": 0.13032797889429365
+      },
+      "value": 0.7204341208662836,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 30,
+      "params": {
+       "learning_rate": 0.03385532087835527,
+       "batch_size": 89,
+       "optimizer_type": "sgd",
+       "dropout": 0.18519286036346777
+      },
+      "value": 0.4756868608987079,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 31,
+      "params": {
+       "learning_rate": 0.09307428939057674,
+       "batch_size": 43,
+       "optimizer_type": "sgd",
+       "dropout": 0.17995790251416136
+      },
+      "value": 0.7063249805296558,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 32,
+      "params": {
+       "learning_rate": 0.07818903704433688,
+       "batch_size": 41,
+       "optimizer_type": "sgd",
+       "dropout": 0.1122087328314687
+      },
+      "value": 0.6832241485403822,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 33,
+      "params": {
+       "learning_rate": 0.07581656724120296,
+       "batch_size": 65,
+       "optimizer_type": "sgd",
+       "dropout": 0.15770245538367073
+      },
+      "value": 0.6195913925263734,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 34,
+      "params": {
+       "learning_rate": 0.05764486559878952,
+       "batch_size": 45,
+       "optimizer_type": "sgd",
+       "dropout": 0.06386519995078657
+      },
+      "value": 0.641082874051774,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 35,
+      "params": {
+       "learning_rate": 0.038671215923329984,
+       "batch_size": 45,
+       "optimizer_type": "sgd",
+       "dropout": 0.12364731952969212
+      },
+      "value": 0.5928604434269721,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 36,
+      "params": {
+       "learning_rate": 0.09255123821711171,
+       "batch_size": 18,
+       "optimizer_type": "sgd",
+       "dropout": 0.10468937671386097
+      },
+      "value": 0.6783178643770587,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 37,
+      "params": {
+       "learning_rate": 0.03954559390030193,
+       "batch_size": 40,
+       "optimizer_type": "sgd",
+       "dropout": 0.17546397073460704
+      },
+      "value": 0.5903410734168449,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 38,
+      "params": {
+       "learning_rate": 0.0955202105159726,
+       "batch_size": 49,
+       "optimizer_type": "sgd",
+       "dropout": 0.20179263231319305
+      },
+      "value": 0.6877191159081768,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 39,
+      "params": {
+       "learning_rate": 0.023943741467711513,
+       "batch_size": 63,
+       "optimizer_type": "sgd",
+       "dropout": 0.11625051202641025
+      },
+      "value": 0.5209396129411898,
+      "state": "COMPLETE"
+     }
+    ]
+   },
+   {
+    "round_index": 1,
+    "setup_id": "setup_001",
+    "trials_used": 40,
+    "phase_best": 0.7378274129489064,
+    "cumulative_best": 0.7378274129489064,
+    "diagnosis": "SEARCH_SPACE_TRUNCATION",
+    "action": {
+     "action": "INCREASE_EXPLORATION",
+     "candidate_hyperparameter": "optimizer",
+     "parameters": {},
+     "confidence": 0.1429,
+     "q_value": 0.0,
+     "reason": "tabular Q-learning selection"
+    },
+    "action_valid": true,
+    "reward": -0.015868191924216703,
+    "terminated": false,
+    "setup_after_id": "setup_002",
+    "changes": [
+     {
+      "hyperparameter": "optimizer",
+      "old": {
+       "name": "TPE",
+       "n_startup_trials": 20
+      },
+      "new": {
+       "name": "TPE",
+       "n_startup_trials": 40
+      },
+      "reason": "tabular Q-learning selection Doubled TPE n_startup_trials for stronger random exploration."
+     }
+    ],
+    "search_space": [
+     {
+      "name": "learning_rate",
+      "type": "float",
+      "low": 0.001,
+      "high": 0.1,
+      "choices": null,
+      "distribution": "log_uniform",
+      "default": 0.01,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'learning_rate'.",
+      "confidence": 0.7
+     },
+     {
+      "name": "batch_size",
+      "type": "int",
+      "low": 8.0,
+      "high": 190.0,
+      "choices": null,
+      "distribution": "uniform",
+      "default": 64,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'batch_size'.",
+      "confidence": 0.7
+     },
+     {
+      "name": "optimizer_type",
+      "type": "categorical",
+      "low": null,
+      "high": null,
+      "choices": [
+       "adam",
+       "sgd"
+      ],
+      "distribution": "choice",
+      "default": "adam",
+      "depends_on": null,
+      "rationale": "Categories taken from task metadata for 'optimizer_type'.",
+      "confidence": 0.8
+     },
+     {
+      "name": "dropout",
+      "type": "float",
+      "low": 0.0,
+      "high": 0.325,
+      "choices": null,
+      "distribution": "uniform",
+      "default": 0.1,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'dropout'.",
+      "confidence": 0.7
+     }
+    ],
+    "diagnostic_state": {
+     "optimization": {
+      "best_objective": {
+       "value": 0.7378274129489064,
+       "status": "VALID"
+      },
+      "recent_improvement": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "relative_improvement": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "stagnation": {
+       "value": true,
+       "status": "VALID"
+      },
+      "marginal_gain": {
+       "value": 0.0,
+       "status": "VALID"
+      }
+     },
+     "search_space": {
+      "importance": {
+       "learning_rate": {
+        "global_importance": 0.778573,
+        "local_importance": 0.736741,
+        "rank": 1,
+        "status": "VALID"
+       },
+       "batch_size": {
+        "global_importance": 0.176352,
+        "local_importance": 0.186667,
+        "rank": 2,
+        "status": "VALID"
+       },
+       "dropout": {
+        "global_importance": 0.023024,
+        "local_importance": 0.020526,
+        "rank": 3,
+        "status": "VALID"
+       },
+       "optimizer_type": {
+        "global_importance": 0.022051,
+        "local_importance": 0.056065,
+        "rank": 4,
+        "status": "VALID"
+       }
+      },
+      "boundary_concentration": {
+       "learning_rate": {
+        "all": 0.425,
+        "good": 1.0,
+        "upper": 1.0,
+        "lower": 0.0,
+        "status": "VALID"
+       },
+       "batch_size": {
+        "all": 0.1375,
+        "good": 0.0,
+        "upper": 0.0,
+        "lower": 0.0,
+        "status": "VALID"
+       },
+       "dropout": {
+        "all": 0.025,
+        "good": 0.0,
+        "upper": 0.0,
+        "lower": 0.0,
+        "status": "VALID"
+       }
+      },
+      "good_region": {
+       "learning_rate": {
+        "mean": 0.09427231154816612,
+        "lower": 0.08945443948000714,
+        "upper": 0.09968347794390049,
+        "width_ratio": 0.02351064164184904,
+        "status": "VALID"
+       },
+       "batch_size": {
+        "mean": 31.875,
+        "lower": 26.8,
+        "upper": 40.6,
+        "width_ratio": 0.07582417582417583,
+        "status": "VALID"
+       },
+       "dropout": {
+        "mean": 0.10492394756381063,
+        "lower": 0.06440963090338063,
+        "upper": 0.1474171077527689,
+        "width_ratio": 0.2554076210750408,
+        "status": "VALID"
+       }
+      },
+      "good_region_categorical": {
+       "optimizer_type": {
+        "category_frequency": {
+         "adam": 0.0,
+         "sgd": 1.0
+        },
+        "dominant_category": "sgd",
+        "dominant_ratio": 1.0,
+        "status": "VALID"
+       }
+      },
+      "configuration_diversity": {
+       "recent": 0.08710163530841532,
+       "global": 0.20577707515742547,
+       "ratio": 0.42328150990077457,
+       "status": "VALID"
+      },
+      "coverage": {
+       "overall": 0.8666666666666667,
+       "per_hyperparameter": {
+        "learning_rate": 0.8,
+        "batch_size": 0.8,
+        "dropout": 1.0
+       },
+       "status": "VALID"
+      }
+     },
+     "budget": {
+      "total_trials": 120,
+      "completed_trials": 80,
+      "budget_consumed": {
+       "value": 0.6666666666666666,
+       "status": "VALID"
+      },
+      "budget_remaining": {
+       "value": 0.33333333333333337,
+       "status": "VALID"
+      },
+      "marginal_gain_per_trial": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "marginal_gain_per_second": {
+       "value": 0.0,
+       "status": "VALID"
+      }
+     },
+     "meta": {
+      "num_complete_trials": 80,
+      "num_failed_trials": 0,
+      "num_pruned_trials": 0,
+      "failure_rate": 0.0,
+      "analysis_window": 20,
+      "data_sufficient": true
+     }
+    },
+    "trials": [
+     {
+      "trial_id": 40,
+      "params": {
+       "learning_rate": 0.021755771736191504,
+       "batch_size": 44,
+       "optimizer_type": "sgd",
+       "dropout": 0.1781895184103907
+      },
+      "value": 0.5527670917102663,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 41,
+      "params": {
+       "learning_rate": 0.06467177137420953,
+       "batch_size": 14,
+       "optimizer_type": "sgd",
+       "dropout": 0.19192124025253104
+      },
+      "value": 0.5690585069568411,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 42,
+      "params": {
+       "learning_rate": 0.0879924313897603,
+       "batch_size": 57,
+       "optimizer_type": "sgd",
+       "dropout": 0.09059269582173708
+      },
+      "value": 0.6760984155151883,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 43,
+      "params": {
+       "learning_rate": 0.09568828501192467,
+       "batch_size": 30,
+       "optimizer_type": "sgd",
+       "dropout": 0.14435488113037392
+      },
+      "value": 0.7356530510672672,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 44,
+      "params": {
+       "learning_rate": 0.038379422428108566,
+       "batch_size": 17,
+       "optimizer_type": "sgd",
+       "dropout": 0.23587032177740588
+      },
+      "value": 0.516663842078951,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 45,
+      "params": {
+       "learning_rate": 0.08671567838480923,
+       "batch_size": 39,
+       "optimizer_type": "sgd",
+       "dropout": 0.1485117762583394
+      },
+      "value": 0.7040686023822751,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 46,
+      "params": {
+       "learning_rate": 0.05790591223430999,
+       "batch_size": 64,
+       "optimizer_type": "sgd",
+       "dropout": 0.2325187023785571
+      },
+      "value": 0.5596860128606991,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 47,
+      "params": {
+       "learning_rate": 0.04048675703561082,
+       "batch_size": 19,
+       "optimizer_type": "sgd",
+       "dropout": 0.15926636706483255
+      },
+      "value": 0.5598148055813404,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 48,
+      "params": {
+       "learning_rate": 0.062238298413276244,
+       "batch_size": 26,
+       "optimizer_type": "sgd",
+       "dropout": 0.14566858050303677
+      },
+      "value": 0.6450056496418921,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 49,
+      "params": {
+       "learning_rate": 0.058540827219042815,
+       "batch_size": 68,
+       "optimizer_type": "sgd",
+       "dropout": 0.1210100764966576
+      },
+      "value": 0.574070868038176,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 50,
+      "params": {
+       "learning_rate": 0.053009699643085884,
+       "batch_size": 10,
+       "optimizer_type": "sgd",
+       "dropout": 0.12356714942650437
+      },
+      "value": 0.49805621463366173,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 51,
+      "params": {
+       "learning_rate": 0.06840732734017982,
+       "batch_size": 58,
+       "optimizer_type": "sgd",
+       "dropout": 0.1927129102679206
+      },
+      "value": 0.601093420123441,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 52,
+      "params": {
+       "learning_rate": 0.07148110026445982,
+       "batch_size": 47,
+       "optimizer_type": "sgd",
+       "dropout": 0.15764526770837997
+      },
+      "value": 0.6532355067653822,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 53,
+      "params": {
+       "learning_rate": 0.09181345452643923,
+       "batch_size": 10,
+       "optimizer_type": "sgd",
+       "dropout": 0.20339770359896017
+      },
+      "value": 0.5715408719314935,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 54,
+      "params": {
+       "learning_rate": 0.04322572030505679,
+       "batch_size": 61,
+       "optimizer_type": "sgd",
+       "dropout": 0.15947885592154445
+      },
+      "value": 0.5566018405624175,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 55,
+      "params": {
+       "learning_rate": 0.09871816167210351,
+       "batch_size": 55,
+       "optimizer_type": "sgd",
+       "dropout": 0.17002213199800598
+      },
+      "value": 0.6957857738558807,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 56,
+      "params": {
+       "learning_rate": 0.09583211256566682,
+       "batch_size": 28,
+       "optimizer_type": "sgd",
+       "dropout": 0.1545623032050238
+      },
+      "value": 0.7226299194638405,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 57,
+      "params": {
+       "learning_rate": 0.06500602477567109,
+       "batch_size": 23,
+       "optimizer_type": "sgd",
+       "dropout": 0.098509732109699
+      },
+      "value": 0.6482742536552096,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 58,
+      "params": {
+       "learning_rate": 0.04622018100150835,
+       "batch_size": 42,
+       "optimizer_type": "sgd",
+       "dropout": 0.20802867332357877
+      },
+      "value": 0.5935624791514857,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 59,
+      "params": {
+       "learning_rate": 0.03681693792397097,
+       "batch_size": 30,
+       "optimizer_type": "sgd",
+       "dropout": 0.13130114799883014
+      },
+      "value": 0.6134006779921582,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 60,
+      "params": {
+       "learning_rate": 0.0338797101391683,
+       "batch_size": 62,
+       "optimizer_type": "sgd",
+       "dropout": 0.1939824625662561
+      },
+      "value": 0.5283538983600907,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 61,
+      "params": {
+       "learning_rate": 0.09246103667427678,
+       "batch_size": 42,
+       "optimizer_type": "sgd",
+       "dropout": 0.07552632078967633
+      },
+      "value": 0.7320991303264083,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 62,
+      "params": {
+       "learning_rate": 0.09402946819885606,
+       "batch_size": 24,
+       "optimizer_type": "sgd",
+       "dropout": 0.1528399150773736
+      },
+      "value": 0.7174386764142744,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 63,
+      "params": {
+       "learning_rate": 0.08759082207208152,
+       "batch_size": 24,
+       "optimizer_type": "sgd",
+       "dropout": 0.1607412444935889
+      },
+      "value": 0.705417824139602,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 64,
+      "params": {
+       "learning_rate": 0.05544488264774065,
+       "batch_size": 31,
+       "optimizer_type": "sgd",
+       "dropout": 0.1704100971710253
+      },
+      "value": 0.6364529732160352,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 65,
+      "params": {
+       "learning_rate": 0.05289538429833584,
+       "batch_size": 43,
+       "optimizer_type": "sgd",
+       "dropout": 0.1447023916224967
+      },
+      "value": 0.61599922570491,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 66,
+      "params": {
+       "learning_rate": 0.08848524918189021,
+       "batch_size": 29,
+       "optimizer_type": "sgd",
+       "dropout": 0.039772588104007967
+      },
+      "value": 0.7261701206573086,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 67,
+      "params": {
+       "learning_rate": 0.09961884688680729,
+       "batch_size": 40,
+       "optimizer_type": "sgd",
+       "dropout": 0.08376934175332222
+      },
+      "value": 0.7352838243781364,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 68,
+      "params": {
+       "learning_rate": 0.06897023113385922,
+       "batch_size": 71,
+       "optimizer_type": "sgd",
+       "dropout": 0.07250972842617434
+      },
+      "value": 0.6095729683944849,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 69,
+      "params": {
+       "learning_rate": 0.04896829392330819,
+       "batch_size": 41,
+       "optimizer_type": "sgd",
+       "dropout": 0.08798639589394083
+      },
+      "value": 0.6374939035653019,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 70,
+      "params": {
+       "learning_rate": 0.09387224274806755,
+       "batch_size": 55,
+       "optimizer_type": "sgd",
+       "dropout": 0.0447108503419585
+      },
+      "value": 0.7092219355803904,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 71,
+      "params": {
+       "learning_rate": 0.08359555311375663,
+       "batch_size": 25,
+       "optimizer_type": "sgd",
+       "dropout": 0.029047650062686906
+      },
+      "value": 0.7172672210435268,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 72,
+      "params": {
+       "learning_rate": 0.05701915431660009,
+       "batch_size": 12,
+       "optimizer_type": "sgd",
+       "dropout": 0.15684713986039495
+      },
+      "value": 0.5259639222405973,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 73,
+      "params": {
+       "learning_rate": 0.09238887157034993,
+       "batch_size": 31,
+       "optimizer_type": "sgd",
+       "dropout": 0.12659566276397624
+      },
+      "value": 0.7320400922228576,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 74,
+      "params": {
+       "learning_rate": 0.09592660037365605,
+       "batch_size": 49,
+       "optimizer_type": "sgd",
+       "dropout": 0.12738995593211158
+      },
+      "value": 0.7083433686349285,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 75,
+      "params": {
+       "learning_rate": 0.08986980675062868,
+       "batch_size": 31,
+       "optimizer_type": "sgd",
+       "dropout": 0.0749683635316832
+      },
+      "value": 0.7235690937825257,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 76,
+      "params": {
+       "learning_rate": 0.07961186030627455,
+       "batch_size": 30,
+       "optimizer_type": "sgd",
+       "dropout": 0.07098435843244628
+      },
+      "value": 0.6989324554021592,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 77,
+      "params": {
+       "learning_rate": 0.08855019995300147,
+       "batch_size": 38,
+       "optimizer_type": "sgd",
+       "dropout": 0.04260938048975855
+      },
+      "value": 0.7185559449174593,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 78,
+      "params": {
+       "learning_rate": 0.09472380703859405,
+       "batch_size": 8,
+       "optimizer_type": "sgd",
+       "dropout": 0.12217626303143975
+      },
+      "value": 0.5747794633281815,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 79,
+      "params": {
+       "learning_rate": 0.06994785888355302,
+       "batch_size": 51,
+       "optimizer_type": "sgd",
+       "dropout": 0.04037463141145002
+      },
+      "value": 0.6664200574492362,
+      "state": "COMPLETE"
+     }
+    ]
+   },
+   {
+    "round_index": 2,
+    "setup_id": "setup_002",
+    "trials_used": 40,
+    "phase_best": 0.7507136732262332,
+    "cumulative_best": 0.7507136732262332,
+    "diagnosis": "PROMISING_REGION_IDENTIFIED",
+    "action": null,
+    "action_valid": true,
+    "reward": null,
+    "terminated": false,
+    "setup_after_id": null,
+    "changes": [],
+    "search_space": [
+     {
+      "name": "learning_rate",
+      "type": "float",
+      "low": 0.001,
+      "high": 0.1,
+      "choices": null,
+      "distribution": "log_uniform",
+      "default": 0.01,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'learning_rate'.",
+      "confidence": 0.7
+     },
+     {
+      "name": "batch_size",
+      "type": "int",
+      "low": 8.0,
+      "high": 190.0,
+      "choices": null,
+      "distribution": "uniform",
+      "default": 64,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'batch_size'.",
+      "confidence": 0.7
+     },
+     {
+      "name": "optimizer_type",
+      "type": "categorical",
+      "low": null,
+      "high": null,
+      "choices": [
+       "adam",
+       "sgd"
+      ],
+      "distribution": "choice",
+      "default": "adam",
+      "depends_on": null,
+      "rationale": "Categories taken from task metadata for 'optimizer_type'.",
+      "confidence": 0.8
+     },
+     {
+      "name": "dropout",
+      "type": "float",
+      "low": 0.0,
+      "high": 0.325,
+      "choices": null,
+      "distribution": "uniform",
+      "default": 0.1,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'dropout'.",
+      "confidence": 0.7
+     }
+    ],
+    "diagnostic_state": {
+     "optimization": {
+      "best_objective": {
+       "value": 0.7507136732262332,
+       "status": "VALID"
+      },
+      "recent_improvement": {
+       "value": 0.00535385498713814,
+       "status": "VALID"
+      },
+      "relative_improvement": {
+       "value": 0.007182913251156247,
+       "status": "VALID"
+      },
+      "stagnation": {
+       "value": false,
+       "status": "VALID"
+      },
+      "marginal_gain": {
+       "value": 0.000267692749356907,
+       "status": "VALID"
+      }
+     },
+     "search_space": {
+      "importance": {
+       "learning_rate": {
+        "global_importance": 0.76635,
+        "local_importance": 0.742631,
+        "rank": 1,
+        "status": "VALID"
+       },
+       "batch_size": {
+        "global_importance": 0.186943,
+        "local_importance": 0.185687,
+        "rank": 2,
+        "status": "VALID"
+       },
+       "optimizer_type": {
+        "global_importance": 0.027217,
+        "local_importance": 0.055219,
+        "rank": 3,
+        "status": "VALID"
+       },
+       "dropout": {
+        "global_importance": 0.019489,
+        "local_importance": 0.016463,
+        "rank": 4,
+        "status": "VALID"
+       }
+      },
+      "boundary_concentration": {
+       "learning_rate": {
+        "all": 0.44166666666666665,
+        "good": 1.0,
+        "upper": 1.0,
+        "lower": 0.0,
+        "status": "VALID"
+       },
+       "batch_size": {
+        "all": 0.125,
+        "good": 0.0,
+        "upper": 0.0,
+        "lower": 0.0,
+        "status": "VALID"
+       },
+       "dropout": {
+        "all": 0.041666666666666664,
+        "good": 0.08333333333333333,
+        "upper": 0.0,
+        "lower": 0.08333333333333333,
+        "status": "VALID"
+       }
+      },
+      "good_region": {
+       "learning_rate": {
+        "mean": 0.09612172119357083,
+        "lower": 0.09239608808074262,
+        "upper": 0.09958497691434041,
+        "width_ratio": 0.016270121413889636,
+        "status": "VALID"
+       },
+       "batch_size": {
+        "mean": 36.166666666666664,
+        "lower": 29.1,
+        "upper": 43.8,
+        "width_ratio": 0.08076923076923075,
+        "status": "VALID"
+       },
+       "dropout": {
+        "mean": 0.07183002618568679,
+        "lower": 0.017858262396996526,
+        "upper": 0.13851747358557678,
+        "width_ratio": 0.3712591113494777,
+        "status": "VALID"
+       }
+      },
+      "good_region_categorical": {
+       "optimizer_type": {
+        "category_frequency": {
+         "adam": 0.0,
+         "sgd": 1.0
+        },
+        "dominant_category": "sgd",
+        "dominant_ratio": 1.0,
+        "status": "VALID"
+       }
+      },
+      "configuration_diversity": {
+       "recent": 0.07044052829501918,
+       "global": 0.1759331515956252,
+       "ratio": 0.4003823250611713,
+       "status": "VALID"
+      },
+      "coverage": {
+       "overall": 0.8666666666666667,
+       "per_hyperparameter": {
+        "learning_rate": 0.8,
+        "batch_size": 0.8,
+        "dropout": 1.0
+       },
+       "status": "VALID"
+      }
+     },
+     "budget": {
+      "total_trials": 120,
+      "completed_trials": 120,
+      "budget_consumed": {
+       "value": 1.0,
+       "status": "VALID"
+      },
+      "budget_remaining": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "marginal_gain_per_trial": {
+       "value": 0.000267692749356907,
+       "status": "VALID"
+      },
+      "marginal_gain_per_second": {
+       "value": 0.09436099339998247,
+       "status": "VALID"
+      }
+     },
+     "meta": {
+      "num_complete_trials": 120,
+      "num_failed_trials": 0,
+      "num_pruned_trials": 0,
+      "failure_rate": 0.0,
+      "analysis_window": 20,
+      "data_sufficient": true
+     }
+    },
+    "trials": [
+     {
+      "trial_id": 80,
+      "params": {
+       "learning_rate": 0.043771712554070336,
+       "batch_size": 13,
+       "optimizer_type": "sgd",
+       "dropout": 0.08158594600897727
+      },
+      "value": 0.5425493992904471,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 81,
+      "params": {
+       "learning_rate": 0.09500802816949004,
+       "batch_size": 29,
+       "optimizer_type": "sgd",
+       "dropout": 0.12401869277012259
+      },
+      "value": 0.7424007830049898,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 82,
+      "params": {
+       "learning_rate": 0.07228807876228552,
+       "batch_size": 40,
+       "optimizer_type": "sgd",
+       "dropout": 0.0249383241279737
+      },
+      "value": 0.6763932963674336,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 83,
+      "params": {
+       "learning_rate": 0.04687729352994105,
+       "batch_size": 39,
+       "optimizer_type": "sgd",
+       "dropout": 0.052279797124473434
+      },
+      "value": 0.6302761607661449,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 84,
+      "params": {
+       "learning_rate": 0.05737343634500414,
+       "batch_size": 37,
+       "optimizer_type": "sgd",
+       "dropout": 0.1166614210781428
+      },
+      "value": 0.6589100605133762,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 85,
+      "params": {
+       "learning_rate": 0.07393915934012431,
+       "batch_size": 50,
+       "optimizer_type": "sgd",
+       "dropout": 0.1373624326923264
+      },
+      "value": 0.6532435329762086,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 86,
+      "params": {
+       "learning_rate": 0.0539412043646035,
+       "batch_size": 26,
+       "optimizer_type": "sgd",
+       "dropout": 0.1291983806327743
+      },
+      "value": 0.6307467727521328,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 87,
+      "params": {
+       "learning_rate": 0.09928014716213852,
+       "batch_size": 44,
+       "optimizer_type": "sgd",
+       "dropout": 0.07456268602862759
+      },
+      "value": 0.745359818239095,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 88,
+      "params": {
+       "learning_rate": 0.08433557641599294,
+       "batch_size": 44,
+       "optimizer_type": "sgd",
+       "dropout": 0.06392304545653135
+      },
+      "value": 0.7024721780648252,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 89,
+      "params": {
+       "learning_rate": 0.0748610768492692,
+       "batch_size": 13,
+       "optimizer_type": "sgd",
+       "dropout": 0.12158379260854978
+      },
+      "value": 0.6051871940184725,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 90,
+      "params": {
+       "learning_rate": 0.08673782316689704,
+       "batch_size": 67,
+       "optimizer_type": "sgd",
+       "dropout": 0.08244666026369582
+      },
+      "value": 0.6533401534588361,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 91,
+      "params": {
+       "learning_rate": 0.07447892350902934,
+       "batch_size": 32,
+       "optimizer_type": "sgd",
+       "dropout": 0.13971439874182248
+      },
+      "value": 0.6887940118329258,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 92,
+      "params": {
+       "learning_rate": 0.07086647631248463,
+       "batch_size": 52,
+       "optimizer_type": "sgd",
+       "dropout": 0.09695609250248899
+      },
+      "value": 0.6444899197751001,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 93,
+      "params": {
+       "learning_rate": 0.06513054557601243,
+       "batch_size": 31,
+       "optimizer_type": "sgd",
+       "dropout": 0.12647453123763816
+      },
+      "value": 0.6689280648198166,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 94,
+      "params": {
+       "learning_rate": 0.0641492591423728,
+       "batch_size": 28,
+       "optimizer_type": "sgd",
+       "dropout": 0.02039400557068802
+      },
+      "value": 0.6686793549957509,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 95,
+      "params": {
+       "learning_rate": 0.06430077252526938,
+       "batch_size": 25,
+       "optimizer_type": "sgd",
+       "dropout": 0.04920919795558199
+      },
+      "value": 0.6611304241109482,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 96,
+      "params": {
+       "learning_rate": 0.0945283067281495,
+       "batch_size": 21,
+       "optimizer_type": "sgd",
+       "dropout": 0.07058893137405503
+      },
+      "value": 0.7175959268266441,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 97,
+      "params": {
+       "learning_rate": 0.08878465131309554,
+       "batch_size": 34,
+       "optimizer_type": "sgd",
+       "dropout": 0.017825394499758417
+      },
+      "value": 0.7286260013600941,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 98,
+      "params": {
+       "learning_rate": 0.07642954985303158,
+       "batch_size": 67,
+       "optimizer_type": "sgd",
+       "dropout": 0.04578240176542202
+      },
+      "value": 0.6335453266968338,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 99,
+      "params": {
+       "learning_rate": 0.09944958477518684,
+       "batch_size": 51,
+       "optimizer_type": "sgd",
+       "dropout": 0.07253919487361594
+      },
+      "value": 0.7296834190743009,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 100,
+      "params": {
+       "learning_rate": 0.06493388534866137,
+       "batch_size": 37,
+       "optimizer_type": "sgd",
+       "dropout": 0.0444308815223631
+      },
+      "value": 0.6802293325986334,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 101,
+      "params": {
+       "learning_rate": 0.08285275626298863,
+       "batch_size": 31,
+       "optimizer_type": "sgd",
+       "dropout": 0.10355182064663401
+      },
+      "value": 0.7095637596241088,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 102,
+      "params": {
+       "learning_rate": 0.05883947220291852,
+       "batch_size": 33,
+       "optimizer_type": "sgd",
+       "dropout": 0.07148393880353815
+      },
+      "value": 0.6624156013761273,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 103,
+      "params": {
+       "learning_rate": 0.06957615690569209,
+       "batch_size": 15,
+       "optimizer_type": "sgd",
+       "dropout": 0.059710516400868524
+      },
+      "value": 0.6072063491183926,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 104,
+      "params": {
+       "learning_rate": 0.08010746151004805,
+       "batch_size": 25,
+       "optimizer_type": "sgd",
+       "dropout": 0.11835390169716514
+      },
+      "value": 0.6931573121990078,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 105,
+      "params": {
+       "learning_rate": 0.09841552753428129,
+       "batch_size": 41,
+       "optimizer_type": "sgd",
+       "dropout": 0.021514726666704266
+      },
+      "value": 0.7406003285663132,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 106,
+      "params": {
+       "learning_rate": 0.09559773254834075,
+       "batch_size": 53,
+       "optimizer_type": "sgd",
+       "dropout": 0.02394359346030037
+      },
+      "value": 0.7047400609695875,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 107,
+      "params": {
+       "learning_rate": 0.09031058339974429,
+       "batch_size": 58,
+       "optimizer_type": "sgd",
+       "dropout": 0.06157812910861718
+      },
+      "value": 0.694824586258931,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 108,
+      "params": {
+       "learning_rate": 0.08935372485346503,
+       "batch_size": 34,
+       "optimizer_type": "sgd",
+       "dropout": 0.017451988589251222
+      },
+      "value": 0.7302197883523784,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 109,
+      "params": {
+       "learning_rate": 0.09742532065216168,
+       "batch_size": 48,
+       "optimizer_type": "sgd",
+       "dropout": 0.1065970735269785
+      },
+      "value": 0.716479454578402,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 110,
+      "params": {
+       "learning_rate": 0.05147092464830582,
+       "batch_size": 23,
+       "optimizer_type": "sgd",
+       "dropout": 0.019370790392658564
+      },
+      "value": 0.6208742742209556,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 111,
+      "params": {
+       "learning_rate": 0.09642652743640814,
+       "batch_size": 42,
+       "optimizer_type": "sgd",
+       "dropout": 0.025023746165082406
+      },
+      "value": 0.7430620727047315,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 112,
+      "params": {
+       "learning_rate": 0.09544045460461616,
+       "batch_size": 17,
+       "optimizer_type": "sgd",
+       "dropout": 0.13567746422059476
+      },
+      "value": 0.6849361759870605,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 113,
+      "params": {
+       "learning_rate": 0.06913896481206358,
+       "batch_size": 39,
+       "optimizer_type": "sgd",
+       "dropout": 0.09016512738865215
+      },
+      "value": 0.6763004495660238,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 114,
+      "params": {
+       "learning_rate": 0.09922173053557434,
+       "batch_size": 33,
+       "optimizer_type": "sgd",
+       "dropout": 0.023987228899376756
+      },
+      "value": 0.7507136732262332,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 115,
+      "params": {
+       "learning_rate": 0.09576364474434934,
+       "batch_size": 44,
+       "optimizer_type": "sgd",
+       "dropout": 0.005312919439306712
+      },
+      "value": 0.7361253226831649,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 116,
+      "params": {
+       "learning_rate": 0.08541602502827308,
+       "batch_size": 20,
+       "optimizer_type": "sgd",
+       "dropout": 0.001569392979245167
+      },
+      "value": 0.6959207949381416,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 117,
+      "params": {
+       "learning_rate": 0.05361633882765239,
+       "batch_size": 30,
+       "optimizer_type": "sgd",
+       "dropout": 0.09006115199176581
+      },
+      "value": 0.6581296678018411,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 118,
+      "params": {
+       "learning_rate": 0.07621148529952808,
+       "batch_size": 50,
+       "optimizer_type": "sgd",
+       "dropout": 0.007877805341323055
+      },
+      "value": 0.6752618614789014,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 119,
+      "params": {
+       "learning_rate": 0.04877641659370179,
+       "batch_size": 38,
+       "optimizer_type": "sgd",
+       "dropout": 0.022613181753921907
+      },
+      "value": 0.6364495658813016,
+      "state": "COMPLETE"
+     }
+    ]
+   }
+  ],
+  "total_trials_used": 120,
+  "best_value": 0.7507136732262332,
+  "best_params": {
+   "learning_rate": 0.09922173053557434,
+   "batch_size": 33,
+   "optimizer_type": "sgd",
+   "dropout": 0.023987228899376756
+  },
+  "best_value_raw": 0.7507136732262332,
+  "terminated": false,
+  "q_table_size": 3,
+  "experiences_recorded": 2
+ },
+ "timings": {
+  "hpo": 0.304842,
+  "adapt": 1.568226,
+  "total": 1.873068
+ }
+}

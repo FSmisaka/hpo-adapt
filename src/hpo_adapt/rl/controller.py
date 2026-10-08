@@ -82,11 +82,31 @@ class QController:
         return self.last_key
 
     # ---------------------------------------------------------------- actions
+    def _stop_available(self, state: DiagnosticState) -> bool:
+        """Evidence gate for STOP (spec pattern table, row 7).
+
+        STOP is only a legal choice when the diagnostic evidence supports
+        "low expected benefit of further adaptation": stagnation observed AND
+        a majority of the global budget already consumed. This prevents
+        unguided (epsilon-exploration) premature termination.
+        """
+        stag = state.optimization.stagnation
+        if stag.status.value != "VALID" or not bool(stag.value):
+            return False
+        consumed = state.budget.budget_consumed
+        if consumed.status.value == "VALID" and consumed.value is not None:
+            return float(consumed.value) >= 0.5
+        return True
+
     def _available_actions(self, state: DiagnosticState) -> list[ActionType]:
         candidates = self.rule_engine.rank_candidates(state)
         if not candidates:
-            return [a for a in ALL_ACTIONS if a not in _HYPER_ACTIONS]
-        return list(ALL_ACTIONS)
+            actions = [a for a in ALL_ACTIONS if a not in _HYPER_ACTIONS]
+        else:
+            actions = list(ALL_ACTIONS)
+        if not self._stop_available(state):
+            actions = [a for a in actions if a != ActionType.STOP]
+        return actions
 
     def _q_row(self, key: tuple) -> dict[str, float]:
         return self.q_table.setdefault(key, {a.value: 0.0 for a in ALL_ACTIONS})

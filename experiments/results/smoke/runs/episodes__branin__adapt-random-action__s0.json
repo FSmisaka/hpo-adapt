@@ -1,0 +1,3265 @@
+{
+ "phase": "episodes",
+ "tag": "smoke",
+ "task": "branin",
+ "method": {
+  "name": "adapt-random-action",
+  "kind": "adapt",
+  "optimizer": null,
+  "epsilon_start": 1.0,
+  "epsilon_end": 1.0,
+  "epsilon_decay": null
+ },
+ "method_name": "adapt-random-action",
+ "seed": 0,
+ "budget": 60,
+ "episodes": 3,
+ "fn": "group",
+ "episodes_data": [
+  {
+   "episode": 0,
+   "result": {
+    "steps": [
+     {
+      "round_index": 0,
+      "setup_id": "setup_000",
+      "trials_used": 20,
+      "phase_best": -2.075008039410359,
+      "cumulative_best": -2.075008039410359,
+      "diagnosis": "NO_ACTION_RECOMMENDED",
+      "action": {
+       "action": "INCREASE_EXPLORATION",
+       "candidate_hyperparameter": "optimizer",
+       "parameters": {},
+       "confidence": 0.1429,
+       "q_value": 0.0,
+       "reason": "tabular Q-learning selection"
+      },
+      "action_valid": true,
+      "reward": 0.379085521739797,
+      "terminated": false,
+      "setup_after_id": "setup_001",
+      "changes": [
+       {
+        "hyperparameter": "optimizer",
+        "old": {
+         "name": "TPE",
+         "n_startup_trials": 10
+        },
+        "new": {
+         "name": "TPE",
+         "n_startup_trials": 20
+        },
+        "reason": "tabular Q-learning selection Doubled TPE n_startup_trials for stronger random exploration."
+       }
+      ],
+      "search_space": [
+       {
+        "name": "x1",
+        "type": "float",
+        "low": -5.0,
+        "high": 0.75,
+        "choices": null,
+        "distribution": "uniform",
+        "default": -3.0,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x1'.",
+        "confidence": 0.7
+       },
+       {
+        "name": "x2",
+        "type": "float",
+        "low": 3.75,
+        "high": 11.25,
+        "choices": null,
+        "distribution": "uniform",
+        "default": 7.5,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x2'.",
+        "confidence": 0.7
+       }
+      ],
+      "diagnostic_state": {
+       "optimization": {
+        "best_objective": {
+         "value": -2.075008039410359,
+         "status": "VALID"
+        },
+        "recent_improvement": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        },
+        "relative_improvement": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        },
+        "stagnation": {
+         "value": false,
+         "status": "VALID"
+        },
+        "marginal_gain": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        }
+       },
+       "search_space": {
+        "importance": {
+         "x1": {
+          "global_importance": null,
+          "local_importance": null,
+          "rank": null,
+          "status": "INSUFFICIENT_DATA"
+         },
+         "x2": {
+          "global_importance": null,
+          "local_importance": null,
+          "rank": null,
+          "status": "INSUFFICIENT_DATA"
+         }
+        },
+        "boundary_concentration": {
+         "x1": {
+          "all": 0.1,
+          "good": 0.0,
+          "upper": 0.0,
+          "lower": 0.0,
+          "status": "VALID"
+         },
+         "x2": {
+          "all": 0.1,
+          "good": 0.0,
+          "upper": 0.0,
+          "lower": 0.0,
+          "status": "VALID"
+         }
+        },
+        "good_region": {
+         "x1": {
+          "mean": -2.5331163758092528,
+          "lower": -2.57251064826504,
+          "upper": -2.493722103353465,
+          "width_ratio": 0.0137023556367957,
+          "status": "VALID"
+         },
+         "x2": {
+          "mean": 10.476007395228512,
+          "lower": 10.445839483738181,
+          "upper": 10.506175306718843,
+          "width_ratio": 0.008044776397421552,
+          "status": "VALID"
+         }
+        },
+        "good_region_categorical": {},
+        "configuration_diversity": {
+         "recent": 0.32488092451738687,
+         "global": 0.32488092451738687,
+         "ratio": 0.9999999692194926,
+         "status": "VALID"
+        },
+        "coverage": {
+         "overall": 0.95,
+         "per_hyperparameter": {
+          "x1": 1.0,
+          "x2": 0.9
+         },
+         "status": "VALID"
+        }
+       },
+       "budget": {
+        "total_trials": 60,
+        "completed_trials": 20,
+        "budget_consumed": {
+         "value": 0.3333333333333333,
+         "status": "VALID"
+        },
+        "budget_remaining": {
+         "value": 0.6666666666666667,
+         "status": "VALID"
+        },
+        "marginal_gain_per_trial": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        },
+        "marginal_gain_per_second": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        }
+       },
+       "meta": {
+        "num_complete_trials": 20,
+        "num_failed_trials": 0,
+        "num_pruned_trials": 0,
+        "failure_rate": 0.0,
+        "analysis_window": 20,
+        "data_sufficient": true
+       }
+      },
+      "trials": [
+       {
+        "trial_id": 0,
+        "params": {
+         "x1": -1.8443223524178827,
+         "x2": 9.113920247793146
+        },
+        "value": 7.479354539940165,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 1,
+        "params": {
+         "x1": -1.5341105875880476,
+         "x2": 7.836623872476727
+        },
+        "value": 11.185300351783434,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 2,
+        "params": {
+         "x1": -2.563984903801298,
+         "x2": 8.594205847999921
+        },
+        "value": 7.411280729914351,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 3,
+        "params": {
+         "x1": -2.483873535239518,
+         "x2": 10.438297505865599
+        },
+        "value": 2.5026338100362873,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 4,
+        "params": {
+         "x1": 0.5410608728809183,
+         "x2": 6.6258113911933325
+        },
+        "value": 20.32190726895478,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 5,
+        "params": {
+         "x1": -0.4475810310246786,
+         "x2": 7.716711898146784
+        },
+        "value": 19.61380792757796,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 6,
+        "params": {
+         "x1": -1.7337437737098893,
+         "x2": 10.691974787194958
+        },
+        "value": 10.8272189266789,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 7,
+        "params": {
+         "x1": -4.59154266536215,
+         "x2": 4.403469747761555
+        },
+        "value": 144.04493667463046,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 8,
+        "params": {
+         "x1": -4.883744214718127,
+         "x2": 9.994648841609536
+        },
+        "value": 58.67871507146483,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 9,
+        "params": {
+         "x1": -0.5255986820383597,
+         "x2": 10.275091111851143
+        },
+        "value": 29.885538749061784,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 10,
+        "params": {
+         "x1": -3.7356012610506792,
+         "x2": 11.095291064312557
+        },
+        "value": 9.079817729206331,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 11,
+        "params": {
+         "x1": -3.401884690771575,
+         "x2": 9.118546676470835
+        },
+        "value": 15.088279141206122,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 12,
+        "params": {
+         "x1": -3.0364276648914705,
+         "x2": 7.560654595729206
+        },
+        "value": 20.368084670252397,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 13,
+        "params": {
+         "x1": -2.924461830006906,
+         "x2": 5.54669358731398
+        },
+        "value": 39.229113327977345,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 14,
+        "params": {
+         "x1": -4.6586017612203285,
+         "x2": 7.635599331067776
+        },
+        "value": 83.14273661208138,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 15,
+        "params": {
+         "x1": -0.16108364090652083,
+         "x2": 3.847867087983348
+        },
+        "value": 25.30175135224497,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 16,
+        "params": {
+         "x1": -2.6658510182324937,
+         "x2": 9.540028516266105
+        },
+        "value": 4.0899922115158756,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 17,
+        "params": {
+         "x1": -4.2432336715935115,
+         "x2": 8.881126210790697
+        },
+        "value": 44.085765395282166,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 18,
+        "params": {
+         "x1": -2.582359216378987,
+         "x2": 10.513717284591426
+        },
+        "value": 2.075008039410359,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 19,
+        "params": {
+         "x1": -1.4916270864821004,
+         "x2": 5.238626740144049
+        },
+        "value": 22.4739519584958,
+        "state": "COMPLETE"
+       }
+      ]
+     },
+     {
+      "round_index": 1,
+      "setup_id": "setup_001",
+      "trials_used": 20,
+      "phase_best": -1.2192355954050094,
+      "cumulative_best": -1.2192355954050094,
+      "diagnosis": "PROMISING_REGION_IDENTIFIED",
+      "action": {
+       "action": "SHRINK_SEARCH_SPACE",
+       "candidate_hyperparameter": "x2",
+       "parameters": {
+        "target_region": [
+         10.967096520015291,
+         11.223622789375145
+        ]
+       },
+       "confidence": 0.1429,
+       "q_value": 0.0,
+       "reason": "tabular Q-learning selection"
+      },
+      "action_valid": true,
+      "reward": 0.13515638437945207,
+      "terminated": false,
+      "setup_after_id": "setup_002",
+      "changes": [
+       {
+        "hyperparameter": "x2",
+        "old": {
+         "name": "x2",
+         "type": "float",
+         "low": 3.75,
+         "high": 11.25,
+         "distribution": "uniform",
+         "default": 7.5
+        },
+        "new": {
+         "name": "x2",
+         "type": "float",
+         "low": 10.902964952675326,
+         "high": 11.25,
+         "distribution": "uniform",
+         "default": 7.5
+        },
+        "reason": "tabular Q-learning selection target_region=[10.967096520015291, 11.223622789375145] with 25% margin."
+       }
+      ],
+      "search_space": [
+       {
+        "name": "x1",
+        "type": "float",
+        "low": -5.0,
+        "high": 0.75,
+        "choices": null,
+        "distribution": "uniform",
+        "default": -3.0,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x1'.",
+        "confidence": 0.7
+       },
+       {
+        "name": "x2",
+        "type": "float",
+        "low": 3.75,
+        "high": 11.25,
+        "choices": null,
+        "distribution": "uniform",
+        "default": 7.5,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x2'.",
+        "confidence": 0.7
+       }
+      ],
+      "diagnostic_state": {
+       "optimization": {
+        "best_objective": {
+         "value": -1.2192355954050094,
+         "status": "VALID"
+        },
+        "recent_improvement": {
+         "value": 0.8557724440053496,
+         "status": "VALID"
+        },
+        "relative_improvement": {
+         "value": 0.4124188550731303,
+         "status": "VALID"
+        },
+        "stagnation": {
+         "value": false,
+         "status": "VALID"
+        },
+        "marginal_gain": {
+         "value": 0.04278862220026748,
+         "status": "VALID"
+        }
+       },
+       "search_space": {
+        "importance": {
+         "x1": {
+          "global_importance": 0.66952,
+          "local_importance": 0.586802,
+          "rank": 1,
+          "status": "VALID"
+         },
+         "x2": {
+          "global_importance": 0.33048,
+          "local_importance": 0.413198,
+          "rank": 2,
+          "status": "VALID"
+         }
+        },
+        "boundary_concentration": {
+         "x1": {
+          "all": 0.075,
+          "good": 0.0,
+          "upper": 0.0,
+          "lower": 0.0,
+          "status": "VALID"
+         },
+         "x2": {
+          "all": 0.3,
+          "good": 1.0,
+          "upper": 1.0,
+          "lower": 0.0,
+          "status": "VALID"
+         }
+        },
+        "good_region": {
+         "x1": {
+          "mean": -2.8117826744383096,
+          "lower": -2.97446214063313,
+          "upper": -2.702522575304371,
+          "width_ratio": 0.047293837448479835,
+          "status": "VALID"
+         },
+         "x2": {
+          "mean": 11.098323157255932,
+          "lower": 10.967096520015291,
+          "upper": 11.223622789375145,
+          "width_ratio": 0.034203502581313924,
+          "status": "VALID"
+         }
+        },
+        "good_region_categorical": {},
+        "configuration_diversity": {
+         "recent": 0.18656891669399506,
+         "global": 0.27531249718930967,
+         "ratio": 0.677662335789587,
+         "status": "VALID"
+        },
+        "coverage": {
+         "overall": 1.0,
+         "per_hyperparameter": {
+          "x1": 1.0,
+          "x2": 1.0
+         },
+         "status": "VALID"
+        }
+       },
+       "budget": {
+        "total_trials": 60,
+        "completed_trials": 40,
+        "budget_consumed": {
+         "value": 0.6666666666666666,
+         "status": "VALID"
+        },
+        "budget_remaining": {
+         "value": 0.33333333333333337,
+         "status": "VALID"
+        },
+        "marginal_gain_per_trial": {
+         "value": 0.04278862220026748,
+         "status": "VALID"
+        },
+        "marginal_gain_per_second": {
+         "value": 94.13392395403257,
+         "status": "VALID"
+        }
+       },
+       "meta": {
+        "num_complete_trials": 40,
+        "num_failed_trials": 0,
+        "num_pruned_trials": 0,
+        "failure_rate": 0.0,
+        "analysis_window": 20,
+        "data_sufficient": true
+       }
+      },
+      "trials": [
+       {
+        "trial_id": 20,
+        "params": {
+         "x1": -3.2137583261595397,
+         "x2": 10.170036838958069
+        },
+        "value": 5.625945037021524,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 21,
+        "params": {
+         "x1": -0.972534631292093,
+         "x2": 11.071170123537623
+        },
+        "value": 26.971017858061074,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 22,
+        "params": {
+         "x1": -2.3218245881160806,
+         "x2": 10.194026277939292
+        },
+        "value": 3.4800364468010208,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 23,
+        "params": {
+         "x1": -2.1900435251208012,
+         "x2": 10.980046759083246
+        },
+        "value": 5.196890429424842,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 24,
+        "params": {
+         "x1": -3.866709491252789,
+         "x2": 10.17642866223799
+        },
+        "value": 18.093329929474763,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 25,
+        "params": {
+         "x1": -3.681244476969811,
+         "x2": 7.157248872020133
+        },
+        "value": 43.391029373829255,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 26,
+        "params": {
+         "x1": -3.1661460603634684,
+         "x2": 11.003312047919191
+        },
+        "value": 2.163632275179518,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 27,
+        "params": {
+         "x1": -3.218180914792997,
+         "x2": 10.726336294732072
+        },
+        "value": 3.4216096739479442,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 28,
+        "params": {
+         "x1": -1.4564696354716475,
+         "x2": 9.696267826464736
+        },
+        "value": 12.305368631554824,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 29,
+        "params": {
+         "x1": -4.970396764989182,
+         "x2": 10.988215890451926
+        },
+        "value": 49.83411902927402,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 30,
+        "params": {
+         "x1": -3.0710433683177527,
+         "x2": 11.212350782631837
+        },
+        "value": 1.2192355954050094,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 31,
+        "params": {
+         "x1": -2.6860703982110694,
+         "x2": 11.22845364940799
+        },
+        "value": 1.3677179175742094,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 32,
+        "params": {
+         "x1": -4.252606129367332,
+         "x2": 11.068506883550887
+        },
+        "value": 22.02384951062323,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 33,
+        "params": {
+         "x1": -2.0693601020121397,
+         "x2": 8.531199914829651
+        },
+        "value": 7.1398833605332905,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 34,
+        "params": {
+         "x1": -2.740910988522074,
+         "x2": 10.953375152300305
+        },
+        "value": 1.3046242184157164,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 35,
+        "params": {
+         "x1": -1.9137943986304133,
+         "x2": 10.287936052925446
+        },
+        "value": 7.361386917128402,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 36,
+        "params": {
+         "x1": -2.659607218470181,
+         "x2": 11.23460781239066
+        },
+        "value": 1.4921252730018977,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 37,
+        "params": {
+         "x1": -2.7491059427023434,
+         "x2": 10.999113044683593
+        },
+        "value": 1.2444041874005791,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 38,
+        "params": {
+         "x1": -0.8051158320221263,
+         "x2": 8.47654624995752
+        },
+        "value": 17.885498559446077,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 39,
+        "params": {
+         "x1": -1.6591343155893996,
+         "x2": 8.851802900832599
+        },
+        "value": 9.1650302483313,
+        "state": "COMPLETE"
+       }
+      ]
+     },
+     {
+      "round_index": 2,
+      "setup_id": "setup_002",
+      "trials_used": 20,
+      "phase_best": -1.0138069324249424,
+      "cumulative_best": -1.0138069324249424,
+      "diagnosis": "PROMISING_REGION_IDENTIFIED",
+      "action": null,
+      "action_valid": true,
+      "reward": null,
+      "terminated": false,
+      "setup_after_id": null,
+      "changes": [],
+      "search_space": [
+       {
+        "name": "x1",
+        "type": "float",
+        "low": -5.0,
+        "high": 0.75,
+        "choices": null,
+        "distribution": "uniform",
+        "default": -3.0,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x1'.",
+        "confidence": 0.7
+       },
+       {
+        "name": "x2",
+        "type": "float",
+        "low": 10.902964952675326,
+        "high": 11.25,
+        "choices": null,
+        "distribution": "uniform",
+        "default": 7.5,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x2'.",
+        "confidence": 0.7
+       }
+      ],
+      "diagnostic_state": {
+       "optimization": {
+        "best_objective": {
+         "value": -1.0138069324249424,
+         "status": "VALID"
+        },
+        "recent_improvement": {
+         "value": 0.205428662980067,
+         "status": "VALID"
+        },
+        "relative_improvement": {
+         "value": 0.1684897177127854,
+         "status": "VALID"
+        },
+        "stagnation": {
+         "value": false,
+         "status": "VALID"
+        },
+        "marginal_gain": {
+         "value": 0.010271433149003351,
+         "status": "VALID"
+        }
+       },
+       "search_space": {
+        "importance": {
+         "x1": {
+          "global_importance": 0.999202,
+          "local_importance": 0.999844,
+          "rank": 1,
+          "status": "VALID"
+         },
+         "x2": {
+          "global_importance": 0.000798,
+          "local_importance": 0.000156,
+          "rank": 2,
+          "status": "VALID"
+         }
+        },
+        "boundary_concentration": {
+         "x1": {
+          "all": 0.05,
+          "good": 0.0,
+          "upper": 0.0,
+          "lower": 0.0,
+          "status": "VALID"
+         },
+         "x2": {
+          "all": 0.5333333333333333,
+          "good": 0.16666666666666666,
+          "upper": 0.16666666666666666,
+          "lower": 0.0,
+          "status": "VALID"
+         }
+        },
+        "good_region": {
+         "x1": {
+          "mean": -2.8091921568405738,
+          "lower": -3.0097291965688866,
+          "upper": -2.672838808340625,
+          "width_ratio": 0.05858963273534982,
+          "status": "VALID"
+         },
+         "x2": {
+          "mean": 11.131497790733277,
+          "lower": 10.97624409849195,
+          "upper": 11.231530730899326,
+          "width_ratio": 0.7356220484801319,
+          "status": "VALID"
+         }
+        },
+        "good_region_categorical": {},
+        "configuration_diversity": {
+         "recent": 0.3104513673249307,
+         "global": 2.7296359957820675,
+         "ratio": 0.11373361381052832,
+         "status": "VALID"
+        },
+        "coverage": {
+         "overall": 1.0,
+         "per_hyperparameter": {
+          "x1": 1.0,
+          "x2": 1.0
+         },
+         "status": "VALID"
+        }
+       },
+       "budget": {
+        "total_trials": 60,
+        "completed_trials": 60,
+        "budget_consumed": {
+         "value": 1.0,
+         "status": "VALID"
+        },
+        "budget_remaining": {
+         "value": 0.0,
+         "status": "VALID"
+        },
+        "marginal_gain_per_trial": {
+         "value": 0.010271433149003351,
+         "status": "VALID"
+        },
+        "marginal_gain_per_second": {
+         "value": 37.432268341359986,
+         "status": "VALID"
+        }
+       },
+       "meta": {
+        "num_complete_trials": 60,
+        "num_failed_trials": 0,
+        "num_pruned_trials": 0,
+        "failure_rate": 0.0,
+        "analysis_window": 20,
+        "data_sufficient": true
+       }
+      },
+      "trials": [
+       {
+        "trial_id": 11,
+        "params": {
+         "x1": -2.493029312683478,
+         "x2": 10.91196226376467
+        },
+        "value": 2.359879149479333,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 12,
+        "params": {
+         "x1": -1.8394407521974223,
+         "x2": 11.0540370797991
+        },
+        "value": 10.296544976161869,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 13,
+        "params": {
+         "x1": -2.582885137996938,
+         "x2": 11.017602712915393
+        },
+        "value": 1.8612684400469557,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 14,
+        "params": {
+         "x1": -3.8232703542824056,
+         "x2": 11.117873681789625
+        },
+        "value": 10.689090235260633,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 15,
+        "params": {
+         "x1": -3.276985626371492,
+         "x2": 10.995563368718162
+        },
+        "value": 3.0773803384554905,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 16,
+        "params": {
+         "x1": -1.4284804615765543,
+         "x2": 11.086595804404235
+        },
+        "value": 17.859744149741093,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 17,
+        "params": {
+         "x1": -4.226165314266632,
+         "x2": 11.081194560293701
+        },
+        "value": 21.126693392478778,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 18,
+        "params": {
+         "x1": -3.939470772530237,
+         "x2": 11.175503772863616
+        },
+        "value": 12.903309831543178,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 19,
+        "params": {
+         "x1": -0.08964206732293944,
+         "x2": 11.074482456925761
+        },
+        "value": 43.86780194472002,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 20,
+        "params": {
+         "x1": -1.814070130361162,
+         "x2": 11.196765386052855
+        },
+        "value": 11.229884311235258,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 21,
+        "params": {
+         "x1": -3.5606891185845786,
+         "x2": 10.933327909067666
+        },
+        "value": 6.856093552931142,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 22,
+        "params": {
+         "x1": -1.0795108090914052,
+         "x2": 10.906469905731134
+        },
+        "value": 23.76826891750349,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 23,
+        "params": {
+         "x1": -2.446487517921044,
+         "x2": 11.107028192663982
+        },
+        "value": 2.8239395203780626,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 24,
+        "params": {
+         "x1": -4.572000474409778,
+         "x2": 11.226935194335198
+        },
+        "value": 31.21472080570457,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 25,
+        "params": {
+         "x1": -0.3735260614291407,
+         "x2": 11.157387642371068
+        },
+        "value": 39.60194621808566,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 26,
+        "params": {
+         "x1": -0.9534065277287169,
+         "x2": 10.960802677326472
+        },
+        "value": 26.612973196608888,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 27,
+        "params": {
+         "x1": -3.1156496067820028,
+         "x2": 11.057263099168154
+        },
+        "value": 1.7271518870769031,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 28,
+        "params": {
+         "x1": -4.389796692540678,
+         "x2": 10.935134491741268
+        },
+        "value": 27.567334864352013,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 29,
+        "params": {
+         "x1": -2.9484150248200205,
+         "x2": 11.161086302985279
+        },
+        "value": 1.0138069324249424,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 30,
+        "params": {
+         "x1": -3.1907518654386244,
+         "x2": 11.210846337059271
+        },
+        "value": 1.8032082171205503,
+        "state": "COMPLETE"
+       }
+      ]
+     }
+    ],
+    "total_trials_used": 60,
+    "best_value": -1.0138069324249424,
+    "best_params": {
+     "x1": -2.9484150248200205,
+     "x2": 11.161086302985279
+    },
+    "best_value_raw": 1.0138069324249424,
+    "terminated": false,
+    "q_table_size": 3,
+    "experiences_recorded": 6
+   },
+   "timings": {
+    "hpo": 0.0231,
+    "adapt": 0.306087,
+    "total": 0.329187
+   }
+  },
+  {
+   "episode": 1,
+   "result": {
+    "steps": [
+     {
+      "round_index": 0,
+      "setup_id": "setup_000",
+      "trials_used": 20,
+      "phase_best": -4.678848052738702,
+      "cumulative_best": -4.678848052738702,
+      "diagnosis": "NO_ACTION_RECOMMENDED",
+      "action": {
+       "action": "INCREASE_EXPLORATION",
+       "candidate_hyperparameter": "optimizer",
+       "parameters": {},
+       "confidence": 1.0,
+       "q_value": 0.037909,
+       "reason": "tabular Q-learning selection"
+      },
+      "action_valid": true,
+      "reward": 0.7733206175477096,
+      "terminated": false,
+      "setup_after_id": "setup_001",
+      "changes": [
+       {
+        "hyperparameter": "optimizer",
+        "old": {
+         "name": "TPE",
+         "n_startup_trials": 10
+        },
+        "new": {
+         "name": "TPE",
+         "n_startup_trials": 20
+        },
+        "reason": "tabular Q-learning selection Doubled TPE n_startup_trials for stronger random exploration."
+       }
+      ],
+      "search_space": [
+       {
+        "name": "x1",
+        "type": "float",
+        "low": -5.0,
+        "high": 0.75,
+        "choices": null,
+        "distribution": "uniform",
+        "default": -3.0,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x1'.",
+        "confidence": 0.7
+       },
+       {
+        "name": "x2",
+        "type": "float",
+        "low": 3.75,
+        "high": 11.25,
+        "choices": null,
+        "distribution": "uniform",
+        "default": 7.5,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x2'.",
+        "confidence": 0.7
+       }
+      ],
+      "diagnostic_state": {
+       "optimization": {
+        "best_objective": {
+         "value": -4.678848052738702,
+         "status": "VALID"
+        },
+        "recent_improvement": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        },
+        "relative_improvement": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        },
+        "stagnation": {
+         "value": false,
+         "status": "VALID"
+        },
+        "marginal_gain": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        }
+       },
+       "search_space": {
+        "importance": {
+         "x1": {
+          "global_importance": null,
+          "local_importance": null,
+          "rank": null,
+          "status": "INSUFFICIENT_DATA"
+         },
+         "x2": {
+          "global_importance": null,
+          "local_importance": null,
+          "rank": null,
+          "status": "INSUFFICIENT_DATA"
+         }
+        },
+        "boundary_concentration": {
+         "x1": {
+          "all": 0.15,
+          "good": 0.0,
+          "upper": 0.0,
+          "lower": 0.0,
+          "status": "VALID"
+         },
+         "x2": {
+          "all": 0.0,
+          "good": 0.0,
+          "upper": 0.0,
+          "lower": 0.0,
+          "status": "VALID"
+         }
+        },
+        "good_region": {
+         "x1": {
+          "mean": -2.3842318895988375,
+          "lower": -2.558545156287927,
+          "upper": -2.209918622909748,
+          "width_ratio": 0.06063070145707466,
+          "status": "VALID"
+         },
+         "x2": {
+          "mean": 9.48556150834615,
+          "lower": 9.219059262322178,
+          "upper": 9.752063754370122,
+          "width_ratio": 0.0710672656063925,
+          "status": "VALID"
+         }
+        },
+        "good_region_categorical": {},
+        "configuration_diversity": {
+         "recent": 0.31345775653094177,
+         "global": 0.31345775653094177,
+         "ratio": 0.9999999680977757,
+         "status": "VALID"
+        },
+        "coverage": {
+         "overall": 0.95,
+         "per_hyperparameter": {
+          "x1": 1.0,
+          "x2": 0.9
+         },
+         "status": "VALID"
+        }
+       },
+       "budget": {
+        "total_trials": 60,
+        "completed_trials": 20,
+        "budget_consumed": {
+         "value": 0.3333333333333333,
+         "status": "VALID"
+        },
+        "budget_remaining": {
+         "value": 0.6666666666666667,
+         "status": "VALID"
+        },
+        "marginal_gain_per_trial": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        },
+        "marginal_gain_per_second": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        }
+       },
+       "meta": {
+        "num_complete_trials": 20,
+        "num_failed_trials": 0,
+        "num_pruned_trials": 0,
+        "failure_rate": 0.0,
+        "analysis_window": 20,
+        "data_sufficient": true
+       }
+      },
+      "trials": [
+       {
+        "trial_id": 0,
+        "params": {
+         "x1": -2.6021234729601996,
+         "x2": 9.152433700816186
+        },
+        "value": 5.236948286530203,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 1,
+        "params": {
+         "x1": -4.999342344800267,
+         "x2": 6.017494294738798
+        },
+        "value": 137.43930036024696,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 2,
+        "params": {
+         "x1": -4.1561536278016,
+         "x2": 4.442539460765984
+        },
+        "value": 113.16936385246305,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 3,
+        "params": {
+         "x1": -3.9290037845783923,
+         "x2": 6.3417054528228585
+        },
+        "value": 65.73069500914187,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 4,
+        "params": {
+         "x1": -2.7185870231736478,
+         "x2": 7.791125505025177
+        },
+        "value": 13.423059175379745,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 5,
+        "params": {
+         "x1": -2.589631542181055,
+         "x2": 8.889146252975696
+        },
+        "value": 6.225961909108541,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 6,
+        "params": {
+         "x1": -3.824399564043775,
+         "x2": 10.335880772932091
+        },
+        "value": 15.804651420875953,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 7,
+        "params": {
+         "x1": -4.842521339111925,
+         "x2": 8.778506326338016
+        },
+        "value": 74.58464754357894,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 8,
+        "params": {
+         "x1": -2.6004973863890197,
+         "x2": 7.940173713343137
+        },
+        "value": 11.217457339701616,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 9,
+        "params": {
+         "x1": -4.192775103077405,
+         "x2": 5.235761168136591
+        },
+        "value": 99.48651201433657,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 10,
+        "params": {
+         "x1": 0.05625231677885445,
+         "x2": 10.570420793409527
+        },
+        "value": 41.29427619024611,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 11,
+        "params": {
+         "x1": -0.7673815663020276,
+         "x2": 5.270298506231405
+        },
+        "value": 21.01534243947433,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 12,
+        "params": {
+         "x1": -2.1663403062374753,
+         "x2": 9.818689315876114
+        },
+        "value": 4.678848052738702,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 13,
+        "params": {
+         "x1": -2.088337890921525,
+         "x2": 10.632529752632141
+        },
+        "value": 5.809951307716508,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 14,
+        "params": {
+         "x1": -1.605397485193578,
+         "x2": 8.175331307635208
+        },
+        "value": 10.168183908098872,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 15,
+        "params": {
+         "x1": -1.1549521288730693,
+         "x2": 9.363282696640862
+        },
+        "value": 15.705863407507806,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 16,
+        "params": {
+         "x1": 0.3839438693161048,
+         "x2": 9.355321664795909
+        },
+        "value": 34.488840187170254,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 17,
+        "params": {
+         "x1": 0.581036233770615,
+         "x2": 7.532533054647336
+        },
+        "value": 23.85059218267777,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 18,
+        "params": {
+         "x1": -2.0306430773788744,
+         "x2": 6.356928488726954
+        },
+        "value": 17.341600550908332,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 19,
+        "params": {
+         "x1": -3.469154621089781,
+         "x2": 8.66715542690823
+        },
+        "value": 20.342964453892364,
+        "state": "COMPLETE"
+       }
+      ]
+     },
+     {
+      "round_index": 1,
+      "setup_id": "setup_001",
+      "trials_used": 20,
+      "phase_best": -0.9046367773584139,
+      "cumulative_best": -0.9046367773584139,
+      "diagnosis": "PROMISING_REGION_IDENTIFIED",
+      "action": {
+       "action": "SHRINK_SEARCH_SPACE",
+       "candidate_hyperparameter": "x2",
+       "parameters": {
+        "target_region": [
+         10.889379519526496,
+         11.200212450475274
+        ]
+       },
+       "confidence": 1.0,
+       "q_value": 0.013516,
+       "reason": "tabular Q-learning selection"
+      },
+      "action_valid": true,
+      "reward": -0.017000451309346756,
+      "terminated": false,
+      "setup_after_id": "setup_002",
+      "changes": [
+       {
+        "hyperparameter": "x2",
+        "old": {
+         "name": "x2",
+         "type": "float",
+         "low": 3.75,
+         "high": 11.25,
+         "distribution": "uniform",
+         "default": 7.5
+        },
+        "new": {
+         "name": "x2",
+         "type": "float",
+         "low": 10.811671286789302,
+         "high": 11.25,
+         "distribution": "uniform",
+         "default": 7.5
+        },
+        "reason": "tabular Q-learning selection target_region=[10.889379519526496, 11.200212450475274] with 25% margin."
+       }
+      ],
+      "search_space": [
+       {
+        "name": "x1",
+        "type": "float",
+        "low": -5.0,
+        "high": 0.75,
+        "choices": null,
+        "distribution": "uniform",
+        "default": -3.0,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x1'.",
+        "confidence": 0.7
+       },
+       {
+        "name": "x2",
+        "type": "float",
+        "low": 3.75,
+        "high": 11.25,
+        "choices": null,
+        "distribution": "uniform",
+        "default": 7.5,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x2'.",
+        "confidence": 0.7
+       }
+      ],
+      "diagnostic_state": {
+       "optimization": {
+        "best_objective": {
+         "value": -0.9046367773584139,
+         "status": "VALID"
+        },
+        "recent_improvement": {
+         "value": 3.7742112753802877,
+         "status": "VALID"
+        },
+        "relative_improvement": {
+         "value": 0.806653950881043,
+         "status": "VALID"
+        },
+        "stagnation": {
+         "value": false,
+         "status": "VALID"
+        },
+        "marginal_gain": {
+         "value": 0.18871056376901438,
+         "status": "VALID"
+        }
+       },
+       "search_space": {
+        "importance": {
+         "x1": {
+          "global_importance": 0.600916,
+          "local_importance": 0.614376,
+          "rank": 1,
+          "status": "VALID"
+         },
+         "x2": {
+          "global_importance": 0.399084,
+          "local_importance": 0.385624,
+          "rank": 2,
+          "status": "VALID"
+         }
+        },
+        "boundary_concentration": {
+         "x1": {
+          "all": 0.1,
+          "good": 0.0,
+          "upper": 0.0,
+          "lower": 0.0,
+          "status": "VALID"
+         },
+         "x2": {
+          "all": 0.2,
+          "good": 0.75,
+          "upper": 0.75,
+          "lower": 0.0,
+          "status": "VALID"
+         }
+        },
+        "good_region": {
+         "x1": {
+          "mean": -2.889169467943214,
+          "lower": -2.9432202599688067,
+          "upper": -2.830627261883425,
+          "width_ratio": 0.01958139097137073,
+          "status": "VALID"
+         },
+         "x2": {
+          "mean": 11.042031138192028,
+          "lower": 10.889379519526496,
+          "upper": 11.200212450475274,
+          "width_ratio": 0.04144439079317029,
+          "status": "VALID"
+         }
+        },
+        "good_region_categorical": {},
+        "configuration_diversity": {
+         "recent": 0.1536227516313514,
+         "global": 0.2701797833886537,
+         "ratio": 0.5685945262766746,
+         "status": "VALID"
+        },
+        "coverage": {
+         "overall": 0.95,
+         "per_hyperparameter": {
+          "x1": 1.0,
+          "x2": 0.9
+         },
+         "status": "VALID"
+        }
+       },
+       "budget": {
+        "total_trials": 60,
+        "completed_trials": 40,
+        "budget_consumed": {
+         "value": 0.6666666666666666,
+         "status": "VALID"
+        },
+        "budget_remaining": {
+         "value": 0.33333333333333337,
+         "status": "VALID"
+        },
+        "marginal_gain_per_trial": {
+         "value": 0.18871056376901438,
+         "status": "VALID"
+        },
+        "marginal_gain_per_second": {
+         "value": 397.49418646007615,
+         "status": "VALID"
+        }
+       },
+       "meta": {
+        "num_complete_trials": 40,
+        "num_failed_trials": 0,
+        "num_pruned_trials": 0,
+        "failure_rate": 0.0,
+        "analysis_window": 20,
+        "data_sufficient": true
+       }
+      },
+      "trials": [
+       {
+        "trial_id": 20,
+        "params": {
+         "x1": -3.0512306312820847,
+         "x2": 10.35376991016539
+        },
+        "value": 3.3458019132200154,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 21,
+        "params": {
+         "x1": -2.5684303665486397,
+         "x2": 10.031696178469813
+        },
+        "value": 2.7606931588396786,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 22,
+        "params": {
+         "x1": -3.0379576828097523,
+         "x2": 10.006270511957561
+        },
+        "value": 4.54315982984931,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 23,
+        "params": {
+         "x1": -2.8746113886833635,
+         "x2": 11.228797966240284
+        },
+        "value": 0.9046367773584139,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 24,
+        "params": {
+         "x1": -4.492112434844651,
+         "x2": 11.105090902085227
+        },
+        "value": 29.528016096992165,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 25,
+        "params": {
+         "x1": -2.955333478974629,
+         "x2": 11.133512913690248
+        },
+        "value": 1.0480376805947447,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 26,
+        "params": {
+         "x1": -1.374421207660977,
+         "x2": 10.565079645308295
+        },
+        "value": 16.424363968121405,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 27,
+        "params": {
+         "x1": -2.8117769218263082,
+         "x2": 10.93672512864953
+        },
+        "value": 1.2222189873398006,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 28,
+        "params": {
+         "x1": -3.003898918519707,
+         "x2": 10.903232806210895
+        },
+        "value": 1.5777527521033392,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 29,
+        "params": {
+         "x1": -3.5159629982374643,
+         "x2": 11.126970413819366
+        },
+        "value": 5.338551502415358,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 30,
+        "params": {
+         "x1": -4.778991011084565,
+         "x2": 9.925747528864463
+        },
+        "value": 54.603077188224844,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 31,
+        "params": {
+         "x1": -2.823366037033857,
+         "x2": 9.385987001996776
+        },
+        "value": 5.455205611155401,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 32,
+        "params": {
+         "x1": -2.9149560822885547,
+         "x2": 10.869088544188054
+        },
+        "value": 1.3929659913725128,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 33,
+        "params": {
+         "x1": -3.552314937833593,
+         "x2": 9.444368307944533
+        },
+        "value": 15.939108529632279,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 34,
+        "params": {
+         "x1": -2.3804210329489495,
+         "x2": 11.202145705351795
+        },
+        "value": 3.510890504044589,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 35,
+        "params": {
+         "x1": -1.6115190908012451,
+         "x2": 11.197881963645784
+        },
+        "value": 14.884463056183964,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 36,
+        "params": {
+         "x1": -4.6653577040799,
+         "x2": 10.474332381260965
+        },
+        "value": 42.750924111550916,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 37,
+        "params": {
+         "x1": -1.592218657598275,
+         "x2": 10.034215565943231
+        },
+        "value": 11.16558015031509,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 38,
+        "params": {
+         "x1": -4.180192225857264,
+         "x2": 9.773149657145519
+        },
+        "value": 31.526163289924533,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 39,
+        "params": {
+         "x1": -2.2144859313006426,
+         "x2": 8.426033026973634
+        },
+        "value": 7.2465364810973085,
+        "state": "COMPLETE"
+       }
+      ]
+     },
+     {
+      "round_index": 2,
+      "setup_id": "setup_002",
+      "trials_used": 20,
+      "phase_best": -0.8898614514359307,
+      "cumulative_best": -0.8898614514359307,
+      "diagnosis": "PROMISING_REGION_IDENTIFIED",
+      "action": null,
+      "action_valid": true,
+      "reward": null,
+      "terminated": false,
+      "setup_after_id": null,
+      "changes": [],
+      "search_space": [
+       {
+        "name": "x1",
+        "type": "float",
+        "low": -5.0,
+        "high": 0.75,
+        "choices": null,
+        "distribution": "uniform",
+        "default": -3.0,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x1'.",
+        "confidence": 0.7
+       },
+       {
+        "name": "x2",
+        "type": "float",
+        "low": 10.811671286789302,
+        "high": 11.25,
+        "choices": null,
+        "distribution": "uniform",
+        "default": 7.5,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x2'.",
+        "confidence": 0.7
+       }
+      ],
+      "diagnostic_state": {
+       "optimization": {
+        "best_objective": {
+         "value": -0.8898614514359307,
+         "status": "VALID"
+        },
+        "recent_improvement": {
+         "value": 0.014775325922483207,
+         "status": "VALID"
+        },
+        "relative_improvement": {
+         "value": 0.016332882023986577,
+         "status": "VALID"
+        },
+        "stagnation": {
+         "value": false,
+         "status": "VALID"
+        },
+        "marginal_gain": {
+         "value": 0.0007387662961241603,
+         "status": "VALID"
+        }
+       },
+       "search_space": {
+        "importance": {
+         "x1": {
+          "global_importance": 0.999907,
+          "local_importance": 0.999863,
+          "rank": 1,
+          "status": "VALID"
+         },
+         "x2": {
+          "global_importance": 9.3e-05,
+          "local_importance": 0.000137,
+          "rank": 2,
+          "status": "VALID"
+         }
+        },
+        "boundary_concentration": {
+         "x1": {
+          "all": 0.11666666666666667,
+          "good": 0.0,
+          "upper": 0.0,
+          "lower": 0.0,
+          "status": "VALID"
+         },
+         "x2": {
+          "all": 0.5833333333333334,
+          "good": 0.5,
+          "upper": 0.5,
+          "lower": 0.0,
+          "status": "VALID"
+         }
+        },
+        "good_region": {
+         "x1": {
+          "mean": -2.8544071050015467,
+          "lower": -2.92799029845927,
+          "upper": -2.7584669828175867,
+          "width_ratio": 0.029482315763771014,
+          "status": "VALID"
+         },
+         "x2": {
+          "mean": 11.156947762212091,
+          "lower": 11.035119021169889,
+          "upper": 11.243721350595122,
+          "width_ratio": 0.47590386652348027,
+          "status": "VALID"
+         }
+        },
+        "good_region_categorical": {},
+        "configuration_diversity": {
+         "recent": 0.2813304009626836,
+         "global": 2.1557282493414323,
+         "ratio": 0.1305036475462956,
+         "status": "VALID"
+        },
+        "coverage": {
+         "overall": 0.95,
+         "per_hyperparameter": {
+          "x1": 1.0,
+          "x2": 0.9
+         },
+         "status": "VALID"
+        }
+       },
+       "budget": {
+        "total_trials": 60,
+        "completed_trials": 60,
+        "budget_consumed": {
+         "value": 1.0,
+         "status": "VALID"
+        },
+        "budget_remaining": {
+         "value": 0.0,
+         "status": "VALID"
+        },
+        "marginal_gain_per_trial": {
+         "value": 0.0007387662961241603,
+         "status": "VALID"
+        },
+        "marginal_gain_per_second": {
+         "value": 3.161843420511235,
+         "status": "VALID"
+        }
+       },
+       "meta": {
+        "num_complete_trials": 60,
+        "num_failed_trials": 0,
+        "num_pruned_trials": 0,
+        "failure_rate": 0.0,
+        "analysis_window": 20,
+        "data_sufficient": true
+       }
+      },
+      "trials": [
+       {
+        "trial_id": 9,
+        "params": {
+         "x1": -1.8329120601961908,
+         "x2": 11.122072810640454
+        },
+        "value": 10.644908958212596,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 10,
+        "params": {
+         "x1": -3.32729775125057,
+         "x2": 11.035581693648096
+        },
+        "value": 3.41551037964869,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 11,
+        "params": {
+         "x1": 0.1344449874990145,
+         "x2": 11.204542283121137
+        },
+        "value": 48.85111172419934,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 12,
+        "params": {
+         "x1": -4.277884464832941,
+         "x2": 10.902511790885695
+        },
+        "value": 24.189715016405742,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 13,
+        "params": {
+         "x1": -4.704063581020228,
+         "x2": 11.004890898327295
+        },
+        "value": 38.44833640368309,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 14,
+        "params": {
+         "x1": -4.82821178744824,
+         "x2": 11.01191440619013
+        },
+        "value": 43.424763137783856,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 15,
+        "params": {
+         "x1": -1.2674217262151257,
+         "x2": 10.933740259037933
+        },
+        "value": 20.21541435416753,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 16,
+        "params": {
+         "x1": -1.1115343136142453,
+         "x2": 11.070663425231459
+        },
+        "value": 24.132068929184594,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 17,
+        "params": {
+         "x1": -4.862104176331299,
+         "x2": 11.056633080050883
+        },
+        "value": 44.32527970856449,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 18,
+        "params": {
+         "x1": -3.5092984302820738,
+         "x2": 10.993622060326947
+        },
+        "value": 5.799199610683115,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 19,
+        "params": {
+         "x1": -3.369730779814917,
+         "x2": 11.11549353860098
+        },
+        "value": 3.5881258564694085,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 20,
+        "params": {
+         "x1": -2.9006471179439117,
+         "x2": 11.24543422126765
+        },
+        "value": 0.8898614514359307,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 21,
+        "params": {
+         "x1": -3.9360056641817,
+         "x2": 11.201478025308386
+        },
+        "value": 12.66782528206028,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 22,
+        "params": {
+         "x1": -3.703987471115835,
+         "x2": 11.247475075340226
+        },
+        "value": 7.73337542454417,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 23,
+        "params": {
+         "x1": -4.944936003535932,
+         "x2": 11.22250075094698
+        },
+        "value": 45.935610937012996,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 24,
+        "params": {
+         "x1": -2.705157043808865,
+         "x2": 11.242008479922593
+        },
+        "value": 1.3067189821371232,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 25,
+        "params": {
+         "x1": -2.8789166787722027,
+         "x2": 11.155207863502243
+        },
+        "value": 0.9771112735355412,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 26,
+        "params": {
+         "x1": -2.179856220393845,
+         "x2": 11.025519867932868
+        },
+        "value": 5.394549832992114,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 27,
+        "params": {
+         "x1": -2.1710086092935175,
+         "x2": 11.163661101753606
+        },
+        "value": 5.781812290816296,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 28,
+        "params": {
+         "x1": -3.543718466950038,
+         "x2": 11.166913923731846
+        },
+        "value": 5.563429077619777,
+        "state": "COMPLETE"
+       }
+      ]
+     }
+    ],
+    "total_trials_used": 60,
+    "best_value": -0.8898614514359307,
+    "best_params": {
+     "x1": -2.9006471179439117,
+     "x2": 11.24543422126765
+    },
+    "best_value_raw": 0.8898614514359307,
+    "terminated": false,
+    "q_table_size": 4,
+    "experiences_recorded": 8
+   },
+   "timings": {
+    "hpo": 0.02217,
+    "adapt": 0.303435,
+    "total": 0.325605
+   }
+  },
+  {
+   "episode": 2,
+   "result": {
+    "steps": [
+     {
+      "round_index": 0,
+      "setup_id": "setup_000",
+      "trials_used": 20,
+      "phase_best": -1.5510602568374705,
+      "cumulative_best": -1.5510602568374705,
+      "diagnosis": "NO_ACTION_RECOMMENDED",
+      "action": {
+       "action": "INCREASE_EXPLORATION",
+       "candidate_hyperparameter": "optimizer",
+       "parameters": {},
+       "confidence": 1.0,
+       "q_value": 0.112666,
+       "reason": "tabular Q-learning selection"
+      },
+      "action_valid": true,
+      "reward": 0.3154249664057528,
+      "terminated": false,
+      "setup_after_id": "setup_001",
+      "changes": [
+       {
+        "hyperparameter": "optimizer",
+        "old": {
+         "name": "TPE",
+         "n_startup_trials": 10
+        },
+        "new": {
+         "name": "TPE",
+         "n_startup_trials": 20
+        },
+        "reason": "tabular Q-learning selection Doubled TPE n_startup_trials for stronger random exploration."
+       }
+      ],
+      "search_space": [
+       {
+        "name": "x1",
+        "type": "float",
+        "low": -5.0,
+        "high": 0.75,
+        "choices": null,
+        "distribution": "uniform",
+        "default": -3.0,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x1'.",
+        "confidence": 0.7
+       },
+       {
+        "name": "x2",
+        "type": "float",
+        "low": 3.75,
+        "high": 11.25,
+        "choices": null,
+        "distribution": "uniform",
+        "default": 7.5,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x2'.",
+        "confidence": 0.7
+       }
+      ],
+      "diagnostic_state": {
+       "optimization": {
+        "best_objective": {
+         "value": -1.5510602568374705,
+         "status": "VALID"
+        },
+        "recent_improvement": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        },
+        "relative_improvement": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        },
+        "stagnation": {
+         "value": false,
+         "status": "VALID"
+        },
+        "marginal_gain": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        }
+       },
+       "search_space": {
+        "importance": {
+         "x1": {
+          "global_importance": null,
+          "local_importance": null,
+          "rank": null,
+          "status": "INSUFFICIENT_DATA"
+         },
+         "x2": {
+          "global_importance": null,
+          "local_importance": null,
+          "rank": null,
+          "status": "INSUFFICIENT_DATA"
+         }
+        },
+        "boundary_concentration": {
+         "x1": {
+          "all": 0.0,
+          "good": 0.0,
+          "upper": 0.0,
+          "lower": 0.0,
+          "status": "VALID"
+         },
+         "x2": {
+          "all": 0.1,
+          "good": 0.0,
+          "upper": 0.0,
+          "lower": 0.0,
+          "status": "VALID"
+         }
+        },
+        "good_region": {
+         "x1": {
+          "mean": -2.742719312379327,
+          "lower": -2.7677676384641936,
+          "upper": -2.7176709862944604,
+          "width_ratio": 0.00871246124691013,
+          "status": "VALID"
+         },
+         "x2": {
+          "mean": 10.615104746135497,
+          "lower": 10.51231105106877,
+          "upper": 10.717898441202225,
+          "width_ratio": 0.027411652017794098,
+          "status": "VALID"
+         }
+        },
+        "good_region_categorical": {},
+        "configuration_diversity": {
+         "recent": 0.28134568747543487,
+         "global": 0.28134568747543487,
+         "ratio": 0.9999999644565384,
+         "status": "VALID"
+        },
+        "coverage": {
+         "overall": 0.8,
+         "per_hyperparameter": {
+          "x1": 0.7,
+          "x2": 0.9
+         },
+         "status": "VALID"
+        }
+       },
+       "budget": {
+        "total_trials": 60,
+        "completed_trials": 20,
+        "budget_consumed": {
+         "value": 0.3333333333333333,
+         "status": "VALID"
+        },
+        "budget_remaining": {
+         "value": 0.6666666666666667,
+         "status": "VALID"
+        },
+        "marginal_gain_per_trial": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        },
+        "marginal_gain_per_second": {
+         "value": null,
+         "status": "INSUFFICIENT_DATA"
+        }
+       },
+       "meta": {
+        "num_complete_trials": 20,
+        "num_failed_trials": 0,
+        "num_pruned_trials": 0,
+        "failure_rate": 0.0,
+        "analysis_window": 20,
+        "data_sufficient": true
+       }
+      },
+      "trials": [
+       {
+        "trial_id": 0,
+        "params": {
+         "x1": -2.493029312683478,
+         "x2": 3.944446738709185
+        },
+        "value": 48.93847021930504,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 1,
+        "params": {
+         "x1": -1.8394407521974223,
+         "x2": 7.014917944637077
+        },
+        "value": 12.981427990679064,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 2,
+        "params": {
+         "x1": -2.582885137996938,
+         "x2": 6.227511157529056
+        },
+        "value": 24.374844733531894,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 3,
+        "params": {
+         "x1": -3.8232703542824056,
+         "x2": 8.394532247629979
+        },
+        "value": 33.661016450062,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 4,
+        "params": {
+         "x1": -3.276985626371492,
+         "x2": 5.7512045632715
+        },
+        "value": 47.43366490439737,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 5,
+        "params": {
+         "x1": -1.4284804615765543,
+         "x2": 7.718565707077793
+        },
+        "value": 12.039224250329735,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 6,
+        "params": {
+         "x1": -4.226165314266632,
+         "x2": 7.601835909493098
+        },
+        "value": 60.740196008821634,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 7,
+        "params": {
+         "x1": -3.939470772530237,
+         "x2": 9.64001360862505
+        },
+        "value": 24.77406254004446,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 8,
+        "params": {
+         "x1": -0.08964206732293944,
+         "x2": 7.456776280364458
+        },
+        "value": 21.290945208940176,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 9,
+        "params": {
+         "x1": -0.132271459194559,
+         "x2": 4.3473410775679575
+        },
+        "value": 22.995349545897568,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 10,
+        "params": {
+         "x1": -1.4370843920533285,
+         "x2": 10.822732920294778
+        },
+        "value": 16.426979051886747,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 11,
+        "params": {
+         "x1": -1.4414307622460858,
+         "x2": 8.534956839565075
+        },
+        "value": 11.239314079774203,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 12,
+        "params": {
+         "x1": -1.6066766939587305,
+         "x2": 8.648455972022722
+        },
+        "value": 9.708665579845015,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 13,
+        "params": {
+         "x1": -0.29937491813028627,
+         "x2": 9.936464332233014
+        },
+        "value": 31.06445702651306,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 14,
+        "params": {
+         "x1": -2.613224157143669,
+         "x2": 9.088889800259976
+        },
+        "value": 5.51319479035416,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 15,
+        "params": {
+         "x1": -2.5322146025867562,
+         "x2": 9.564816695111091
+        },
+        "value": 3.7981450307879125,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 16,
+        "params": {
+         "x1": -2.918318343701973,
+         "x2": 9.656681928053187
+        },
+        "value": 4.999654677003262,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 17,
+        "params": {
+         "x1": -2.7740297199854105,
+         "x2": 10.486612627302087
+        },
+        "value": 1.8977985914274813,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 18,
+        "params": {
+         "x1": -3.5105477681011865,
+         "x2": 10.895278384840726
+        },
+        "value": 6.270393063174255,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 19,
+        "params": {
+         "x1": -2.7114089047732435,
+         "x2": 10.743596864968907
+        },
+        "value": 1.5510602568374705,
+        "state": "COMPLETE"
+       }
+      ]
+     },
+     {
+      "round_index": 1,
+      "setup_id": "setup_001",
+      "trials_used": 20,
+      "phase_best": -1.010115115382381,
+      "cumulative_best": -1.010115115382381,
+      "diagnosis": "PROMISING_REGION_IDENTIFIED",
+      "action": {
+       "action": "INCREASE_EXPLORATION",
+       "candidate_hyperparameter": "optimizer",
+       "parameters": {},
+       "confidence": 0.1429,
+       "q_value": 0.0,
+       "reason": "tabular Q-learning selection"
+      },
+      "action_valid": true,
+      "reward": 0.08257179021316174,
+      "terminated": false,
+      "setup_after_id": "setup_002",
+      "changes": [
+       {
+        "hyperparameter": "optimizer",
+        "old": {
+         "name": "TPE",
+         "n_startup_trials": 20
+        },
+        "new": {
+         "name": "TPE",
+         "n_startup_trials": 20
+        },
+        "reason": "tabular Q-learning selection Doubled TPE n_startup_trials for stronger random exploration."
+       }
+      ],
+      "search_space": [
+       {
+        "name": "x1",
+        "type": "float",
+        "low": -5.0,
+        "high": 0.75,
+        "choices": null,
+        "distribution": "uniform",
+        "default": -3.0,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x1'.",
+        "confidence": 0.7
+       },
+       {
+        "name": "x2",
+        "type": "float",
+        "low": 3.75,
+        "high": 11.25,
+        "choices": null,
+        "distribution": "uniform",
+        "default": 7.5,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x2'.",
+        "confidence": 0.7
+       }
+      ],
+      "diagnostic_state": {
+       "optimization": {
+        "best_objective": {
+         "value": -1.010115115382381,
+         "status": "VALID"
+        },
+        "recent_improvement": {
+         "value": 0.5409451414550894,
+         "status": "VALID"
+        },
+        "relative_improvement": {
+         "value": 0.3487582997390861,
+         "status": "VALID"
+        },
+        "stagnation": {
+         "value": false,
+         "status": "VALID"
+        },
+        "marginal_gain": {
+         "value": 0.02704725707275447,
+         "status": "VALID"
+        }
+       },
+       "search_space": {
+        "importance": {
+         "x1": {
+          "global_importance": 0.692514,
+          "local_importance": 0.548398,
+          "rank": 1,
+          "status": "VALID"
+         },
+         "x2": {
+          "global_importance": 0.307486,
+          "local_importance": 0.451602,
+          "rank": 2,
+          "status": "VALID"
+         }
+        },
+        "boundary_concentration": {
+         "x1": {
+          "all": 0.075,
+          "good": 0.0,
+          "upper": 0.0,
+          "lower": 0.0,
+          "status": "VALID"
+         },
+         "x2": {
+          "all": 0.25,
+          "good": 0.75,
+          "upper": 0.75,
+          "lower": 0.0,
+          "status": "VALID"
+         }
+        },
+        "good_region": {
+         "x1": {
+          "mean": -2.8158404616796764,
+          "lower": -2.8757304340224543,
+          "upper": -2.743842864807747,
+          "width_ratio": 0.022936968559079517,
+          "status": "VALID"
+         },
+         "x2": {
+          "mean": 11.006079120603616,
+          "lower": 10.813995214884363,
+          "upper": 11.152955423524302,
+          "width_ratio": 0.04519469448532523,
+          "status": "VALID"
+         }
+        },
+        "good_region_categorical": {},
+        "configuration_diversity": {
+         "recent": 0.246740659033384,
+         "global": 0.2800525331597659,
+         "ratio": 0.8810513064779492,
+         "status": "VALID"
+        },
+        "coverage": {
+         "overall": 0.95,
+         "per_hyperparameter": {
+          "x1": 1.0,
+          "x2": 0.9
+         },
+         "status": "VALID"
+        }
+       },
+       "budget": {
+        "total_trials": 60,
+        "completed_trials": 40,
+        "budget_consumed": {
+         "value": 0.6666666666666666,
+         "status": "VALID"
+        },
+        "budget_remaining": {
+         "value": 0.33333333333333337,
+         "status": "VALID"
+        },
+        "marginal_gain_per_trial": {
+         "value": 0.02704725707275447,
+         "status": "VALID"
+        },
+        "marginal_gain_per_second": {
+         "value": 56.90559356187185,
+         "status": "VALID"
+        }
+       },
+       "meta": {
+        "num_complete_trials": 40,
+        "num_failed_trials": 0,
+        "num_pruned_trials": 0,
+        "failure_rate": 0.0,
+        "analysis_window": 20,
+        "data_sufficient": true
+       }
+      },
+      "trials": [
+       {
+        "trial_id": 20,
+        "params": {
+         "x1": -2.819522104888255,
+         "x2": 11.155542369241907
+        },
+        "value": 1.022728870518587,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 21,
+        "params": {
+         "x1": -2.186411288392308,
+         "x2": 10.924763502110602
+        },
+        "value": 5.13573972755339,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 22,
+        "params": {
+         "x1": -4.4904785544807915,
+         "x2": 10.474491191045217
+        },
+        "value": 35.732168337454404,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 23,
+        "params": {
+         "x1": -2.8900029572632304,
+         "x2": 10.97825803135376
+        },
+        "value": 1.1916995007383129,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 24,
+        "params": {
+         "x1": -4.986714412117826,
+         "x2": 9.182015109564787
+        },
+        "value": 76.08428510143074,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 25,
+        "params": {
+         "x1": -0.4032597928541013,
+         "x2": 11.06424426937583
+        },
+        "value": 38.21035772793921,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 26,
+        "params": {
+         "x1": -1.595727091408624,
+         "x2": 9.923512761833258
+        },
+        "value": 10.871132430054585,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 27,
+        "params": {
+         "x1": 0.6217763777378571,
+         "x2": 4.375294664612713
+        },
+        "value": 18.28319030973478,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 28,
+        "params": {
+         "x1": -2.21123915450284,
+         "x2": 10.289653726239687
+        },
+        "value": 4.2840345305770375,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 29,
+        "params": {
+         "x1": -3.2822713109413573,
+         "x2": 10.3684989070992
+        },
+        "value": 5.544012118089435,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 30,
+        "params": {
+         "x1": 0.44292414101830024,
+         "x2": 9.844628566147392
+        },
+        "value": 39.13945985069317,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 31,
+        "params": {
+         "x1": -1.0267905010499858,
+         "x2": 10.050702198161495
+        },
+        "value": 20.17754494927759,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 32,
+        "params": {
+         "x1": -2.4967354712884258,
+         "x2": 10.681646216035247
+        },
+        "value": 2.341098609759809,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 33,
+        "params": {
+         "x1": -2.842427879793977,
+         "x2": 11.146919216849891
+        },
+        "value": 1.010115115382381,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 34,
+        "params": {
+         "x1": -3.3439518389373317,
+         "x2": 11.06001444147694
+        },
+        "value": 3.4990921397016734,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 35,
+        "params": {
+         "x1": -2.526736340250687,
+         "x2": 11.211851433386643
+        },
+        "value": 2.2949014771035308,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 36,
+        "params": {
+         "x1": -3.0594840944665176,
+         "x2": 8.27854539049534
+        },
+        "value": 14.876240265669352,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 37,
+        "params": {
+         "x1": -4.799909197098047,
+         "x2": 11.09729408787403
+        },
+        "value": 41.29134152656917,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 38,
+        "params": {
+         "x1": -2.0123769819889685,
+         "x2": 9.328819586906413
+        },
+        "value": 6.06212254074028,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 39,
+        "params": {
+         "x1": -3.8728072745935185,
+         "x2": 10.379610324269695
+        },
+        "value": 16.69976533035672,
+        "state": "COMPLETE"
+       }
+      ]
+     },
+     {
+      "round_index": 2,
+      "setup_id": "setup_002",
+      "trials_used": 20,
+      "phase_best": -0.8930375969787528,
+      "cumulative_best": -0.8930375969787528,
+      "diagnosis": "PROMISING_REGION_IDENTIFIED",
+      "action": null,
+      "action_valid": true,
+      "reward": null,
+      "terminated": false,
+      "setup_after_id": null,
+      "changes": [],
+      "search_space": [
+       {
+        "name": "x1",
+        "type": "float",
+        "low": -5.0,
+        "high": 0.75,
+        "choices": null,
+        "distribution": "uniform",
+        "default": -3.0,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x1'.",
+        "confidence": 0.7
+       },
+       {
+        "name": "x2",
+        "type": "float",
+        "low": 3.75,
+        "high": 11.25,
+        "choices": null,
+        "distribution": "uniform",
+        "default": 7.5,
+        "depends_on": null,
+        "rationale": "Compact range centered on the default value of 'x2'.",
+        "confidence": 0.7
+       }
+      ],
+      "diagnostic_state": {
+       "optimization": {
+        "best_objective": {
+         "value": -0.8930375969787528,
+         "status": "VALID"
+        },
+        "recent_improvement": {
+         "value": 0.11707751840362823,
+         "status": "VALID"
+        },
+        "relative_improvement": {
+         "value": 0.11590512354649507,
+         "status": "VALID"
+        },
+        "stagnation": {
+         "value": false,
+         "status": "VALID"
+        },
+        "marginal_gain": {
+         "value": 0.005853875920181412,
+         "status": "VALID"
+        }
+       },
+       "search_space": {
+        "importance": {
+         "x1": {
+          "global_importance": 0.613506,
+          "local_importance": 0.522798,
+          "rank": 1,
+          "status": "VALID"
+         },
+         "x2": {
+          "global_importance": 0.386494,
+          "local_importance": 0.477202,
+          "rank": 2,
+          "status": "VALID"
+         }
+        },
+        "boundary_concentration": {
+         "x1": {
+          "all": 0.05,
+          "good": 0.0,
+          "upper": 0.0,
+          "lower": 0.0,
+          "status": "VALID"
+         },
+         "x2": {
+          "all": 0.2833333333333333,
+          "good": 1.0,
+          "upper": 1.0,
+          "lower": 0.0,
+          "status": "VALID"
+         }
+        },
+        "good_region": {
+         "x1": {
+          "mean": -2.8719122181529744,
+          "lower": -2.949772036964757,
+          "upper": -2.8236828668467346,
+          "width_ratio": 0.02192855132487343,
+          "status": "VALID"
+         },
+         "x2": {
+          "mean": 11.195171531856866,
+          "lower": 11.1512307930459,
+          "upper": 11.239833293222999,
+          "width_ratio": 0.011813666690279945,
+          "status": "VALID"
+         }
+        },
+        "good_region_categorical": {},
+        "configuration_diversity": {
+         "recent": 0.20079844760587687,
+         "global": 0.25966371545800854,
+         "ratio": 0.7733018820849852,
+         "status": "VALID"
+        },
+        "coverage": {
+         "overall": 0.95,
+         "per_hyperparameter": {
+          "x1": 1.0,
+          "x2": 0.9
+         },
+         "status": "VALID"
+        }
+       },
+       "budget": {
+        "total_trials": 60,
+        "completed_trials": 60,
+        "budget_consumed": {
+         "value": 1.0,
+         "status": "VALID"
+        },
+        "budget_remaining": {
+         "value": 0.0,
+         "status": "VALID"
+        },
+        "marginal_gain_per_trial": {
+         "value": 0.005853875920181412,
+         "status": "VALID"
+        },
+        "marginal_gain_per_second": {
+         "value": 11.565484811694173,
+         "status": "VALID"
+        }
+       },
+       "meta": {
+        "num_complete_trials": 60,
+        "num_failed_trials": 0,
+        "num_pruned_trials": 0,
+        "failure_rate": 0.0,
+        "analysis_window": 20,
+        "data_sufficient": true
+       }
+      },
+      "trials": [
+       {
+        "trial_id": 40,
+        "params": {
+         "x1": -3.925797818779686,
+         "x2": 4.426096105587488
+        },
+        "value": 99.498090800278,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 41,
+        "params": {
+         "x1": -2.940870664522668,
+         "x2": 10.351695614481192
+        },
+        "value": 2.6851181396630133,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 42,
+        "params": {
+         "x1": -3.608864062307172,
+         "x2": 9.258285932575268
+        },
+        "value": 18.80249341098568,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 43,
+        "params": {
+         "x1": -2.9679693947741335,
+         "x2": 10.738050247075932
+        },
+        "value": 1.7959801726005,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 44,
+        "params": {
+         "x1": -2.8421356215008866,
+         "x2": 11.159715190052136
+        },
+        "value": 0.9972331665747534,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 45,
+        "params": {
+         "x1": -4.499364367602362,
+         "x2": 9.948054055874248
+        },
+        "value": 41.94249370736045,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 46,
+        "params": {
+         "x1": -3.2574590165893738,
+         "x2": 9.803572300287003
+        },
+        "value": 8.030120214321036,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 47,
+        "params": {
+         "x1": -4.094341758182155,
+         "x2": 11.23097258892053
+        },
+        "value": 16.35374920316915,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 48,
+        "params": {
+         "x1": -2.9041511235058994,
+         "x2": 11.23670794178383
+        },
+        "value": 0.8930375969787528,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 49,
+        "params": {
+         "x1": -2.827843628805214,
+         "x2": 11.229185828551268
+        },
+        "value": 0.9651858894018399,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 50,
+        "params": {
+         "x1": -1.649350638639456,
+         "x2": 4.431258000283124
+        },
+        "value": 29.912219172790486,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 51,
+        "params": {
+         "x1": -2.995392950423614,
+         "x2": 11.242958644662167
+        },
+        "value": 0.9673413389962827,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 52,
+        "params": {
+         "x1": -1.7566933650209748,
+         "x2": 11.151911733933842
+        },
+        "value": 12.052809684057394,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 53,
+        "params": {
+         "x1": -1.6999818098794406,
+         "x2": 10.533656958550761
+        },
+        "value": 10.881018148856603,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 54,
+        "params": {
+         "x1": -2.6299786083132903,
+         "x2": 10.121294186574811
+        },
+        "value": 2.551588575486576,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 55,
+        "params": {
+         "x1": -3.022724928422863,
+         "x2": 11.188139391213511
+        },
+        "value": 1.1144923413707106,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 56,
+        "params": {
+         "x1": -3.5096404683917433,
+         "x2": 10.193358887244736
+        },
+        "value": 9.950601580999935,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 57,
+        "params": {
+         "x1": -1.080986811611779,
+         "x2": 10.499026453255196
+        },
+        "value": 21.422841964815653,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 58,
+        "params": {
+         "x1": -3.838433091727227,
+         "x2": 10.809125580363075
+        },
+        "value": 12.904283592910202,
+        "state": "COMPLETE"
+       },
+       {
+        "trial_id": 59,
+        "params": {
+         "x1": -3.233807166002456,
+         "x2": 10.646464661732466
+        },
+        "value": 3.8635373102686263,
+        "state": "COMPLETE"
+       }
+      ]
+     }
+    ],
+    "total_trials_used": 60,
+    "best_value": -0.8930375969787528,
+    "best_params": {
+     "x1": -2.9041511235058994,
+     "x2": 11.23670794178383
+    },
+    "best_value_raw": 0.8930375969787528,
+    "terminated": false,
+    "q_table_size": 6,
+    "experiences_recorded": 12
+   },
+   "timings": {
+    "hpo": 0.028672,
+    "adapt": 0.299895,
+    "total": 0.328567
+   }
+  }
+ ]
+}

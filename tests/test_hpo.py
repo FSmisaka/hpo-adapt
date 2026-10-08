@@ -1,5 +1,7 @@
 """Stage 1 tests: Classical HPO module."""
 
+import pytest
+
 from hpo_adapt.hpo import get_objective, run_hpo
 from hpo_adapt.schemas import (
     BudgetSpec,
@@ -13,7 +15,7 @@ from hpo_adapt.schemas import (
     TrialState,
 )
 from hpo_adapt.schemas.task import HyperparameterMetadata
-from hpo_adapt.validator import ValidationError
+from hpo_adapt.validator import ValidationError, validate_setup
 
 
 def make_task(objective: str = "synthetic_mlp") -> TaskSpec:
@@ -68,6 +70,31 @@ class TestRunner:
         assert [t.params for t in r1.trials] == [t.params for t in r2.trials]
         assert r1.best_value == r2.best_value
 
+    def test_warm_start_reuses_history_without_consuming_budget(self):
+        task, setup = make_task(), make_setup(max_trials=15, optimizer="RANDOM")
+        phase1 = run_hpo(task, setup)
+        # phase 2: same setup (next phase id) warm-started with phase-1 trials
+        setup2 = setup.model_copy(deep=True)
+        setup2.phase = 1
+        phase2 = run_hpo(task, setup2, warm_start_trials=phase1.trials)
+        assert phase2.warm_started == len(phase1.trials)
+        # only NEW trials consume budget
+        assert len(phase2.trials) == 15
+        # the optimizer sees the history: best cannot be worse than phase 1's
+        assert phase2.best_value is not None and phase1.best_value is not None
+        assert phase2.best_value >= phase1.best_value - 1e-12
+
+    def test_warm_start_skips_out_of_range_trials(self):
+        task = make_task()
+        setup = make_setup(max_trials=5, optimizer="RANDOM")
+        past = run_hpo(task, setup).trials
+        # shrink the lr range so that most past lr values fall outside
+        narrow = setup.model_copy(deep=True)
+        narrow.search_space[0].low = 1e-5
+        narrow.search_space[0].high = 1.0001e-5
+        result = run_hpo(task, narrow, warm_start_trials=past)
+        assert result.warm_started < len(past)
+
     def test_invalid_setup_rejected(self):
         task, setup = make_task(), make_setup()
         setup.optimizer = OptimizerSpec(name="CMAES")
@@ -103,6 +130,50 @@ class TestRunner:
         result = run_hpo(task, setup)
         assert result.best_value is not None
         assert result.best_value < 30.0  # branin < 30 with modest effort
+
+
+class TestCmaEs:
+    def test_cmaes_runs_on_numerical_task(self):
+        # Branin-style purely numerical task: CMA-ES is applicable.
+        task = TaskSpec(
+            task_id="task_cmaes",
+            task_type="regression",
+            description="numerical only",
+            model_family="Analytic",
+            dataset_signature="branin",
+            objective_name="value",
+            direction=ObjectiveDirection.MINIMIZE,
+            objective="branin",
+            available_hyperparameters=[
+                HyperparameterMetadata(name="x1", type="float", low=-5.0, high=10.0),
+                HyperparameterMetadata(name="x2", type="float", low=0.0, high=15.0),
+            ],
+            resource_constraints=ResourceConstraints(max_total_trials=100),
+            allowed_optimizers=["RANDOM", "TPE", "CMAES"],
+        )
+        setup = Setup(
+            setup_id="setup_cmaes",
+            search_space=[
+                HyperparameterSpec(name="x1", type="float", low=-5.0, high=10.0),
+                HyperparameterSpec(name="x2", type="float", low=0.0, high=15.0),
+            ],
+            optimizer=OptimizerSpec(name="CMAES"),
+            budget=BudgetSpec(max_trials=12),
+            evaluation=EvaluationSpec(protocol="holdout", direction=ObjectiveDirection.MINIMIZE),
+        )
+        result = run_hpo(task, setup)
+        assert len(result.trials) == 12
+        assert result.best_value is not None
+        assert result.best_value < 50.0
+
+    def test_cmaes_rejected_when_not_allowed(self):
+        # Tasks with categorical parameters do not allow CMA-ES; the Tool
+        # Validator must reject such a setup before any HPO run.
+        setup = make_setup(optimizer="CMAES")
+        errors = validate_setup(setup, make_task())
+        assert any("not in allowed optimizer list" in e for e in errors)
+        with pytest.raises(ValidationError):
+            run_hpo(make_task(), setup)
 
 
 class TestObjectives:

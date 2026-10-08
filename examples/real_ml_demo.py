@@ -29,72 +29,16 @@ import json
 import sys
 from pathlib import Path
 
-from sklearn.datasets import load_digits
-
-from hpo_adapt.hpo.objectives import register_objective
 from hpo_adapt.memory import MemoryStore
-from hpo_adapt.pipeline import AdaptationPipeline, PipelineConfig
+from hpo_adapt.pipeline import AdaptationPipeline, PipelineConfig, rf_digits_task
 from hpo_adapt.rl import QController, QLearningConfig
-from hpo_adapt.schemas import ObjectiveDirection, TaskSpec
-from hpo_adapt.schemas.task import HyperparameterMetadata, ResourceConstraints
 
 # --------------------------------------------------------------------------
-# Step 1: the objective function of YOUR task.
-# 5-fold would be slower; 3-fold CV accuracy is enough signal for the demo.
+# Step 1 (register the objective) and Step 2 (describe the task) now live in
+# the package itself: hpo_adapt.hpo.objectives registers `rf_digits_cv` and
+# hpo_adapt.pipeline exposes `rf_digits_task`. This script only wires up the
+# run and prints every observable of the closed loop.
 # --------------------------------------------------------------------------
-
-_X, _y = load_digits(return_X_y=True)
-
-
-def rf_digits_cv(params: dict) -> float:
-    """3-fold CV accuracy of a RandomForest on sklearn digits (maximize)."""
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.model_selection import StratifiedKFold, cross_val_score
-
-    model = RandomForestClassifier(
-        n_estimators=int(params["n_estimators"]),
-        max_depth=int(params["max_depth"]),
-        min_samples_split=int(params["min_samples_split"]),
-        max_features=str(params["max_features"]),
-        random_state=0,
-        n_jobs=-1,
-    )
-    cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=0)
-    return float(cross_val_score(model, _X, _y, cv=cv, n_jobs=-1).mean())
-
-
-register_objective("rf_digits_cv", rf_digits_cv)
-
-
-# --------------------------------------------------------------------------
-# Step 2: describe the task (this is what the Setup Agents are allowed to touch).
-# --------------------------------------------------------------------------
-
-
-def rf_digits_task(max_total_trials: int, trials_per_phase: int) -> TaskSpec:
-    return TaskSpec(
-        task_id="task_rf_digits",
-        task_type="classification",
-        description="RandomForest on sklearn digits; 3-fold CV accuracy.",
-        model_family="RandomForest",
-        dataset_signature="sklearn_digits_1797x64",
-        objective_name="cv_accuracy",
-        direction=ObjectiveDirection.MAXIMIZE,
-        objective="rf_digits_cv",
-        available_hyperparameters=[
-            # name / type / default / domain — the agent may never leave this set.
-            HyperparameterMetadata(name="n_estimators", type="int", default=100, low=10, high=300),
-            HyperparameterMetadata(name="max_depth", type="int", default=8, low=2, high=32),
-            HyperparameterMetadata(name="min_samples_split", type="int", default=2, low=2, high=20),
-            HyperparameterMetadata(
-                name="max_features", type="categorical", default="sqrt", choices=["sqrt", "log2"]
-            ),
-        ],
-        resource_constraints=ResourceConstraints(
-            max_total_trials=max_total_trials, max_trials_per_phase=trials_per_phase
-        ),
-        allowed_optimizers=["RANDOM", "TPE"],
-    )
 
 
 # --------------------------------------------------------------------------

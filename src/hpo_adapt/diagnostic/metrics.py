@@ -107,31 +107,42 @@ def boundary_mask(z: np.ndarray, threshold: float) -> tuple[np.ndarray, np.ndarr
     return z < threshold, z > (1.0 - threshold)
 
 
+def _pair_distance(
+    a: TrialLog, b: TrialLog, search_space: list[HyperparameterSpec]
+) -> float:
+    """Spec formula: d(x_i, x_k) = (1/m) * sum_j d_j(x_ij, x_kj).
+
+    d_j = |z_ij - z_kj| for numerical parameters (unit-interval normalized,
+    log-space aware) and d_j = 1(x_ij != x_kj) for categorical parameters.
+    """
+    m = len(search_space)
+    if m == 0:
+        return 0.0
+    total = 0.0
+    for spec in search_space:
+        va, vb = a.params.get(spec.name), b.params.get(spec.name)
+        if va is None or vb is None:
+            continue  # missing values contribute zero distance
+        if is_numeric(spec):
+            tf = ParamTransform(spec)
+            total += abs(tf.to_unit(float(va)) - tf.to_unit(float(vb)))
+        else:
+            total += 1.0 if repr(va) != repr(vb) else 0.0
+    return total / m
+
+
 def mixed_pairwise_distance(
     trials: list[TrialLog], search_space: list[HyperparameterSpec]
 ) -> float:
     """Mean pairwise mixed-type distance d(x_i, x_k) (spec.md: Configuration Diversity)."""
-    varying = [s for s in search_space if len({repr(t.params.get(s.name)) for t in trials}) > 1]
-    if not varying or len(trials) < 2:
+    if len(trials) < 2 or not search_space:
         return 0.0
-    feature_rows: list[np.ndarray] = []
-    for spec in varying:
-        if is_numeric(spec):
-            feature_rows.append(unit_values(trials, spec))
-        else:
-            cats = sorted({repr(v) for v in param_vector(trials, spec.name)})
-            idx = {c: i for i, c in enumerate(cats)}
-            feature_rows.append(
-                np.array([idx[repr(v)] / max(len(cats) - 1, 1) for v in param_vector(trials, spec.name)])
-            )
-    feats = np.stack(feature_rows, axis=1)  # (n, m) numeric-encoded
-    n = feats.shape[0]
+    n = len(trials)
     total = 0.0
     pairs = 0
     for i in range(n):
         for k in range(i + 1, n):
-            d = float(np.mean(np.abs(feats[i] - feats[k])))
-            total += d
+            total += _pair_distance(trials[i], trials[k], search_space)
             pairs += 1
     return total / pairs if pairs else 0.0
 

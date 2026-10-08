@@ -40,9 +40,11 @@ def _synthetic_mlp(params: dict[str, Any]) -> float:
     """Synthetic MLP-style accuracy (maximize).
 
     Ground truth optimum: learning_rate = 0.45, batch_size = 32,
-    optimizer_type = 'sgd', dropout = 0.05 — the optimal learning rate lies
-    above the range [1e-5, 1e-2] a typical initial setup would choose, which
-    produces boundary concentration suitable for adaptation demos.
+    optimizer_type = 'sgd', dropout = 0.05. The optimal learning rate lies
+    above the initial range [1e-3, 1e-1] a default-centered setup derives
+    (task default 1e-2, sgd-family), but within detection reach: good trials
+    concentrate at the upper boundary, which produces the boundary
+    concentration that triggers search-space expansion.
     """
     lr = float(params.get("learning_rate", 1e-3))
     batch = float(params.get("batch_size", 64))
@@ -82,5 +84,44 @@ def _branin(params: dict[str, Any]) -> float:
     return float(val + 0.01 * _noise(params, salt="branin"))
 
 
+def _digits_data() -> tuple[Any, Any]:
+    global _DIGITS_DATA
+    if _DIGITS_DATA is None:
+        from sklearn.datasets import load_digits
+
+        _DIGITS_DATA = load_digits(return_X_y=True)
+    return _DIGITS_DATA
+
+
+_DIGITS_DATA: tuple[Any, Any] | None = None
+
+
+def _rf_digits_cv(params: dict[str, Any]) -> float:
+    """3-fold CV accuracy of a RandomForest on sklearn digits (maximize).
+
+    Real-ML objective with a categorical hyperparameter; registered at import
+    time so the closed loop is runnable end-to-end on a real task. Inner
+    parallelism can be limited via HPO_ADAPT_INNER_JOBS (useful when an outer
+    process pool parallelizes experiments).
+    """
+    import os
+
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.model_selection import StratifiedKFold, cross_val_score
+
+    n_jobs = int(os.environ.get("HPO_ADAPT_INNER_JOBS", "-1"))
+    model = RandomForestClassifier(
+        n_estimators=int(params["n_estimators"]),
+        max_depth=int(params["max_depth"]),
+        min_samples_split=int(params["min_samples_split"]),
+        max_features=str(params["max_features"]),
+        random_state=0,
+        n_jobs=n_jobs,
+    )
+    cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=0)
+    return float(cross_val_score(model, *_digits_data(), cv=cv, n_jobs=n_jobs).mean())
+
+
 register_objective("synthetic_mlp", _synthetic_mlp)
 register_objective("branin", _branin)
+register_objective("rf_digits_cv", _rf_digits_cv)

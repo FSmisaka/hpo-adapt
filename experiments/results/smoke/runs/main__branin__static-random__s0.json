@@ -1,0 +1,734 @@
+{
+ "phase": "main",
+ "tag": "smoke",
+ "task": "branin",
+ "method": {
+  "name": "static-random",
+  "kind": "static",
+  "optimizer": "RANDOM",
+  "epsilon_start": null,
+  "epsilon_end": null,
+  "epsilon_decay": null
+ },
+ "method_name": "static-random",
+ "seed": 0,
+ "budget": 60,
+ "episodes": 1,
+ "fn": "single",
+ "result": {
+  "steps": [
+   {
+    "round_index": 0,
+    "setup_id": "setup_000",
+    "trials_used": 60,
+    "phase_best": -2.5026338100362873,
+    "cumulative_best": -2.5026338100362873,
+    "diagnosis": "PROMISING_REGION_IDENTIFIED",
+    "action": null,
+    "action_valid": true,
+    "reward": null,
+    "terminated": false,
+    "setup_after_id": null,
+    "changes": [],
+    "search_space": [
+     {
+      "name": "x1",
+      "type": "float",
+      "low": -5.0,
+      "high": 0.75,
+      "choices": null,
+      "distribution": "uniform",
+      "default": -3.0,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'x1'.",
+      "confidence": 0.7
+     },
+     {
+      "name": "x2",
+      "type": "float",
+      "low": 3.75,
+      "high": 11.25,
+      "choices": null,
+      "distribution": "uniform",
+      "default": 7.5,
+      "depends_on": null,
+      "rationale": "Compact range centered on the default value of 'x2'.",
+      "confidence": 0.7
+     }
+    ],
+    "diagnostic_state": {
+     "optimization": {
+      "best_objective": {
+       "value": -2.5026338100362873,
+       "status": "VALID"
+      },
+      "recent_improvement": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "relative_improvement": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "stagnation": {
+       "value": true,
+       "status": "VALID"
+      },
+      "marginal_gain": {
+       "value": 0.0,
+       "status": "VALID"
+      }
+     },
+     "search_space": {
+      "importance": {
+       "x1": {
+        "global_importance": 0.838155,
+        "local_importance": 0.710213,
+        "rank": 1,
+        "status": "VALID"
+       },
+       "x2": {
+        "global_importance": 0.161845,
+        "local_importance": 0.289787,
+        "rank": 2,
+        "status": "VALID"
+       }
+      },
+      "boundary_concentration": {
+       "x1": {
+        "all": 0.11666666666666667,
+        "good": 0.0,
+        "upper": 0.0,
+        "lower": 0.0,
+        "status": "VALID"
+       },
+       "x2": {
+        "all": 0.08333333333333333,
+        "good": 0.0,
+        "upper": 0.0,
+        "lower": 0.0,
+        "status": "VALID"
+       }
+      },
+      "good_region": {
+       "x1": {
+        "mean": -2.340806520201305,
+        "lower": -2.523929219520408,
+        "upper": -2.0954080097317624,
+        "width_ratio": 0.07452542778932965,
+        "status": "VALID"
+       },
+       "x2": {
+        "mean": 9.310285347309234,
+        "lower": 8.303730232257394,
+        "upper": 10.26818127469953,
+        "width_ratio": 0.2619268056589514,
+        "status": "VALID"
+       }
+      },
+      "good_region_categorical": {},
+      "configuration_diversity": {
+       "recent": 0.3291278155014539,
+       "global": 0.332264645296552,
+       "ratio": 0.9905592131299721,
+       "status": "VALID"
+      },
+      "coverage": {
+       "overall": 1.0,
+       "per_hyperparameter": {
+        "x1": 1.0,
+        "x2": 1.0
+       },
+       "status": "VALID"
+      }
+     },
+     "budget": {
+      "total_trials": 60,
+      "completed_trials": 60,
+      "budget_consumed": {
+       "value": 1.0,
+       "status": "VALID"
+      },
+      "budget_remaining": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "marginal_gain_per_trial": {
+       "value": 0.0,
+       "status": "VALID"
+      },
+      "marginal_gain_per_second": {
+       "value": 0.0,
+       "status": "VALID"
+      }
+     },
+     "meta": {
+      "num_complete_trials": 60,
+      "num_failed_trials": 0,
+      "num_pruned_trials": 0,
+      "failure_rate": 0.0,
+      "analysis_window": 20,
+      "data_sufficient": true
+     }
+    },
+    "trials": [
+     {
+      "trial_id": 0,
+      "params": {
+       "x1": -1.8443223524178827,
+       "x2": 9.113920247793146
+      },
+      "value": 7.479354539940165,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 1,
+      "params": {
+       "x1": -1.5341105875880476,
+       "x2": 7.836623872476727
+      },
+      "value": 11.185300351783434,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 2,
+      "params": {
+       "x1": -2.563984903801298,
+       "x2": 8.594205847999921
+      },
+      "value": 7.411280729914351,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 3,
+      "params": {
+       "x1": -2.483873535239518,
+       "x2": 10.438297505865599
+      },
+      "value": 2.5026338100362873,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 4,
+      "params": {
+       "x1": 0.5410608728809183,
+       "x2": 6.6258113911933325
+      },
+      "value": 20.32190726895478,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 5,
+      "params": {
+       "x1": -0.4475810310246786,
+       "x2": 7.716711898146784
+      },
+      "value": 19.61380792757796,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 6,
+      "params": {
+       "x1": -1.7337437737098893,
+       "x2": 10.691974787194958
+      },
+      "value": 10.8272189266789,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 7,
+      "params": {
+       "x1": -4.59154266536215,
+       "x2": 4.403469747761555
+      },
+      "value": 144.04493667463046,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 8,
+      "params": {
+       "x1": -4.883744214718127,
+       "x2": 9.994648841609536
+      },
+      "value": 58.67871507146483,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 9,
+      "params": {
+       "x1": -0.5255986820383597,
+       "x2": 10.275091111851143
+      },
+      "value": 29.885538749061784,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 10,
+      "params": {
+       "x1": 0.627055467838393,
+       "x2": 9.743689231625426
+      },
+      "value": 39.77121044893561,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 11,
+      "params": {
+       "x1": -2.346493667045642,
+       "x2": 9.603968822148415
+      },
+      "value": 3.9882016250678953,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 12,
+      "params": {
+       "x1": -4.319922051253634,
+       "x2": 8.54940765995643
+      },
+      "value": 51.704002775212516,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 13,
+      "params": {
+       "x1": -4.175718597397983,
+       "x2": 10.83501687787188
+      },
+      "value": 21.596761515916413,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 14,
+      "params": {
+       "x1": -1.9993721499370878,
+       "x2": 6.859964549928927
+      },
+      "value": 14.076434508267718,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 15,
+      "params": {
+       "x1": -3.478805230398395,
+       "x2": 9.556752670756625
+      },
+      "value": 13.498793897265434,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 16,
+      "params": {
+       "x1": -2.377135589754846,
+       "x2": 8.013254616514864
+      },
+      "value": 9.313799363620944,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 17,
+      "params": {
+       "x1": -4.8919586474909575,
+       "x2": 8.382266228069078
+      },
+      "value": 83.87876372259959,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 18,
+      "params": {
+       "x1": -1.480449594346077,
+       "x2": 8.377004976560677
+      },
+      "value": 10.928374904151301,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 19,
+      "params": {
+       "x1": 0.42655145145908896,
+       "x2": 8.863652243276125
+      },
+      "value": 31.11919258938329,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 20,
+      "params": {
+       "x1": -2.93282957170073,
+       "x2": 7.027739653495061
+      },
+      "value": 23.173356719351343,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 21,
+      "params": {
+       "x1": -0.9886206234182271,
+       "x2": 4.201691037219524
+      },
+      "value": 27.51469021975995,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 22,
+      "params": {
+       "x1": -1.166091386187411,
+       "x2": 8.779784022136196
+      },
+      "value": 14.34092503543662,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 23,
+      "params": {
+       "x1": -3.790300273825415,
+       "x2": 4.7169472324114
+      },
+      "value": 86.46232664686141,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 24,
+      "params": {
+       "x1": -3.1862869821859428,
+       "x2": 6.4778307820696694
+      },
+      "value": 35.275585191587744,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 25,
+      "params": {
+       "x1": -1.7213685700971921,
+       "x2": 7.039511350967403
+      },
+      "value": 12.893486481696575,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 26,
+      "params": {
+       "x1": 0.6831495688405506,
+       "x2": 4.5153360806102105
+      },
+      "value": 17.647615603696057,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 27,
+      "params": {
+       "x1": -3.7989586524547003,
+       "x2": 4.959821384137472
+      },
+      "value": 82.50983905442394,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 28,
+      "params": {
+       "x1": -1.244627128573959,
+       "x2": 5.649687019048366
+      },
+      "value": 19.47778114025338,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 29,
+      "params": {
+       "x1": -2.318713056076239,
+       "x2": 5.5831919400120205
+      },
+      "value": 26.532731567150712,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 30,
+      "params": {
+       "x1": -4.0859248940382615,
+       "x2": 4.577813558732289
+      },
+      "value": 106.01512362736767,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 31,
+      "params": {
+       "x1": -1.2261048605746778,
+       "x2": 4.786372135114603
+      },
+      "value": 24.53425032763153,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 32,
+      "params": {
+       "x1": -3.8696514203396926,
+       "x2": 6.515438779957231
+      },
+      "value": 60.247333070364746,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 33,
+      "params": {
+       "x1": -0.27928892837437314,
+       "x2": 4.478259568447959
+      },
+      "value": 23.133176203802652,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 34,
+      "params": {
+       "x1": -0.18181678188187755,
+       "x2": 4.470738059204723
+      },
+      "value": 22.77146136536861,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 35,
+      "params": {
+       "x1": 0.6146419238270255,
+       "x2": 7.264884012357761
+      },
+      "value": 22.66817730044768,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 36,
+      "params": {
+       "x1": 0.6163762570944386,
+       "x2": 8.286341398087846
+      },
+      "value": 28.200312171788095,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 37,
+      "params": {
+       "x1": -0.7492344184597654,
+       "x2": 4.043908441907405
+      },
+      "value": 27.404054453098944,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 38,
+      "params": {
+       "x1": -3.3738599651856447,
+       "x2": 4.651474209098767
+      },
+      "value": 67.7041729789565,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 39,
+      "params": {
+       "x1": -3.297193864247667,
+       "x2": 4.640457892156831
+      },
+      "value": 64.69739239907055,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 40,
+      "params": {
+       "x1": -3.171596718484638,
+       "x2": 6.8569724588600245
+      },
+      "value": 30.548543116725714,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 41,
+      "params": {
+       "x1": -4.63115189599449,
+       "x2": 8.943540895275149
+      },
+      "value": 61.03322153899718,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 42,
+      "params": {
+       "x1": -1.7420416383121928,
+       "x2": 5.740421182045841
+      },
+      "value": 20.082908682211126,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 43,
+      "params": {
+       "x1": -1.991323692566477,
+       "x2": 4.454553830688313
+      },
+      "value": 33.40164889373358,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 44,
+      "params": {
+       "x1": -1.6883076505519692,
+       "x2": 10.719721481821605
+      },
+      "value": 11.648918030444525,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 45,
+      "params": {
+       "x1": -3.168228523404889,
+       "x2": 8.755577849727613
+      },
+      "value": 13.241514793966203,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 46,
+      "params": {
+       "x1": -4.242162291174745,
+       "x2": 9.12245403088924
+      },
+      "value": 41.09819425586279,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 47,
+      "params": {
+       "x1": -3.335914965553594,
+       "x2": 5.123935215053376
+      },
+      "value": 58.692821611480035,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 48,
+      "params": {
+       "x1": -1.627550624842022,
+       "x2": 3.9008065964062015
+      },
+      "value": 34.7706222114136,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 49,
+      "params": {
+       "x1": -0.2335948320001622,
+       "x2": 3.785216071444103
+      },
+      "value": 26.076342981139067,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 50,
+      "params": {
+       "x1": -1.102554913421677,
+       "x2": 5.7750597989412364
+      },
+      "value": 18.889477269339817,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 51,
+      "params": {
+       "x1": -0.7726343727950794,
+       "x2": 10.966414088380787
+      },
+      "value": 30.27233483527509,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 52,
+      "params": {
+       "x1": -3.5696694247602414,
+       "x2": 8.071180008133776
+      },
+      "value": 28.8970356535278,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 53,
+      "params": {
+       "x1": -1.5957588951869257,
+       "x2": 8.04188929343155
+      },
+      "value": 10.444409062462425,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 54,
+      "params": {
+       "x1": -3.717280612316445,
+       "x2": 10.895617586377387
+      },
+      "value": 9.815638879323553,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 55,
+      "params": {
+       "x1": -2.4290290729486426,
+       "x2": 10.09806504353346
+      },
+      "value": 3.019724806933842,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 56,
+      "params": {
+       "x1": -0.9779941669243502,
+       "x2": 5.980777131413502
+      },
+      "value": 18.24728217635743,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 57,
+      "params": {
+       "x1": -0.32066253671075595,
+       "x2": 6.723793056352385
+      },
+      "value": 19.14645822303452,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 58,
+      "params": {
+       "x1": 0.06634338338917911,
+       "x2": 8.109546544768941
+      },
+      "value": 24.479622993334058,
+      "state": "COMPLETE"
+     },
+     {
+      "trial_id": 59,
+      "params": {
+       "x1": 0.06997833066540357,
+       "x2": 8.943986925583244
+      },
+      "value": 28.914155213904653,
+      "state": "COMPLETE"
+     }
+    ]
+   }
+  ],
+  "total_trials_used": 60,
+  "best_value": -2.5026338100362873,
+  "best_params": {
+   "x1": -2.483873535239518,
+   "x2": 10.438297505865599
+  },
+  "best_value_raw": 2.5026338100362873,
+  "terminated": false,
+  "q_table_size": 0,
+  "experiences_recorded": 0
+ },
+ "timings": {
+  "hpo": 0.004556,
+  "adapt": 0.154442,
+  "total": 0.158998
+ }
+}

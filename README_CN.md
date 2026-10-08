@@ -4,7 +4,6 @@
 **Agent 驱动的 setup 生成**结合，并由 **表格型 Q-Learning** 控制何时执行哪种 setup 干预。
 
 > 英文版说明见 [README.md](README.md)。
-
 ## 研究问题
 
 HPO 的效果高度依赖初始 setup（Search Space / Optimizer / Budget）。Search Space 太小可能
@@ -65,9 +64,10 @@ Q-Learning 默认参数：`α=0.1, γ=0.9, ε: 1.0 → 0.05（衰减 0.995）`�
 
 ```bash
 pip install -e ".[dev]"
-pytest                                   # 109 个测试
+pytest                                   # 126 个测试
 hpo-adapt --task synthetic_mlp --max-rounds 4 --max-total-trials 120 --seed 3
 hpo-adapt --task branin --max-rounds 3                   # minimize 方向示例
+hpo-adapt --task rf_digits                               # 真实 ML 任务（随机森林 + 交叉验证）
 hpo-adapt --task synthetic_mlp --json                    # 机器可读结果
 ```
 
@@ -113,12 +113,27 @@ LLM 输出会经过同样的 Tool Validator：凡是违反 Schema 或任务约�
 - **内部统一 maximize 空间**：Diagnostic Engine 与 reward 都在
   `ỹ = y（maximize）/ −y（minimize）` 空间上计算（spec 预处理要求）；
   `PipelineResult.best_value_raw` 会换回任务原始方向。
+- **累计诊断**：每轮的 DiagnosticState 基于**本 episode 至今的全部轨迹**计算
+  （CAVE 式），因此 importance 在累计满 30 个 trial 后即可用，而不是要求单个
+  phase 内凑满 30 个。
+- **Warm-start**：每个新 phase 的 Optuna study 会注入与当前搜索空间兼容的全部
+  历史 trial（不重复评估、不消耗预算），setup 修订不丢失任何已有知识。
+- **STOP 证据门控**：只有观测到 stagnation 且全局预算消耗过半时 STOP 才可选，
+  ε-greedy 探索不会再造成 episode 被随机提前终止。
 - **数据不足不造假**：低于最小 trial 数（5 / 20 / 30）的指标返回
   `INSUFFICIENT_DATA` 而不是伪造值；importance 不为 `VALID` 时，
   针对超参的 action 不可选。
 - **非法 action**（如对 categorical 超参做 EXPAND）不消耗预算，只吃固定惩罚
-  reward，并在本轮内重试。
+  reward，并在本轮内重试。当预算耗尽或到达 `max_rounds`、下一 phase 无法再
+  评估 action 时，闭环直接收尾而不选新 action——每个被执行的 action 都有
+  outcome、reward 和 Q-update。
+- **Optimizer**：RANDOM、TPE（全部任务）与 CMA-ES（仅纯数值任务如 `branin`；
+  含 categorical 的任务会被 validator 拒绝）。
 - **Memory 写入时机**：只在一个完整 adaptation step 结束后写入；默认只长期保存
   成功干预和有价值的失败经验，`semantic_rules` 则聚合每一次结果。
-- **确定性**：所有随机源（HPO sampler、surrogate 随机森林、RL RNG）固定种子；
-  相同 seed + 干净 Memory ⇒ 完全可复现。
+- **种子**：`--seed` / `PipelineConfig.seed` 控制全部随机源——HPO 采样
+  （`evaluation.seed`）、RL 控制器、surrogate 随机森林；相同 seed + 干净 Memory
+  ⇒ 完全可复现。
+- **可观测性**：`StepRecord` 逐轮记录搜索空间、完整 DiagnosticState、trial
+  投影、应用的修改与（延迟一轮的）reward；`pipeline.timings` 把墙钟时间拆成
+  HPO 层 vs 观察+决策层（`experiments/` 由此生成论文全部表格）。

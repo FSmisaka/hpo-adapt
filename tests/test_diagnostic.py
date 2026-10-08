@@ -188,6 +188,20 @@ class TestSearchSpaceMetrics:
         assert cat.dominant_category == "sgd"
         assert cat.dominant_ratio == pytest.approx(1.0, abs=1e-9)
 
+    def test_diversity_spec_formula(self):
+        # d(x_i, x_k) = (1/m) * sum_j d_j; categorical d_j = 1(x_ij != x_kj)
+        from hpo_adapt.diagnostic.metrics import mixed_pairwise_distance
+
+        a = trial(0, {"lr": 1e-5, "depth": 1, "opt": "adam"}, 0.5)
+        b = trial(1, {"lr": 1e-2, "depth": 1, "opt": "sgd"}, 0.6)
+        c = trial(2, {"lr": 1e-5, "depth": 8, "opt": "adam"}, 0.7)
+        # d(a,b): lr 1.0 + depth 0.0 + opt 1.0 = 2/3
+        assert mixed_pairwise_distance([a, b], SPECS) == pytest.approx(2.0 / 3.0, abs=1e-9)
+        # d(a,c): lr 0.0 + depth 7/7 + opt 0.0 = 1/3
+        assert mixed_pairwise_distance([a, c], SPECS) == pytest.approx(1.0 / 3.0, abs=1e-9)
+        # identical configs -> 0
+        assert mixed_pairwise_distance([a, trial(3, dict(a.params), 0.5)], SPECS) == 0.0
+
     def test_diversity_collapse_detection(self):
         setup = make_setup()
         trials = []

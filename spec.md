@@ -26,7 +26,7 @@ setup 决定了 HPO 能搜索什么。Search Space 过小可能遗漏最优区�
 
 - 不足：setup 高度依赖人工经验
 
-### 路线二：Agent 驱动的 HPO——AgentHPO / AutoML-Agent
+### 路线二：Agent 驱动的 HPO
 
 - 思路：LLM Agent $\rightarrow$ Setup $\rightarrow$ HPO
 

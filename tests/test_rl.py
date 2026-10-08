@@ -153,6 +153,32 @@ class TestQController:
             ActionType.FREEZE_HYPERPARAMETER,
         }
 
+    def test_stop_gated_by_stagnation_evidence(self):
+        # STOP must not be selectable (not even under full exploration) when
+        # stagnation is False: unguided premature termination is not allowed.
+        state = truncation_state()
+        state.optimization.stagnation = BoolMetric.valid(False)
+        controller = QController(config=QLearningConfig(seed=0, epsilon_start=1.0))
+        for _ in range(50):
+            action = controller.select_action(state, make_setup())
+            assert action.action != ActionType.STOP
+
+    def test_stop_gated_by_budget_consumed(self):
+        # Stagnation alone is not enough: most of the budget must be consumed.
+        state = truncation_state()  # stagnation=True, budget_consumed=0.5 -> allowed
+        controller = QController(config=QLearningConfig(seed=0, epsilon_start=0.0))
+        assert ActionType.STOP in controller._available_actions(state)
+        state.budget.budget_consumed = Metric.valid(0.1)
+        state.budget.budget_remaining = Metric.valid(0.9)
+        assert ActionType.STOP not in controller._available_actions(state)
+
+    def test_stop_available_under_stagnation_and_spent_budget(self):
+        state = truncation_state()
+        controller = QController(config=QLearningConfig(seed=0, epsilon_start=0.0))
+        actions = controller._available_actions(state)
+        assert ActionType.STOP in actions
+        assert len(actions) == len(ALL_ACTIONS)
+
     def test_deterministic_with_seed(self):
         c1 = QController(rule_engine=RuleEngine(), config=QLearningConfig(seed=42, epsilon_start=1.0))
         c2 = QController(rule_engine=RuleEngine(), config=QLearningConfig(seed=42, epsilon_start=1.0))
