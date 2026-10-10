@@ -1,6 +1,6 @@
 """Optuna-backed HPO runner: Setup -> Study -> TrialLogs."""
 
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 import optuna
 from optuna.samplers import BaseSampler, CmaEsSampler, RandomSampler, TPESampler
@@ -148,8 +148,13 @@ def run_hpo(
     *,
     study_name: Optional[str] = None,
     warm_start_trials: Optional[list[TrialLog]] = None,
+    on_trial: Optional[Callable[[TrialLog], None]] = None,
 ) -> HPOResult:
-    """Run one HPO phase according to a validated Setup and return TrialLogs."""
+    """Run one HPO phase according to a validated Setup and return TrialLogs.
+
+    ``on_trial`` (optional) is invoked with each freshly evaluated TrialLog
+    right after it finishes, enabling live progress observation.
+    """
     require_valid_setup(setup, task)
     objective_fn = get_objective(task.objective)
     seed = setup.evaluation.seed + setup.phase
@@ -166,7 +171,30 @@ def run_hpo(
         params = _suggest(trial, setup)
         return objective_fn(params)
 
-    study.optimize(objective, n_trials=setup.budget.max_trials, catch=(RuntimeError, ValueError))
+    callbacks = None
+    if on_trial is not None:
+
+        def _notify(study: optuna.study.Study, frost: optuna.trial.FrozenTrial) -> None:
+            t = study.trials[frost.number]
+            if t.number < warm_started:
+                return  # warm-started trials are injected, not evaluated
+            on_trial(
+                TrialLog(
+                    trial_id=t.number,
+                    params={**setup.frozen, **t.params},
+                    value=t.value if t.state == OptunaTrialState.COMPLETE else None,
+                    state=_STATE_MAP.get(t.state, TrialState.FAIL),
+                )
+            )
+
+        callbacks = [_notify]
+
+    study.optimize(
+        objective,
+        n_trials=setup.budget.max_trials,
+        catch=(RuntimeError, ValueError),
+        callbacks=callbacks,
+    )
 
     # study.trials includes the warm-started (injected) trials; only the newly
     # evaluated ones consume budget and belong in this phase's TrialLog.

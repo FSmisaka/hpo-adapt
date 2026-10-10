@@ -28,6 +28,7 @@ from hpo_adapt.agents.revised_setup import (
     create_revised_setup_agent,
 )
 from hpo_adapt.diagnostic import DiagnosticEngine
+from hpo_adapt.events import EventSink
 from hpo_adapt.hpo.runner import run_hpo
 from hpo_adapt.memory import MemoryStore, new_experience_id
 from hpo_adapt.rl import QController, QLearningConfig, RewardConfig, compute_reward
@@ -137,6 +138,7 @@ class AdaptationPipeline:
         rule_engine: Optional[RuleEngine] = None,
         initial_agent: Optional["InitialSetupAgentLike"] = None,
         revised_agent: Optional["RevisedSetupAgentLike"] = None,
+        event_sink: Optional[EventSink] = None,
     ) -> None:
         self.task = task
         self.config = config or PipelineConfig()
@@ -150,11 +152,15 @@ class AdaptationPipeline:
         self.initial_agent = initial_agent or create_initial_setup_agent(self.config.agent_backend)
         self.revised_agent = revised_agent or create_revised_setup_agent(self.config.agent_backend)
         self.reward_config = RewardConfig()
+        self.events = event_sink or EventSink()
         # Wall-clock profile of the last run(): {'hpo', 'adapt', 'total'} in
         # seconds. Kept OUTSIDE PipelineResult so results stay reproducible.
         self.timings: dict[str, float] = {}
 
     # ------------------------------------------------------------------ helpers
+    def _emit(self, event_type: str, payload: dict[str, Any]) -> None:
+        self.events.emit(event_type, payload)
+
     def _task_signature(self) -> TaskSignature:
         return TaskSignature(
             task_type=self.task.task_type,
@@ -197,6 +203,40 @@ class AdaptationPipeline:
             setup = setup.model_copy(deep=True)
             setup.evaluation.seed = self.config.seed
 
+        self._emit(
+            "run_start",
+            {
+                "task": {
+                    "task_id": task.task_id,
+                    "task_type": task.task_type,
+                    "description": task.description,
+                    "model_family": task.model_family,
+                    "dataset_signature": task.dataset_signature,
+                    "objective_name": task.objective_name,
+                    "direction": task.direction.value,
+                    "available_hyperparameters": [
+                        m.model_dump(mode="json") for m in task.available_hyperparameters
+                    ],
+                    "allowed_optimizers": list(task.allowed_optimizers),
+                },
+                "total_budget": total_budget,
+                "max_rounds": self.config.max_rounds,
+                "agent_backend": self.config.agent_backend,
+                "seed": self.config.seed,
+            },
+        )
+        self._emit(
+            "initial_setup",
+            {
+                "setup": setup.model_dump(mode="json"),
+                "how": (
+                    "Initial Setup Agent derived a compact, default-centered "
+                    "search space from the task's hyperparameter metadata, "
+                    "picked the optimizer and split the global budget."
+                ),
+            },
+        )
+
         cumulative_best: Optional[float] = None
         best_params: Optional[dict[str, Any]] = None
         pending: Optional[dict[str, Any]] = None  # awaiting next-phase outcome
@@ -208,12 +248,40 @@ class AdaptationPipeline:
             if remaining <= 0:
                 break
             exec_setup = self._clamp_phase_budget(setup, remaining)
+            self._emit(
+                "round_start",
+                {
+                    "round_index": round_index,
+                    "setup_id": exec_setup.setup_id,
+                    "phase": exec_setup.phase,
+                    "search_space": [s.model_dump(mode="json") for s in exec_setup.search_space],
+                    "frozen": dict(exec_setup.frozen),
+                    "optimizer": exec_setup.optimizer.model_dump(mode="json"),
+                    "phase_budget": exec_setup.budget.max_trials,
+                    "global_trials_before": used,
+                },
+            )
 
             # ---- HPO phase with the current (validated) setup; the optimizer
             # is warm-started with the full trajectory so knowledge persists
             # across setup revisions
             t_hpo = time.perf_counter()
-            hpo_result = run_hpo(task, exec_setup, warm_start_trials=all_trials)
+
+            def _on_trial(log: TrialLog, _round: int = round_index) -> None:
+                self._emit(
+                    "trial",
+                    {
+                        "round_index": _round,
+                        "trial_id": log.trial_id,
+                        "params": dict(log.params),
+                        "value": log.value,
+                        "state": log.state.value,
+                    },
+                )
+
+            hpo_result = run_hpo(
+                task, exec_setup, warm_start_trials=all_trials, on_trial=_on_trial
+            )
             time_hpo += time.perf_counter() - t_hpo
             used_before = used
             used += len(hpo_result.trials)
@@ -222,6 +290,17 @@ class AdaptationPipeline:
             if phase_best is not None and (cumulative_best is None or phase_best > cumulative_best):
                 cumulative_best = phase_best
                 best_params = dict(hpo_result.best_params or {})
+            self._emit(
+                "round_end",
+                {
+                    "round_index": round_index,
+                    "trials_used": len(hpo_result.trials),
+                    "warm_started": hpo_result.warm_started,
+                    "phase_best": phase_best,
+                    "cumulative_best": cumulative_best,
+                    "total_trials_used": used,
+                },
+            )
 
             # ---- Diagnostic Engine (deterministic); analyzes the CUMULATIVE
             # trajectory (CAVE-style), budget status is GLOBAL
@@ -233,6 +312,13 @@ class AdaptationPipeline:
                 trials_used_before=0,
             )
             current_key = self.controller.observe(diagnostic, exec_setup)
+            self._emit(
+                "diagnostic",
+                {
+                    "round_index": round_index,
+                    "diagnostic_state": diagnostic.model_dump(by_alias=True, mode="json"),
+                },
+            )
 
             # ---- close out the previous adaptation step (reward + memory)
             if pending is not None:
@@ -252,6 +338,16 @@ class AdaptationPipeline:
                     trials_used=len(hpo_result.trials),
                 )
                 result.steps[-1].reward = reward
+                self._emit(
+                    "reward",
+                    {
+                        "round_index": result.steps[-1].round_index,
+                        "reward": reward,
+                        "action": pending["action"].model_dump(by_alias=True, mode="json"),
+                        "best_before": pending["best_before"],
+                        "best_after": cumulative_best,
+                    },
+                )
 
             # ---- rule diagnosis + memory retrieval for this step
             rule_match = self.rule_engine.primary(diagnostic, exec_setup, previous_diagnostic)
@@ -285,7 +381,8 @@ class AdaptationPipeline:
 
             # ---- RL Action selection + Revised Setup execution
             action, revision, step = self._act(
-                exec_setup, diagnostic, rule_recommendation, memory_context, remaining
+                exec_setup, diagnostic, rule_recommendation, memory_context, remaining,
+                round_index=round_index,
             )
             step.round_index = round_index
             step.setup_id = exec_setup.setup_id
@@ -305,6 +402,14 @@ class AdaptationPipeline:
 
             assert action is not None
             step.action = action.model_dump(by_alias=True)
+            self._emit(
+                "action",
+                {
+                    "round_index": round_index,
+                    "action": action.model_dump(by_alias=True, mode="json"),
+                    "diagnosis": diagnosis.model_dump(mode="json"),
+                },
+            )
 
             if revision is not None and revision.new_setup.terminated:
                 reward = 0.0
@@ -314,6 +419,21 @@ class AdaptationPipeline:
                 step.reward = reward
                 step.terminated = True
                 step.setup_after_id = revision.new_setup.setup_id
+                self._emit(
+                    "revision",
+                    {
+                        "round_index": round_index,
+                        "new_setup_id": revision.new_setup.setup_id,
+                        "terminated": True,
+                        "changes": [c.model_dump(mode="json") for c in revision.changes],
+                        "new_search_space": [
+                            s.model_dump(mode="json") for s in revision.new_setup.search_space
+                        ],
+                        "new_frozen": dict(revision.new_setup.frozen),
+                        "new_optimizer": revision.new_setup.optimizer.model_dump(mode="json"),
+                        "new_phase_budget": revision.new_setup.budget.max_trials,
+                    },
+                )
                 self._write_experience(
                     {
                         "setup": exec_setup,
@@ -335,6 +455,21 @@ class AdaptationPipeline:
             assert revision is not None
             step.setup_after_id = revision.new_setup.setup_id
             step.changes = [c.model_dump(mode="json") for c in revision.changes]
+            self._emit(
+                "revision",
+                {
+                    "round_index": round_index,
+                    "new_setup_id": revision.new_setup.setup_id,
+                    "terminated": False,
+                    "changes": [c.model_dump(mode="json") for c in revision.changes],
+                    "new_search_space": [
+                        s.model_dump(mode="json") for s in revision.new_setup.search_space
+                    ],
+                    "new_frozen": dict(revision.new_setup.frozen),
+                    "new_optimizer": revision.new_setup.optimizer.model_dump(mode="json"),
+                    "new_phase_budget": revision.new_setup.budget.max_trials,
+                },
+            )
             pending = {
                 "setup": exec_setup,
                 "diagnostic": diagnostic,
@@ -360,6 +495,21 @@ class AdaptationPipeline:
         }
         if self.config.qtable_path:
             self.controller.save(self.config.qtable_path)
+        self._emit(
+            "episode_end",
+            {
+                "best_value_raw": result.best_value_raw,
+                "best_params": result.best_params,
+                "best_value_internal": result.best_value,
+                "total_trials_used": result.total_trials_used,
+                "total_budget": total_budget,
+                "rounds": len(result.steps),
+                "terminated": result.terminated,
+                "q_table_size": result.q_table_size,
+                "experiences_recorded": result.experiences_recorded,
+                "timings": dict(self.timings),
+            },
+        )
         return result
 
     # ----------------------------------------------------------------- acting
@@ -370,6 +520,7 @@ class AdaptationPipeline:
         rule_recommendation: Optional[RLAction],
         memory_context: str,
         remaining_global_trials: int,
+        round_index: int = 0,
     ) -> tuple[Optional[RLAction], Optional[Any], StepRecord]:
         """Select an action and execute it; handles invalid-action retries."""
         for _ in range(self.config.max_invalid_action_attempts):
@@ -392,6 +543,14 @@ class AdaptationPipeline:
             except InvalidActionError:
                 reward = compute_reward(0.0, 0.0, 0, 1, self.reward_config, invalid=True)
                 self.controller.update(key, action.action, reward, key, terminal=False)
+                self._emit(
+                    "action_invalid",
+                    {
+                        "round_index": round_index,
+                        "action": action.model_dump(by_alias=True, mode="json"),
+                        "penalty": reward,
+                    },
+                )
                 self._write_experience(
                     {
                         "setup": setup,
@@ -563,6 +722,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser.add_argument("--memory-path", default=None, help="SQLite memory file (default: in-memory)")
     parser.add_argument("--qtable-path", default=None, help="Where to save the learned Q-table (JSON)")
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--dashboard", action="store_true", help="Serve the live dashboard on a local port")
     parser.add_argument("--json", action="store_true", help="Print result as JSON")
     args = parser.parse_args(argv)
 
@@ -580,7 +740,20 @@ def main(argv: Optional[list[str]] = None) -> int:
         qtable_path=args.qtable_path,
         seed=args.seed,
     )
-    pipeline = AdaptationPipeline(task, config)
+    event_sink: Optional[EventSink] = None
+    if args.dashboard:
+        from hpo_adapt.dashboard import RunRecorder
+        from hpo_adapt.dashboard.server import DashboardServer
+
+        recorder = RunRecorder()
+        server = DashboardServer(recorder).start()
+        event_sink = EventSink(handler=recorder)
+        print(
+            f"\n  ▶ Dashboard live at  {server.url}\n"
+            "    Open this URL in your browser to watch the run in real time.\n",
+            flush=True,
+        )
+    pipeline = AdaptationPipeline(task, config, event_sink=event_sink)
     result = pipeline.run()
 
     if args.json:

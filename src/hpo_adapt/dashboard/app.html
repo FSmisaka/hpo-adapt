@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>hpo-adapt · dashboard</title>
+<style>
+  :root {
+    --bg: #f7f8fa; --card: #ffffff; --ink: #0f172a; --muted: #64748b;
+    --line: #e2e8f0; --accent: #4f46e5; --accent-soft: #eef2ff;
+    --good: #059669; --bad: #dc2626; --warn: #d97706;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 20px 24px 64px; }
+
+  /* header */
+  .topbar { position: sticky; top: 0; z-index: 10; background: rgba(247,248,250,.92);
+            backdrop-filter: blur(6px); border-bottom: 1px solid var(--line);
+            padding: 10px 0; margin: -20px -24px 20px; }
+  .topbar .wrap { padding: 0 24px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .brand { font-weight: 700; letter-spacing: -.01em; font-size: 15px; }
+  .brand .dot { color: var(--accent); }
+  .taskname { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+  .spacer { flex: 1; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px;
+           padding: 3px 10px; font-size: 12px; font-weight: 600; border: 1px solid var(--line);
+           background: var(--card); color: var(--muted); }
+  .badge.running { color: var(--accent); border-color: #c7d2fe; background: var(--accent-soft); }
+  .badge.finished { color: var(--good); border-color: #a7f3d0; background: #ecfdf5; }
+  .badge.error { color: var(--bad); border-color: #fecaca; background: #fef2f2; }
+  .spin { width: 10px; height: 10px; border-radius: 50%; border: 2px solid #c7d2fe;
+          border-top-color: var(--accent); animation: spin 1s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* stat strip */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+           gap: 12px; margin-bottom: 18px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .stat .k { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .stat .v { font-size: 19px; font-weight: 700; margin-top: 2px; font-family: var(--mono); }
+  .stat .v small { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .progress { height: 6px; border-radius: 4px; background: var(--line); overflow: hidden; margin-top: 8px; }
+  .progress > div { height: 100%; background: var(--accent); transition: width .4s; }
+
+  /* layout */
+  .cols { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
+  @media (max-width: 1000px) { .cols { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+          padding: 16px 18px; margin-bottom: 16px; }
+  .card h2 { font-size: 13px; margin: 0 0 12px; text-transform: uppercase; letter-spacing: .05em;
+             color: var(--muted); font-weight: 700; }
+  .side .card { position: relative; }
+  @media (min-width: 1001px) { .side { position: sticky; top: 64px; } }
+
+  /* round timeline */
+  .round { border: 1px solid var(--line); border-radius: 14px; background: var(--card);
+           margin-bottom: 18px; overflow: hidden; }
+  .round-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+                padding: 12px 18px; border-bottom: 1px solid var(--line); background: #fbfcfe; }
+  .round-num { font-weight: 800; font-size: 13px; color: #fff; background: var(--accent);
+               border-radius: 8px; padding: 3px 9px; font-family: var(--mono); }
+  .mono { font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  .round-body { padding: 14px 18px 16px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .chip { border: 1px solid var(--line); background: #fff; border-radius: 8px;
+          padding: 4px 10px; font-size: 12.5px; }
+  .chip b { font-family: var(--mono); font-weight: 600; }
+  .chip.on { background: var(--accent-soft); border-color: #c7d2fe; color: #3730a3; }
+  .chip.warn { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+  .chip.ok { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th { text-align: left; color: var(--muted); font-weight: 600; padding: 5px 8px;
+       border-bottom: 1px solid var(--line); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; }
+  td { padding: 5px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.num { font-family: var(--mono); }
+
+  .hbar { display: grid; grid-template-columns: 130px 1fr 44px; gap: 8px; align-items: center;
+          margin: 6px 0; font-size: 12.5px; }
+  .hbar .track { height: 10px; background: var(--line); border-radius: 6px; overflow: hidden; }
+  .hbar .fill { height: 100%; background: var(--accent); border-radius: 6px; }
+  .hbar .val { font-family: var(--mono); color: var(--muted); text-align: right; }
+
+  .action-box { border: 1px solid; border-radius: 10px; padding: 10px 14px; margin: 12px 0 4px; }
+  .action-box .a-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .action-name { font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: .02em; }
+  .action-sub { color: var(--muted); font-size: 12px; font-family: var(--mono); }
+  .action-why { font-size: 12.5px; color: #334155; margin-top: 6px; }
+  .a-expand  { border-color:#a7f3d0; background:#f0fdf9; } .a-expand .action-name{color:#047857;}
+  .a-shift   { border-color:#bfdbfe; background:#eff6ff; } .a-shift .action-name{color:#1d4ed8;}
+  .a-shrink  { border-color:#fed7aa; background:#fff7ed; } .a-shrink .action-name{color:#c2410c;}
+  .a-freeze  { border-color:#e2e8f0; background:#f8fafc; } .a-freeze .action-name{color:#475569;}
+  .a-explore { border-color:#ddd6fe; background:#f5f3ff; } .a-explore .action-name{color:#6d28d9;}
+  .a-budget  { border-color:#99f6e4; background:#f0fdfa; } .a-budget .action-name{color:#0f766e;}
+  .a-stop    { border-color:#fecaca; background:#fef2f2; } .a-stop .action-name{color:#b91c1c;}
+
+  .change { display: grid; grid-template-columns: 150px 1fr; gap: 4px 12px; font-size: 12.5px;
+            padding: 8px 10px; background: #fbfcfe; border: 1px solid var(--line);
+            border-radius: 8px; margin: 6px 0; }
+  .change .hp { font-family: var(--mono); font-weight: 700; }
+  .change .diff { font-family: var(--mono); }
+  .change .diff .arrow { color: var(--accent); font-weight: 700; padding: 0 4px; }
+  .change .why { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
+
+  .diagnosis { display: inline-flex; gap: 6px; align-items: center; font-family: var(--mono);
+               font-size: 12px; color: #334155; }
+  .placeholder { color: var(--muted); font-size: 12.5px; padding: 18px 0; text-align: center; }
+  .legend-flow { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 11.5px;
+                 color: var(--muted); }
+  .legend-flow b { color: var(--ink); }
+  .flow-step { border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; background: #fff; }
+  .arrowflow { color: var(--accent); }
+  svg text { font-family: var(--mono); }
+  .empty-chart { display: flex; align-items: center; justify-content: center; height: 220px;
+                 color: var(--muted); }
+  pre.params { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 12px 14px;
+               font-size: 12px; overflow: auto; max-height: 220px; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font-size: 12.5px; }
+  .kv .k { color: var(--muted); }
+  .kv .v { font-family: var(--mono); }
+  .lane-label { font-family: var(--mono); font-size: 12px; fill: #334155; }
+  .errbox { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 10px;
+            padding: 10px 14px; font-family: var(--mono); font-size: 12.5px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div class="topbar"><div class="wrap">
+  <div class="brand">hpo<span class="dot">-</span>adapt</div>
+  <div class="taskname" id="taskname">waiting for run …</div>
+  <div class="spacer"></div>
+  <div id="statusbadge" class="badge running"><span class="spin"></span>running</div>
+  <div class="badge" id="elapsed">–</div>
+</div></div>
+
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+  <div id="error" class="errbox" style="display:none"></div>
+  <div class="cols">
+    <div class="main">
+      <div class="card">
+        <h2 id="charttitle">Objective over trials</h2>
+        <div id="chart"></div>
+      </div>
+      <div id="rounds"></div>
+    </div>
+    <div class="side">
+      <div class="card" id="livecard"><h2>Live</h2><div class="placeholder">waiting …</div></div>
+      <div class="card"><h2>Search-space evolution</h2><div id="evolution"></div></div>
+      <div class="card">
+        <h2>Closed loop</h2>
+        <div class="legend-flow">
+          <span class="flow-step"><b>Observe</b> Diagnostic Engine</span><span class="arrowflow">→</span>
+          <span class="flow-step"><b>Decide</b> RL Controller (Q-learning)</span><span class="arrowflow">→</span>
+          <span class="flow-step"><b>Execute</b> Revised Setup Agent</span><span class="arrowflow">→</span>
+          <span class="flow-step">next HPO round</span>
+        </div>
+        <div class="kv" style="margin-top:10px" id="runmeta"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const ROUND_COLORS = ["#64748b","#4f46e5","#0891b2","#d97706","#dc2626","#7c3aed","#65a30d","#db2777"];
+const ACTION_META = {
+  EXPAND_SEARCH_SPACE:   {cls:"a-expand",  label:"EXPAND SEARCH SPACE"},
+  SHIFT_SEARCH_REGION:   {cls:"a-shift",   label:"SHIFT SEARCH REGION"},
+  SHRINK_SEARCH_SPACE:   {cls:"a-shrink",  label:"SHRINK SEARCH SPACE"},
+  FREEZE_HYPERPARAMETER: {cls:"a-freeze",  label:"FREEZE HYPERPARAMETER"},
+  INCREASE_EXPLORATION:  {cls:"a-explore", label:"INCREASE EXPLORATION"},
+  INCREASE_BUDGET:       {cls:"a-budget",  label:"INCREASE BUDGET"},
+  STOP:                  {cls:"a-stop",    label:"STOP"},
+};
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g,
+  c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function fmt(v, nd=4) {
+  if (v === null || v === undefined) return "—";
+  const x = Number(v);
+  if (!isFinite(x)) return "—";
+  if (x === 0) return "0";
+  const a = Math.abs(x);
+  if (a >= 1e5 || a < 1e-3) return x.toExponential(2);
+  let s = x.toPrecision(nd);
+  if (s.includes(".")) s = s.replace(/\.?0+$/, "");
+  return s;
+}
+const pct = v => (v === null || v === undefined) ? "—" : (100*v).toFixed(0) + "%";
+const dirArrow = d => d === "minimize" ? "↓" : "↑";
+
+let STATE = null;
+
+/* ------------------------------------------------------------------ render */
+function render(s) {
+  STATE = s;
+  const task = s.task || {};
+  document.getElementById("taskname").textContent =
+    task.task_id ? `${task.task_id} · ${task.objective_name} (${task.direction} ${dirArrow(task.direction)})` : "waiting for run …";
+
+  const badge = document.getElementById("statusbadge");
+  badge.className = "badge " + s.status;
+  badge.innerHTML = s.status === "running" ? '<span class="spin"></span>running'
+    : s.status === "finished" ? "✓ finished" : "✕ error";
+  const el = Math.max(0, (s.updated_at - s.started_at));
+  document.getElementById("elapsed").textContent =
+    `${Math.floor(el/60)}:${String(Math.floor(el%60)).padStart(2,"0")} elapsed`;
+
+  const errbox = document.getElementById("error");
+  if (s.error) { errbox.style.display = "block"; errbox.textContent = s.error; }
+  else errbox.style.display = "none";
+
+  renderStats(s);
+  renderChart(s);
+  renderRounds(s);
+  renderLive(s);
+  renderEvolution(s);
+  renderMeta(s);
+}
+
+/* ------------------------------------------------------------------- stats */
+function raw(s, internal) {  // internal (maximized) -> raw display space
+  if (internal === null || internal === undefined) return null;
+  return s.task?.direction === "minimize" ? -internal : internal;
+}
+function cumulativeBestSeries(s) {
+  const min = s.task?.direction === "minimize";
+  let best = null; const out = [];
+  for (const t of s.trials) {
+    if (t.state === "COMPLETE" && t.value !== null) {
+      if (best === null || (min ? t.value < best : t.value > best)) best = t.value;
+    }
+    out.push(best);
+  }
+  return out;
+}
+function renderStats(s) {
+  const best = cumulativeBestSeries(s).at(-1) ?? null;
+  const sum = s.summary || {};
+  const used = sum.total_trials_used ?? s.trials.length;
+  const budget = s.run?.total_budget ?? 0;
+  const cells = [];
+  cells.push(`<div class="stat"><div class="k">best ${esc(s.task?.objective_name||"objective")}</div>
+    <div class="v">${best===null?"—":fmt(best)} <small>${esc(s.task?.direction||"")}</small></div></div>`);
+  cells.push(`<div class="stat"><div class="k">trials</div>
+    <div class="v">${used}<small> / ${budget}</small></div>
+    <div class="progress"><div style="width:${budget?Math.min(100,100*used/budget):0}%"></div></div></div>`);
+  cells.push(`<div class="stat"><div class="k">rounds</div>
+    <div class="v">${s.rounds.length}<small> / ${s.run?.max_rounds??"?"}</small></div></div>`);
+  cells.push(`<div class="stat"><div class="k">experiences</div>
+    <div class="v">${sum.experiences_recorded ?? "—"}</div></div>`);
+  cells.push(`<div class="stat"><div class="k">q-states</div>
+    <div class="v">${sum.q_table_size ?? "—"}</div></div>`);
+  document.getElementById("stats").innerHTML = cells.join("");
+}
+
+/* ------------------------------------------------------------------- chart */
+function renderChart(s) {
+  const host = document.getElementById("chart");
+  document.getElementById("charttitle").textContent =
+    `Objective over trials${s.task?.objective_name ? " · "+esc(s.task.objective_name) : ""}`;
+  const trials = s.trials;
+  if (!trials.length) { host.innerHTML = '<div class="empty-chart">no trials yet — waiting for the first HPO round …</div>'; return; }
+
+  const W = 920, H = 300, L = 64, R = 16, T = 26, B = 30;
+  const vals = trials.filter(t => t.value !== null).map(t => t.value);
+  const bestSeries = cumulativeBestSeries(s);
+  const bestVals = bestSeries.filter(v => v !== null);
+  let lo = Math.min(...vals, ...bestVals), hi = Math.max(...vals, ...bestVals);
+  if (hi - lo < 1e-12) { hi += 0.5; lo -= 0.5; }
+  const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+  const N = trials.length;
+  const X = i => L + (N <= 1 ? 0 : (W - L - R) * i / (N - 1));
+  const Y = v => T + (H - T - B) * (1 - (v - lo) / (hi - lo));
+
+  let g = "";
+  // y grid
+  for (let k = 0; k <= 4; k++) {
+    const v = lo + (hi - lo) * k / 4, y = Y(v);
+    g += `<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="#eef1f5"/>`;
+    g += `<text x="${L-8}" y="${y+3}" text-anchor="end" font-size="10" fill="#94a3b8">${fmt(v,3)}</text>`;
+  }
+  // x ticks (every ~10th trial)
+  const step = Math.max(1, Math.round(N / 12 / 5) * 5);
+  for (let i = step; i <= N; i += step)
+    g += `<text x="${X(i-1)}" y="${H-8}" text-anchor="middle" font-size="10" fill="#94a3b8">${i}</text>`;
+
+  // round boundaries
+  s.rounds.forEach((r, ri) => {
+    const x = X(Math.min(r.global_trials_before, N - 1));
+    if (r.global_trials_before > 0 && r.global_trials_before < N)
+      g += `<line x1="${x}" y1="${T}" x2="${x}" y2="${H-B}" stroke="#cbd5e1" stroke-dasharray="4 4"/>`;
+    g += `<text x="${x+4}" y="${T+2+11*ri}" font-size="10.5" font-weight="700" fill="${ROUND_COLORS[ri%ROUND_COLORS.length]}">R${r.round_index}</text>`;
+    // action annotation between rounds
+    if (r.action && ri + 1 <= s.rounds.length) {
+      const short = r.action.action.replace(/_(SEARCH_SPACE|SEARCH_REGION|HYPERPARAMETER)/, "");
+      const label = short + (r.action.candidate_hyperparameter ? " · " + r.action.candidate_hyperparameter : "");
+      const anchor = Math.min(r.global_trials_before + (r.trials_used||0), N-1);
+      g += `<text x="${X(anchor)}" y="${H-B-6}" text-anchor="end" font-size="9.5" fill="${ROUND_COLORS[ri%ROUND_COLORS.length]}" opacity="0.9">${esc(label)}</text>`;
+    }
+  });
+
+  // trial dots
+  trials.forEach((t, i) => {
+    if (t.value === null || t.state !== "COMPLETE") {
+      if (t.state === "FAIL")
+        g += `<line x1="${X(i)-2.5}" y1="${Y(hi)-2.5-3}" x2="${X(i)+2.5}" y2="${Y(hi)+2.5-3}" stroke="#dc2626" stroke-width="1.4"/>`;
+      return;
+    }
+    g += `<circle cx="${X(i)}" cy="${Y(t.value)}" r="2.6" fill="${ROUND_COLORS[t.round_index%ROUND_COLORS.length]}" opacity="0.55"/>`;
+  });
+  // cumulative best line
+  let path = "", started = false;
+  bestSeries.forEach((v, i) => {
+    if (v === null) { started = false; return; }
+    path += (started ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1);
+    started = true;
+  });
+  g += `<path d="${path}" fill="none" stroke="#0f172a" stroke-width="2"/>`;
+  if (bestSeries.at(-1) !== null)
+    g += `<circle cx="${X(N-1)}" cy="${Y(bestSeries[N-1])}" r="4" fill="#0f172a"/>`;
+
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${g}</svg>`;
+}
+
+/* ------------------------------------------------------------- round cards */
+function specRange(sp) {
+  if (sp.type === "categorical") return (sp.choices||[]).map(esc).join(" · ");
+  const u = sp.distribution === "log_uniform" ? " (log)" : "";
+  return `[${fmt(sp.low)} , ${fmt(sp.high)}]${u}`;
+}
+function metricVal(m) {
+  if (!m || m.status !== "VALID") return null;
+  return m.value;
+}
+function renderRounds(s) {
+  const host = document.getElementById("rounds");
+  let html = "";
+  // initial setup card
+  const init = s.initial_setup;
+  if (init && init.setup) {
+    const su = init.setup;
+    const rows = (su.search_space||[]).map(sp =>
+      `<tr><td class="mono">${esc(sp.name)}</td><td class="num">${specRange(sp)}</td><td>${esc(sp.rationale||"")}</td></tr>`).join("");
+    html += `<div class="round"><div class="round-head">
+        <span class="round-num" style="background:#0f172a">S₀</span>
+        <b>Initial setup</b><span class="mono">${esc(su.setup_id||"")} · optimizer ${esc(su.optimizer?.name||"")} · ${su.budget?.max_trials??"?"} trials/phase</span>
+        <span class="spacer"></span><span class="badge">confidence ${su.confidence ?? "—"}</span></div>
+      <div class="round-body">
+        <div class="action-why" style="margin:0 0 8px">${esc(init.how||"")}</div>
+        <table><tr><th>hyperparameter</th><th>initial range</th><th>rationale</th></tr>${rows}</table>
+        ${(su.assumptions||[]).length ? `<div style="margin-top:8px;font-size:12px;color:var(--muted)">assumptions: ${su.assumptions.map(esc).join(" · ")}</div>` : ""}
+      </div></div>`;
+  }
+  s.rounds.forEach(r => { html += roundCard(s, r); });
+  host.innerHTML = html || '<div class="card"><div class="placeholder">waiting for the first round …</div></div>';
+}
+
+function diagSummary(ds, action) {
+  if (!ds) return "";
+  const opt = ds.optimization || {}, ss = ds.search_space || {}, bud = ds.budget || {};
+  const stag = opt.stagnation && opt.stagnation.status === "VALID" ? opt.stagnation.value : null;
+  const chips = [];
+  chips.push(`<span class="chip ${stag===true?"warn":""}">stagnation <b>${stag===null?"n/a":(stag?"yes":"no")}</b></span>`);
+  const ri = metricVal(opt.relative_improvement);
+  chips.push(`<span class="chip">recent improvement <b>${ri===null?"n/a":pct(ri)}</b></span>`);
+  const covV = ss.coverage && ss.coverage.status === "VALID" ? ss.coverage.overall : null;
+  chips.push(`<span class="chip">coverage <b>${covV===null?"n/a":pct(covV)}</b></span>`);
+  const div = ss.configuration_diversity;
+  const divV = div && div.status === "VALID" ? div.ratio : null;
+  chips.push(`<span class="chip">diversity ratio <b>${divV===null?"n/a":fmt(divV,3)}</b></span>`);
+  const bc = bud.budget_consumed;
+  const bcV = bc && bc.status === "VALID" ? bc.value : null;
+  chips.push(`<span class="chip ${bcV!==null&&bcV>0.75?"ok":""}">budget used <b>${bcV===null?"n/a":pct(bcV)}</b></span>`);
+
+  // importance bars (top 3)
+  const imps = Object.entries(ss.importance || {})
+    .filter(([,v]) => v.status === "VALID" && v.global_importance != null)
+    .sort((a,b) => b[1].global_importance - a[1].global_importance).slice(0,3);
+  let impHtml = "";
+  if (imps.length) {
+    impHtml = `<div style="margin-top:10px"><div style="font-size:11.5px;color:var(--muted);margin-bottom:2px">HYPERPARAMETER IMPORTANCE (fANOVA)</div>` +
+      imps.map(([name, v]) => `<div class="hbar"><span class="mono">${esc(name)}</span>
+        <span class="track"><span class="fill" style="display:block;width:${100*v.global_importance}%"></span></span>
+        <span class="val">${fmt(v.global_importance,3)}</span></div>`).join("") + "</div>";
+  }
+  // evidence for the action's target hyperparameter
+  const target = action ? (action.candidate_hyperparameter || null) : null;
+  let evHtml = "";
+  if (target) {
+    const b = (ss.boundary_concentration||{})[target];
+    if (b && b.status === "VALID") {
+      evHtml += `<div style="margin-top:10px"><div style="font-size:11.5px;color:var(--muted);margin-bottom:2px">BOUNDARY CONCENTRATION · ${esc(target)}</div>` +
+        `<div class="hbar"><span class="mono">good trials</span><span class="track"><span class="fill" style="display:block;width:${100*(b.good||0)}%;background:var(--warn)"></span></span><span class="val">${fmt(b.good,3)}</span></div>` +
+        `<div class="hbar"><span class="mono">all trials</span><span class="track"><span class="fill" style="display:block;width:${100*(b.all||0)}%;background:#94a3b8"></span></span><span class="val">${fmt(b.all,3)}</span></div></div>`;
+    }
+    const g = (ss.good_region||{})[target];
+    if (g && g.status === "VALID") {
+      evHtml += `<div class="chips" style="margin-top:8px"><span class="chip">good region <b>[${fmt(g.lower)} , ${fmt(g.upper)}]</b></span><span class="chip">width ratio <b>${fmt(g.width_ratio,3)}</b></span></div>`;
+    }
+  }
+  return `<div class="chips">${chips.join("")}</div>${impHtml}${evHtml}`;
+}
+
+function roundCard(s, r) {
+  const dir = s.task?.direction;
+  const a = r.action;
+  const meta = a ? ACTION_META[a.action] : null;
+  const stateLabel = {running:"HPO running", diagnosing:"diagnosing", deciding:"deciding (RL)", done:"done"}[r.state] || r.state;
+  const rows = (r.search_space||[]).map(sp =>
+    `<tr><td class="mono">${esc(sp.name)}</td><td class="num">${specRange(sp)}</td></tr>`).join("");
+  const frozen = Object.entries(r.frozen||{}).map(([k,v]) => `<span class="chip">❄ ${esc(k)} = <b>${esc(JSON.stringify(v))}</b></span>`).join("");
+
+  let actionHtml = "";
+  if (a && meta) {
+    actionHtml = `<div class="action-box ${meta.cls}">
+      <div class="a-head"><span class="action-name">${meta.label}</span>
+        ${a.candidate_hyperparameter?`<span class="action-sub">target: ${esc(a.candidate_hyperparameter)}</span>`:""}
+        ${a.parameters&&Object.keys(a.parameters).length?`<span class="action-sub">${esc(JSON.stringify(a.parameters))}</span>`:""}
+        <span class="action-sub">q = ${fmt(a.q_value,3)} · confidence ${a.confidence===null||a.confidence===undefined?"—":fmt(a.confidence,2)}</span></div>
+      ${a.reason?`<div class="action-why">${esc(a.reason)}</div>`:""}
+    </div>`;
+  } else if (r.state === "done") {
+    actionHtml = `<div class="chips"><span class="chip">no further action selected — episode closing</span></div>`;
+  } else if (r.state === "deciding") {
+    actionHtml = `<div class="placeholder" style="padding:8px 0">RL controller selecting intervention …</div>`;
+  }
+  let dg = r.diagnosis;
+  let diagHtml = "";
+  if (r.diagnostic) {
+    diagHtml = diagSummary(r.diagnostic, a);
+  } else if (r.state === "diagnosing") {
+    diagHtml = `<div class="placeholder" style="padding:8px 0">Diagnostic Engine analyzing ${r.trials_used??"?"} trials …</div>`;
+  }
+
+  let changesHtml = "";
+  if (r.changes && r.changes.length) {
+    changesHtml = `<div style="font-size:11.5px;color:var(--muted);margin:10px 0 2px">SETUP REVISION → ${esc(r.new_setup_id||"")}</div>` +
+      r.changes.map(c => `<div class="change">
+        <span class="hp">${esc(c.hyperparameter)}</span>
+        <span class="diff">${fmtChange(c)}</span>
+        <span class="why">${esc(c.reason||"")}</span></div>`).join("");
+  }
+  const invalid = (r.invalid_actions||[]).map(iv =>
+    `<div class="chip warn">invalid: ${esc(iv.action?.action||"")} @ ${esc(iv.action?.candidate_hyperparameter||"—")} → penalized ${fmt(iv.penalty,3)}</div>`).join("");
+  const rewardChip = r.reward !== null && r.reward !== undefined
+    ? `<span class="chip ${r.reward>0?"ok":(r.reward<0?"warn":"")}">reward <b>${fmt(r.reward,4)}</b> <span style="color:var(--muted)">(outcome of this round's action)</span></span>` : "";
+
+  return `<div class="round" id="round-${r.round_index}">
+    <div class="round-head">
+      <span class="round-num" style="background:${ROUND_COLORS[r.round_index%ROUND_COLORS.length]}">R${r.round_index}</span>
+      <b>Round ${r.round_index}</b>
+      <span class="mono">${esc(r.setup_id)} · ${esc(r.optimizer?.name||"")} · seed ${s.run?.seed??"?"}</span>
+      <span class="spacer"></span>
+      <span class="badge ${r.state==="done"?"finished":"running"}">${r.state==="done"?"✓":'<span class="spin"></span>'} ${stateLabel}</span>
+    </div>
+    <div class="round-body">
+      <div class="chips">
+        <span class="chip">trials this phase <b>${r.trials_used ?? r.trials.length}${r.phase_budget?" / "+r.phase_budget:""}</b></span>
+        <span class="chip">phase best <b>${r.phase_best===null||r.phase_best===undefined?"—":fmt(raw(s,r.phase_best))}</b></span>
+        <span class="chip on">cumulative best <b>${r.cumulative_best===null||r.cumulative_best===undefined?"—":fmt(raw(s,r.cumulative_best))}</b></span>
+        ${r.warm_started?`<span class="chip">warm-started <b>${r.warm_started}</b> past trials</span>`:""}
+        ${rewardChip}
+      </div>
+      ${dg?`<div style="font-size:11.5px;color:var(--muted);margin-bottom:0">DIAGNOSIS: <span class="diagnosis"><b>${esc(dg.primary||"—")}</b> (confidence ${dg.confidence!=null?fmt(dg.confidence,2):"—"})</span></div>`:""}
+      ${diagHtml}
+      ${actionHtml}
+      ${changesHtml}
+      ${invalid?`<div class="chips">${invalid}</div>`:""}
+      ${rows?`<table><tr><th>hyperparameter</th><th>search range this round</th></tr>${rows}</table>`:""}
+      ${frozen?`<div class="chips">${frozen}</div>`:""}
+      ${r.terminated?`<div class="chips"><span class="chip" style="border-color:#fecaca;background:#fef2f2;color:#b91c1c"><b>STOP</b> — episode terminated by RL controller</span></div>`:""}
+    </div>
+  </div>`;
+}
+
+function fmtChange(c) {
+    const fmtSide = d => {
+    if (d === null || d === undefined) return "∅";
+    if (d.choices) return "{" + d.choices.map(x => esc(String(x))).join("|") + "}";
+    if (d.max_trials !== undefined) return esc(String(d.max_trials)) + " trials";
+    if (d.low !== undefined && d.high !== undefined) return `[${fmt(d.low)} , ${fmt(d.high)}]`;
+    if (d.value !== undefined) return fmt(d.value);
+    if (d.name !== undefined) return esc(d.name) + (d.n_startup_trials !== undefined ? " (startup " + d.n_startup_trials + ")" : "");
+    return esc(JSON.stringify(d));
+  };
+  return `<span>${fmtSide(c.old)}</span><span class="arrow">→</span><span><b>${fmtSide(c.new)}</b></span>`;
+}
+
+/* -------------------------------------------------------------------- live */
+function renderLive(s) {
+  const host = document.getElementById("livecard");
+  const sum = s.summary;
+  if (s.status === "finished" && sum) {
+    host.innerHTML = `<h2>Final result</h2>
+      <div class="kv">
+        <span class="k">best ${esc(s.task?.objective_name||"")}</span><span class="v" style="font-size:16px;font-weight:700">${fmt(sum.best_value_raw)}</span>
+        <span class="k">trials used</span><span class="v">${sum.total_trials_used} / ${sum.total_budget}</span>
+        <span class="k">rounds</span><span class="v">${sum.rounds}</span>
+        <span class="k">terminated by STOP</span><span class="v">${sum.terminated ? "yes" : "no"}</span>
+        <span class="k">wall time</span><span class="v">${fmt(sum.timings?.total,3)} s (adapt layer ${fmt(sum.timings?.adapt,3)} s)</span>
+      </div>
+      <div style="font-size:11.5px;color:var(--muted);margin:12px 0 4px">BEST PARAMS</div>
+      <pre class="params">${esc(JSON.stringify(sum.best_params ?? {}, null, 2))}</pre>`;
+    return;
+  }
+  const r = s.rounds[s.rounds.length - 1];
+  if (!r) { host.innerHTML = `<h2>Live</h2><div class="placeholder">waiting for the first round …</div>`; return; }
+  const done = r.trials?.length ?? 0;
+  const pctPhase = r.phase_budget ? Math.min(100, 100 * done / r.phase_budget) : 0;
+  const best = cumulativeBestSeries(s).at(-1) ?? null;
+  host.innerHTML = `<h2>Live</h2>
+    <div class="kv">
+      <span class="k">phase</span><span class="v">R${r.round_index} · ${esc(r.setup_id)} (${esc(r.optimizer?.name||"")})</span>
+      <span class="k">stage</span><span class="v">${esc(r.state)}</span>
+      <span class="k">best so far</span><span class="v" style="font-weight:700">${best===null?"—":fmt(best)}</span>
+      <span class="k">global trials</span><span class="v">${s.trials.length} / ${s.run?.total_budget??"?"}</span>
+    </div>
+    <div style="font-size:11.5px;color:var(--muted);margin:10px 0 2px">PHASE PROGRESS · ${done}${r.phase_budget?"/"+r.phase_budget:""} trials</div>
+    <div class="progress"><div style="width:${pctPhase}%"></div></div>
+    <div id="lasttrial" class="mono" style="margin-top:8px;font-size:12px;color:var(--muted)"></div>`;
+  const lt = r.trials[r.trials.length - 1];
+  if (lt) {
+    const el = document.getElementById("lasttrial");
+    if (el) el.textContent = `last trial #${lt.trial_id}: ${lt.state}${lt.value!==null?" = "+fmt(lt.value):""} · ${Object.entries(lt.params).map(([k,v])=>k+"="+fmt(v,3)).join(" ")}`;
+  }
+}
+
+/* -------------------------------------------------------------- evolution */
+function renderEvolution(s) {
+  const host = document.getElementById("evolution");
+  if (!s.rounds.length) { host.innerHTML = '<div class="placeholder">no rounds yet</div>'; return; }
+  // collect per-hp ranges per round; a hp frozen later keeps last known range
+  const hps = [];
+  s.rounds.forEach(r => (r.search_space||[]).forEach(sp => {
+    if (!hps.find(h => h.name === sp.name)) hps.push({name: sp.name, type: sp.type});
+  }));
+  let html = "";
+  hps.forEach(hp => {
+    if (hp.type === "categorical") {
+      const last = [...s.rounds].reverse().find(r => (r.search_space||[]).find(sp => sp.name === hp.name));
+      const sp = last && last.search_space.find(x => x.name === hp.name);
+      const chips = (sp?.choices||[]).map(c => `<span class="chip">${esc(String(c))}</span>`).join("");
+      html += `<div style="margin:8px 0"><span class="mono" style="font-size:12px">${esc(hp.name)}</span><div class="chips" style="margin:4px 0">${chips}</div></div>`;
+      return;
+    }
+    const ranges = [];
+    s.rounds.forEach(r => {
+      const sp = (r.search_space||[]).find(x => x.name === hp.name);
+      if (sp && sp.low !== null && sp.low !== undefined) ranges.push({r, sp});
+      else {
+        const fv = r.frozen && hp.name in r.frozen;
+        if (fv && ranges.length) ranges.push({...ranges[ranges.length-1], frozen: true, r});
+      }
+    });
+    if (!ranges.length) return;
+    const useLog = ranges.some(x => x.sp.distribution === "log_uniform");
+    const tf = v => useLog ? Math.log10(Math.max(v, 1e-300)) : v;
+    let lo = Math.min(...ranges.map(x => tf(x.sp.low)));
+    let hi = Math.max(...ranges.map(x => tf(x.sp.high)));
+    if (hi - lo < 1e-12) { hi += 1; lo -= 1; }
+    const W = 320, laneH = 14, gap = 5;
+    const H = ranges.length * (laneH + gap) + 18;
+    const X = v => 44 + (W - 60) * (tf(v) - lo) / (hi - lo);
+    let g = "";
+    ranges.forEach((x, i) => {
+      const y = 12 + i * (laneH + gap);
+      const c = ROUND_COLORS[x.r.round_index % ROUND_COLORS.length];
+      g += `<line x1="${X(x.sp.low)}" y1="${y+laneH/2}" x2="${X(x.sp.high)}" y2="${y+laneH/2}" stroke="${c}" stroke-width="${laneH-4}" stroke-linecap="round" opacity="${x.frozen?0.35:0.9}"/>`;
+      g += `<text x="38" y="${y+laneH/2+3}" text-anchor="end" font-size="9.5" fill="${c}" font-weight="700">R${x.r.round_index}</text>`;
+    });
+    const inv = t => useLog ? Math.pow(10, t) : t;
+    g += `<text x="44" y="${H-2}" font-size="9" fill="#94a3b8">${fmt(inv(lo))}</text>`;
+    g += `<text x="${W-16}" y="${H-2}" font-size="9" fill="#94a3b8" text-anchor="end">${fmt(inv(hi))}</text>`;
+    html += `<div style="margin:10px 0 14px"><span class="lane-label">${esc(hp.name)}${useLog?" · log scale":""}</span>
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${g}</svg></div>`;
+  });
+  host.innerHTML = html || '<div class="placeholder">—</div>';
+}
+
+function renderMeta(s) {
+  const t = s.task;
+  if (!t) return;
+  document.getElementById("runmeta").innerHTML = `
+    <span class="k">task type</span><span class="v">${esc(t.task_type||"—")}</span>
+    <span class="k">model</span><span class="v">${esc(t.model_family||"—")}</span>
+    <span class="k">dataset</span><span class="v">${esc(t.dataset_signature||"—")}</span>
+    <span class="k">optimizers</span><span class="v">${(t.allowed_optimizers||[]).join(", ")}</span>
+    <span class="k">agent backend</span><span class="v">${esc(s.run?.backend||"—")}</span>`;
+}
+
+/* ------------------------------------------------------------------ poller */
+async function tick() {
+  try {
+    const res = await fetch("/api/state", {cache: "no-store"});
+    if (res.ok) render(await res.json());
+  } catch (e) { /* server may be gone after process exit */ }
+}
+tick();
+setInterval(tick, STATE === null ? 800 : 1200);
+</script>
+</body>
+</html>

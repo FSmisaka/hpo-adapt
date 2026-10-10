@@ -913,8 +913,8 @@
   "experiences_recorded": 0
  },
  "timings": {
-  "hpo": 0.058322,
-  "adapt": 0.234043,
-  "total": 0.292365
+  "hpo": 0.095757,
+  "adapt": 0.247764,
+  "total": 0.343521
  }
 }

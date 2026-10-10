@@ -916,9 +916,9 @@
     "experiences_recorded": 0
    },
    "timings": {
-    "hpo": 0.056396,
-    "adapt": 0.245156,
-    "total": 0.301552
+    "hpo": 0.120842,
+    "adapt": 0.308069,
+    "total": 0.428911
    }
   },
   {
@@ -1130,7 +1130,7 @@
          "status": "VALID"
         },
         "marginal_gain_per_second": {
-         "value": 1.1898823441836985,
+         "value": 0.7843609730655274,
          "status": "VALID"
         }
        },
@@ -1821,9 +1821,9 @@
     "experiences_recorded": 0
    },
    "timings": {
-    "hpo": 0.05761,
-    "adapt": 0.237159,
-    "total": 0.294769
+    "hpo": 0.132564,
+    "adapt": 0.326276,
+    "total": 0.45884
    }
   },
   {
@@ -2035,7 +2035,7 @@
          "status": "VALID"
         },
         "marginal_gain_per_second": {
-         "value": 1.6333091683235657,
+         "value": 1.0891786401243142,
          "status": "VALID"
         }
        },
@@ -2726,9 +2726,9 @@
     "experiences_recorded": 0
    },
    "timings": {
-    "hpo": 0.054589,
-    "adapt": 0.23556,
-    "total": 0.290149
+    "hpo": 0.129414,
+    "adapt": 0.357184,
+    "total": 0.486597
    }
   }
  ]

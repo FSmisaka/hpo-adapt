@@ -5,6 +5,61 @@ Implementation of `spec.md`: combining **trajectory analysis** (CAVE-style diagn
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+## Quick start: wrap any ML task in ~10 lines (wandb-style)
+
+Any ML task that satisfies the basic task contract — an objective
+`train_evaluate(params) -> float` plus a declarative search space — becomes a
+self-optimizing closed loop with a live local dashboard:
+
+```python
+import hpo_adapt as ha
+
+def train_evaluate(params):        # 1. your existing training / evaluation code
+    ...
+    return cv_accuracy             #    the metric to maximize (or minimize)
+
+run = ha.run(                      # 2. plug it in — everything else is automatic
+    train_evaluate,
+    space=dict(
+        C=ha.Float(0.01, 100.0, log=True, default=1.0),
+        gamma=ha.Float(1e-6, 1.0, log=True, default=1e-3),
+        kernel=ha.Choice(["rbf", "poly"], default="rbf"),
+    ),
+    direction="maximize",
+    total_trials=90,
+)
+print(run.best_value, run.best_params)
+```
+
+Running this prints a local URL in the terminal:
+
+```
+┌────────────────────────────────────────────────────────────┐
+│ hpo-adapt · adaptive HPO closed loop                        │
+│   task      : svc_digits_abc123                             │
+│   objective : cv_accuracy (maximize)                        │
+│   budget    : 90 trials · up to 5 rounds                   │
+│   memory    : examples/svc_digits_memory.sqlite             │
+└────────────────────────────────────────────────────────────┘
+
+  ▶ Dashboard live at  http://127.0.0.1:8710
+    Open this URL in your browser to watch the run in real time.
+```
+
+The dashboard shows, round by round: how the initial setup (search space /
+optimizer / per-phase budget) was derived, every trial, the DiagnosticState
+(importance, boundary concentration, good region, stagnation, ...), which RL
+action was selected and why, the concrete setup changes old → new, and the
+reward each intervention earned. Zero extra dependencies — the server is
+Python stdlib and the page is a single self-contained HTML file.
+
+**Live demo** (RandomForest-free variant: RBF-SVM on sklearn digits):
+
+```bash
+python examples/demo_dashboard.py            # terminal prints the dashboard URL
+python examples/demo_dashboard.py --fresh    # start with an empty agent memory
+```
+
 ## The closed loop
 
 ```
@@ -33,6 +88,8 @@ Task ──▶ Initial Setup Agent ──▶ S0 ──▶ Classical HPO ──�
 | 6 | Agent Memory (SQLite: `experiences` + `semantic_rules`) | `src/hpo_adapt/memory/store.py` |
 | 7 | RL Controller (tabular Q-Learning) | `src/hpo_adapt/rl/` |
 | 8 | Closed-loop pipeline + CLI | `src/hpo_adapt/pipeline.py` |
+| 9 | One-function user API (`ha.run`) | `src/hpo_adapt/api.py` |
+| 10 | Live dashboard (stdlib server + single-page app) | `src/hpo_adapt/dashboard/` |
 
 ## Core data objects
 
@@ -57,10 +114,11 @@ Q-Learning defaults: `α=0.1, γ=0.9, ε: 1.0 → 0.05 (decay 0.995)`.
 
 ```bash
 pip install -e ".[dev]"
-pytest                                   # 126 tests
+pytest                                   # 147 tests
 hpo-adapt --task synthetic_mlp --max-rounds 4 --max-total-trials 120 --seed 3
 hpo-adapt --task branin --max-rounds 3                   # minimize-direction example
 hpo-adapt --task rf_digits                               # real-ML task (RandomForest + CV)
+hpo-adapt --task synthetic_mlp --dashboard               # ...with the live local dashboard
 hpo-adapt --task synthetic_mlp --json                    # machine-readable result
 ```
 
@@ -87,6 +145,11 @@ task = synthetic_mlp_task(max_total_trials=120)
 result = AdaptationPipeline(task, PipelineConfig(max_rounds=4)).run()
 print(result.best_value_raw, result.best_params)
 ```
+
+The `ha.run()` wrapper above builds the `TaskSpec`, registers the objective,
+starts the dashboard and prints the URL; `AdaptationPipeline` remains the
+fully configurable entry point (`event_sink=` accepts any
+`(event_type, payload) -> None` observer for custom live tooling).
 
 ## Real ML task example (with full observability)
 

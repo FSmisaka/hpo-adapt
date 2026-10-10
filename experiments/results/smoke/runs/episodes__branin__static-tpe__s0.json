@@ -161,7 +161,7 @@
          "status": "VALID"
         },
         "marginal_gain_per_second": {
-         "value": 11.010459669570826,
+         "value": 7.761271128296759,
          "status": "VALID"
         }
        },
@@ -730,9 +730,9 @@
     "experiences_recorded": 0
    },
    "timings": {
-    "hpo": 0.026266,
-    "adapt": 0.155117,
-    "total": 0.181383
+    "hpo": 0.071767,
+    "adapt": 0.213865,
+    "total": 0.285632
    }
   },
   {
@@ -880,7 +880,7 @@
          "status": "VALID"
         },
         "marginal_gain_per_second": {
-         "value": 6.098054008037843,
+         "value": 3.5007958232354364,
          "status": "VALID"
         }
        },
@@ -1449,9 +1449,9 @@
     "experiences_recorded": 0
    },
    "timings": {
-    "hpo": 0.025768,
-    "adapt": 0.147217,
-    "total": 0.172985
+    "hpo": 0.081957,
+    "adapt": 0.23001,
+    "total": 0.311968
    }
   },
   {
@@ -1599,7 +1599,7 @@
          "status": "VALID"
         },
         "marginal_gain_per_second": {
-         "value": 66.67515998671082,
+         "value": 41.526459851444486,
          "status": "VALID"
         }
        },
@@ -2168,9 +2168,9 @@
     "experiences_recorded": 0
    },
    "timings": {
-    "hpo": 0.02632,
-    "adapt": 0.150833,
-    "total": 0.177153
+    "hpo": 0.075133,
+    "adapt": 0.206478,
+    "total": 0.281611
    }
   }
  ]

@@ -548,7 +548,7 @@
        "status": "VALID"
       },
       "marginal_gain_per_second": {
-       "value": 89.23582394651825,
+       "value": 65.56633376815904,
        "status": "VALID"
       }
      },
@@ -885,7 +885,7 @@
        "status": "VALID"
       },
       "marginal_gain_per_second": {
-       "value": 32.11323149097266,
+       "value": 28.15630227755542,
        "status": "VALID"
       }
      },
@@ -1094,8 +1094,8 @@
   "experiences_recorded": 6
  },
  "timings": {
-  "hpo": 0.024566,
-  "adapt": 0.299897,
-  "total": 0.324463
+  "hpo": 0.051174,
+  "adapt": 0.350359,
+  "total": 0.401533
  }
 }

@@ -1,6 +1,9 @@
+LICENSE
 README.md
 pyproject.toml
 src/hpo_adapt/__init__.py
+src/hpo_adapt/api.py
+src/hpo_adapt/events.py
 src/hpo_adapt/levels.py
 src/hpo_adapt/pipeline.py
 src/hpo_adapt/validator.py
@@ -14,6 +17,10 @@ src/hpo_adapt/agents/__init__.py
 src/hpo_adapt/agents/initial_setup.py
 src/hpo_adapt/agents/llm.py
 src/hpo_adapt/agents/revised_setup.py
+src/hpo_adapt/dashboard/__init__.py
+src/hpo_adapt/dashboard/app.html
+src/hpo_adapt/dashboard/server.py
+src/hpo_adapt/dashboard/state.py
 src/hpo_adapt/diagnostic/__init__.py
 src/hpo_adapt/diagnostic/engine.py
 src/hpo_adapt/diagnostic/importance.py
@@ -38,6 +45,8 @@ src/hpo_adapt/schemas/task.py
 src/hpo_adapt/schemas/trial.py
 tests/test_agents_initial.py
 tests/test_agents_revised.py
+tests/test_api.py
+tests/test_dashboard.py
 tests/test_diagnostic.py
 tests/test_hpo.py
 tests/test_memory.py

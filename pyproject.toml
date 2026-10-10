@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hpo-adapt"
-version = "0.1.0"
-description = "Diagnostic-driven adaptive HPO setup control with tabular Q-Learning and agent memory."
+version = "0.2.0"
+description = "Diagnostic-driven adaptive HPO setup control with tabular Q-Learning, agent memory and a live dashboard."
 requires-python = ">=3.11"
 dependencies = [
     "optuna>=3.6",
-    "cmaes>=3.0",
+    "cmaes>=0.10",
     "scikit-learn>=1.4",
     "pydantic>=2.6",
     "numpy>=1.26",
@@ -23,6 +23,9 @@ hpo-adapt = "hpo_adapt.pipeline:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+hpo_adapt = ["dashboard/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

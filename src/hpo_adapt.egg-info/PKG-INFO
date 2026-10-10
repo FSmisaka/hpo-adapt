@@ -1,12 +1,16 @@
 Metadata-Version: 2.4
 Name: hpo-adapt
-Version: 0.1.0
-Summary: Diagnostic-driven adaptive HPO setup control with tabular Q-Learning and agent memory.
+Version: 0.2.0
+Summary: Diagnostic-driven adaptive HPO setup control with tabular Q-Learning, agent memory and a live dashboard.
 Requires-Python: >=3.11
+License-File: LICENSE
 Requires-Dist: optuna>=3.6
+Requires-Dist: cmaes>=0.10
 Requires-Dist: scikit-learn>=1.4
 Requires-Dist: pydantic>=2.6
 Requires-Dist: numpy>=1.26
 Provides-Extra: dev
 Requires-Dist: pytest>=8.0; extra == "dev"
 Requires-Dist: mypy>=1.8; extra == "dev"
+Requires-Dist: matplotlib>=3.8; extra == "dev"
+Dynamic: license-file

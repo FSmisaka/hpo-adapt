@@ -4,6 +4,58 @@
 **Agent 驱动的 setup 生成**结合，并由 **表格型 Q-Learning** 控制何时执行哪种 setup 干预。
 
 > 英文版说明见 [README.md](README.md)。
+
+## 快速上手：~10 行代码把任意 ML 任务变成自适应 HPO（wandb 式体验）
+
+任务契约（"基本任务格式"）：一个目标函数 `train_evaluate(params) -> float`（训练 + 评估，
+返回要优化的指标）+ 一份声明式搜索空间。满足即可一行接入：
+
+```python
+import hpo_adapt as ha
+
+def train_evaluate(params):        # 1. 你已有的训练/评估代码
+    ...
+    return cv_accuracy
+
+run = ha.run(                      # 2. 接入后：初始 setup 自动生成、多轮自动迭代
+    train_evaluate,
+    space=dict(
+        C=ha.Float(0.01, 100.0, log=True, default=1.0),
+        gamma=ha.Float(1e-6, 1.0, log=True, default=1e-3),
+        kernel=ha.Choice(["rbf", "poly"], default="rbf"),
+    ),
+    direction="maximize",
+    total_trials=90,
+)
+print(run.best_value, run.best_params)
+```
+
+运行后终端会打印本地链接：
+
+```
+┌────────────────────────────────────────────────────────────┐
+│ hpo-adapt · adaptive HPO closed loop                        │
+│   task      : svc_digits_abc123                             │
+│   objective : cv_accuracy (maximize)                        │
+│   budget    : 90 trials · up to 5 rounds                   │
+└────────────────────────────────────────────────────────────┘
+
+  ▶ Dashboard live at  http://127.0.0.1:8710
+    在浏览器打开这个链接，实时观看整个闭环的运作。
+```
+
+前端页面逐轮展示：初始 setup（搜索空间 / optimizer / 每轮预算）是如何自动推导的、每个
+trial 的结果、DiagnosticState 全部指标（importance、boundary concentration、good
+region、stagnation……）、RL 选择了哪个 action 以及依据、setup 修改的具体内容（旧值 →
+新值与理由）、每个干预获得的 reward。零额外依赖（标准库 HTTP 服务 + 单文件前端）。
+
+**完整 demo**（RBF-SVM on sklearn digits，真实 ML 任务）：
+
+```bash
+python examples/demo_dashboard.py            # 终端会打印 dashboard 链接
+python examples/demo_dashboard.py --fresh    # 清空 Agent Memory 后重新跑
+```
+
 ## 研究问题
 
 HPO 的效果高度依赖初始 setup（Search Space / Optimizer / Budget）。Search Space 太小可能
@@ -42,6 +94,8 @@ Task ──▶ Initial Setup Agent ──▶ S0 ──▶ Classical HPO ──�
 | 6 | Agent Memory（SQLite：`experiences` + `semantic_rules` 两张表） | `src/hpo_adapt/memory/store.py` |
 | 7 | RL Controller（表格 Q-Learning） | `src/hpo_adapt/rl/` |
 | 8 | 闭环 Pipeline + CLI | `src/hpo_adapt/pipeline.py` |
+| 9 | 一行接入的用户 API（`ha.run`） | `src/hpo_adapt/api.py` |
+| 10 | 实时 Dashboard（标准库服务 + 单页前端） | `src/hpo_adapt/dashboard/` |
 
 ## 核心数据对象
 
