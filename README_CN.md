@@ -20,12 +20,12 @@ def train_evaluate(params):        # 1. 你已有的训练/评估代码
 run = ha.run(                      # 2. 接入后：初始 setup 自动生成、多轮自动迭代
     train_evaluate,
     space=dict(
-        C=ha.Float(0.01, 100.0, log=True, default=1.0),
-        gamma=ha.Float(1e-6, 1.0, log=True, default=1e-3),
-        kernel=ha.Choice(["rbf", "poly"], default="rbf"),
+        max_iter=ha.Int(20, 300, default=80),
+        max_leaf_nodes=ha.Int(10, 64, default=24),
+        learning_rate=ha.Float(0.08, 0.12, log=True, default=0.1),
     ),
     direction="maximize",
-    total_trials=90,
+    total_trials=120,
 )
 print(run.best_value, run.best_params)
 ```
@@ -35,9 +35,10 @@ print(run.best_value, run.best_params)
 ```
 ┌────────────────────────────────────────────────────────────┐
 │ hpo-adapt · adaptive HPO closed loop                        │
-│   task      : svc_digits_abc123                             │
-│   objective : cv_accuracy (maximize)                        │
-│   budget    : 90 trials · up to 5 rounds                   │
+│   task      : hgb_demo_abc123                              │
+│   objective : holdout_accuracy (maximize)                  │
+│   budget    : 120 trials · up to 5 rounds                   │
+│   memory    : examples/hgb_demo_memory.sqlite               │
 └────────────────────────────────────────────────────────────┘
 
   ▶ Dashboard live at  http://127.0.0.1:8710
@@ -49,7 +50,8 @@ trial 的结果、DiagnosticState 全部指标（importance、boundary concentra
 region、stagnation……）、RL 选择了哪个 action 以及依据、setup 修改的具体内容（旧值 →
 新值与理由）、每个干预获得的 reward。零额外依赖（标准库 HTTP 服务 + 单文件前端）。
 
-**完整 demo**（RBF-SVM on sklearn digits，真实 ML 任务）：
+**完整 demo**（HistGradientBoosting + 真实训练任务，~5-6 分钟 / 120 次真实训练；在
+dashboard 上可以直观看到搜索范围逐轮上移、best-so-far 曲线随之阶梯上升）：
 
 ```bash
 python examples/demo_dashboard.py            # 终端会打印 dashboard 链接

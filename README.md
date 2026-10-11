@@ -21,12 +21,12 @@ def train_evaluate(params):        # 1. your existing training / evaluation code
 run = ha.run(                      # 2. plug it in — everything else is automatic
     train_evaluate,
     space=dict(
-        C=ha.Float(0.01, 100.0, log=True, default=1.0),
-        gamma=ha.Float(1e-6, 1.0, log=True, default=1e-3),
-        kernel=ha.Choice(["rbf", "poly"], default="rbf"),
+        max_iter=ha.Int(20, 300, default=80),
+        max_leaf_nodes=ha.Int(10, 64, default=24),
+        learning_rate=ha.Float(0.08, 0.12, log=True, default=0.1),
     ),
     direction="maximize",
-    total_trials=90,
+    total_trials=120,
 )
 print(run.best_value, run.best_params)
 ```
@@ -36,10 +36,10 @@ Running this prints a local URL in the terminal:
 ```
 ┌────────────────────────────────────────────────────────────┐
 │ hpo-adapt · adaptive HPO closed loop                        │
-│   task      : svc_digits_abc123                             │
-│   objective : cv_accuracy (maximize)                        │
-│   budget    : 90 trials · up to 5 rounds                   │
-│   memory    : examples/svc_digits_memory.sqlite             │
+│   task      : hgb_demo_abc123                              │
+│   objective : holdout_accuracy (maximize)                  │
+│   budget    : 120 trials · up to 5 rounds                   │
+│   memory    : examples/hgb_demo_memory.sqlite               │
 └────────────────────────────────────────────────────────────┘
 
   ▶ Dashboard live at  http://127.0.0.1:8710
@@ -53,7 +53,9 @@ action was selected and why, the concrete setup changes old → new, and the
 reward each intervention earned. Zero extra dependencies — the server is
 Python stdlib and the page is a single self-contained HTML file.
 
-**Live demo** (RandomForest-free variant: RBF-SVM on sklearn digits):
+**Live demo** (HistGradientBoosting on a hard synthetic dataset, ~5-6 min,
+120 real training runs — watch the setup ranges climb round after round on
+the dashboard as the best-so-far curve steps up):
 
 ```bash
 python examples/demo_dashboard.py            # terminal prints the dashboard URL
