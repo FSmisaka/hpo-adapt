@@ -31,6 +31,18 @@ class TestRunRecorder:
         assert completed_doc["summary"] is not None
         assert completed_doc["initial_setup"]["setup"]["setup_id"] == "setup_000"
 
+    def test_initial_setup_carries_memory_prior(self, completed_doc):
+        prior = completed_doc["initial_setup"]["memory_prior"]
+        assert prior is not None
+        assert prior["total_experiences"] >= 0
+        assert isinstance(prior["entries"], list)
+
+    def test_reward_payload_is_structured(self, completed_doc):
+        rewards = [r["reward"] for r in completed_doc["rounds"] if r["reward"] is not None]
+        for rw in rewards:
+            assert isinstance(rw, dict)
+            assert {"value", "relative_improvement", "terminal"} <= set(rw)
+
     def test_rounds_and_trials_consistent(self, completed_doc):
         rounds = completed_doc["rounds"]
         assert len(rounds) >= 1

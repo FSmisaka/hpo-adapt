@@ -97,7 +97,11 @@ class RunRecorder:
         }
 
     def _on_initial_setup(self, p: EventPayload) -> None:
-        self._doc["initial_setup"] = {"setup": p["setup"], "how": p.get("how", "")}
+        self._doc["initial_setup"] = {
+            "setup": p["setup"],
+            "how": p.get("how", ""),
+            "memory_prior": p.get("memory_prior"),
+        }
 
     def _on_round_start(self, p: EventPayload) -> None:
         self._doc["rounds"].append(
@@ -156,7 +160,11 @@ class RunRecorder:
 
     def _on_reward(self, p: EventPayload) -> None:
         try:
-            self._round(p["round_index"])["reward"] = p["reward"]
+            self._round(p["round_index"])["reward"] = {
+                "value": p["reward"],
+                "relative_improvement": p.get("relative_improvement"),
+                "terminal": bool(p.get("terminal", False)),
+            }
         except KeyError:
             pass
 

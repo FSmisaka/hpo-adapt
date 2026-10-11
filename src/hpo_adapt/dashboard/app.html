@@ -126,6 +126,71 @@
   .lane-label { font-family: var(--mono); font-size: 12px; fill: #334155; }
   .errbox { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 10px;
             padding: 10px 14px; font-family: var(--mono); font-size: 12.5px; margin-bottom: 16px; }
+
+  /* ---- per-round stage stepper (Search → Observe → Decide → Execute) ---- */
+  .stepper { margin-top: 4px; }
+  .stage { position: relative; padding-left: 34px; }
+  .stage-node { position: absolute; left: 7px; top: 4px; width: 9px; height: 9px; border-radius: 50%;
+                background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .stage.active .stage-node { animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 6px #e0e7ff; } }
+  .stage.dim .stage-node { background: #cbd5e1; box-shadow: 0 0 0 3px #f8fafc; }
+  .stage::before { content: ""; position: absolute; left: 11px; top: 17px; bottom: -13px; width: 1.5px;
+                   background: #dbe2ea; }
+  .stage.dim::before { background: #eef2f6; }
+  .stage:last-child::before { display: none; }
+  .stage-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+  .stage-kicker { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+  .stage-kicker .idx { color: var(--accent); }
+  .stage-module { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+  .stage.dim .stage-kicker { color: #94a3b8; }
+  .stage.dim .stage-module { color: #cbd5e1; }
+  .stage-body { padding-bottom: 4px; }
+  .stage-wait { font-size: 12px; color: #94a3b8; }
+  .flow { display: flex; align-items: center; gap: 8px; margin: 0 0 12px 34px; }
+  .flow-chip { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono);
+               font-size: 10.5px; color: #475569; background: #f8fafc; border: 1px solid var(--line);
+               border-radius: 999px; padding: 2.5px 10px; white-space: nowrap; }
+  .flow-chip b { color: var(--accent); font-weight: 600; }
+  .flow-chip .down { color: var(--accent); font-weight: 700; }
+  .flow-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
+
+  /* ---- connector between round cards ---- */
+  .round-link { display: flex; justify-content: center; margin: 2px 0 14px; }
+  .round-link-inner { display: flex; flex-direction: column; align-items: center; gap: 3px;
+                      font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+  .round-link-inner .down { font-size: 15px; color: var(--accent); line-height: 1; }
+  .round-link-inner .setup { color: #334155; font-weight: 600; }
+  .round-link-inner .reward-note { font-size: 10.5px; }
+  .round-link-inner .reward-note.ok { color: var(--good); }
+  .round-link-inner .reward-note.bad { color: var(--bad); }
+
+  /* ---- memory prior (initial setup) ---- */
+  .mem { margin-top: 10px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .mem-head { display: flex; align-items: baseline; gap: 8px; font-size: 10.5px; font-weight: 800;
+              letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+              background: #fbfcfe; padding: 6px 12px; border-bottom: 1px solid var(--line); }
+  .mem-head .count { margin-left: auto; font-family: var(--mono); font-weight: 600; color: #475569; }
+  .mem-row { display: flex; gap: 10px; align-items: baseline; padding: 5px 12px; font-size: 12.5px;
+             border-bottom: 1px solid #f1f5f9; }
+  .mem-row:last-child { border-bottom: none; }
+  .mem-row .act { font-family: var(--mono); font-weight: 600; }
+  .mem-row .tgt { color: var(--muted); font-family: var(--mono); }
+  .mem-row .imp { font-family: var(--mono); margin-left: auto; font-weight: 600; }
+  .mem-row .imp.ok { color: var(--good); }
+  .mem-row .imp.bad { color: var(--bad); }
+  .mem-empty { padding: 7px 12px; font-size: 12px; color: var(--muted); }
+
+  /* ---- chart help + legend ---- */
+  .chart-help { font-size: 12.5px; color: #475569; margin: -6px 0 10px; max-width: 760px; }
+  .chart-help b { color: var(--ink); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 8px 0 2px; font-size: 11.5px;
+            color: var(--muted); align-items: center; }
+  .lg { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+  .lg .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .lg .line { width: 16px; height: 2.5px; background: #0f172a; display: inline-block; border-radius: 2px; }
+  .lg .dash { width: 1.5px; height: 12px; border-left: 2px dashed #94a3b8; display: inline-block; }
+  .lg .x { color: var(--bad); font-weight: 700; font-family: var(--mono); }
 </style>
 </head>
 <body>
@@ -144,7 +209,9 @@
     <div class="main">
       <div class="card">
         <h2 id="charttitle">Objective over trials</h2>
+        <div id="charthelp" class="chart-help"></div>
         <div id="chart"></div>
+        <div id="chartlegend" class="legend"></div>
       </div>
       <div id="rounds"></div>
     </div>
@@ -263,8 +330,19 @@ function renderStats(s) {
 /* ------------------------------------------------------------------- chart */
 function renderChart(s) {
   const host = document.getElementById("chart");
+  const objName = s.task?.objective_name || "objective";
+  const better = s.task?.direction === "minimize" ? "lower" : "higher";
   document.getElementById("charttitle").textContent =
-    `Objective over trials${s.task?.objective_name ? " · "+esc(s.task.objective_name) : ""}`;
+    `Objective over trials${objName ? " · " + esc(objName) : ""}`;
+  document.getElementById("charthelp").innerHTML =
+    `Each <b>dot is one trial</b>: your task is trained and evaluated once under one sampled ` +
+    `hyperparameter configuration, and the dot's height is the resulting ${esc(objName)}. ` +
+    `The dark line tracks the <b>best configuration found so far</b> (${better} is better).`;
+  document.getElementById("chartlegend").innerHTML =
+    `<span class="lg">${ROUND_COLORS.slice(0,3).map(c=>`<span class="dot" style="background:${c}"></span>`).join("")} trial — one sampled configuration (color = round)</span>` +
+    `<span class="lg"><span class="line"></span> best so far</span>` +
+    `<span class="lg"><span class="dash"></span> round boundary (setup changed)</span>` +
+    `<span class="lg"><span class="x">✕</span> failed trial (training diverged / error)</span>`;
   const trials = s.trials;
   if (!trials.length) { host.innerHTML = '<div class="empty-chart">no trials yet — waiting for the first HPO round …</div>'; return; }
 
@@ -339,6 +417,55 @@ function metricVal(m) {
   if (!m || m.status !== "VALID") return null;
   return m.value;
 }
+
+/* one stage of the per-round stepper: Search → Observe → Decide → Execute */
+function stage(idx, kicker, module, mode, bodyHtml) {
+  return `<div class="stage ${mode}">
+    <span class="stage-node"></span>
+    <div class="stage-head">
+      <span class="stage-kicker"><span class="idx">${idx}</span>${kicker}</span>
+      <span class="stage-module">${module}</span>
+    </div>
+    <div class="stage-body">${bodyHtml}</div>
+  </div>`;
+}
+/* artifact handed from one stage to the next (TrialLogs / DiagnosticState / ...) */
+function flow(artifact, detail) {
+  return `<div class="flow">
+    <span class="flow-chip"><span class="down">↓</span><b>${artifact}</b>${detail ? " · " + detail : ""}</span>
+    <span class="flow-line"></span>
+  </div>`;
+}
+
+function shortAction(name) {
+  return String(name || "").replace(/_(SEARCH_SPACE|SEARCH_REGION|HYPERPARAMETER)/g, "").replace(/_/g, " ");
+}
+
+function memPriorHtml(mp) {
+  if (!mp) return "";
+  const total = mp.total_experiences || 0;
+  let inner;
+  if (!total) {
+    inner = `<div class="mem-empty">No prior experience (fresh memory) — the initial setup is derived from the task's hyperparameter metadata only.</div>`;
+  } else {
+    const rows = (mp.entries || []).map(e => {
+      const imp = e.improvement;
+      const impTxt = imp === null || imp === undefined ? "—" : (imp >= 0 ? "+" : "") + pct(imp);
+      return `<div class="mem-row">
+        <span class="act">${esc(shortAction(e.action))}</span>
+        <span class="tgt">@ ${esc(e.target || "—")}</span>
+        <span class="imp ${e.success ? "ok" : "bad"}">${impTxt} ${e.success ? "✓" : "✗"}</span>
+      </div>`;
+    }).join("");
+    inner = rows || `<div class="mem-empty">Memory has ${total} experiences, none similar enough to this task to retrieve.</div>`;
+  }
+  const count = total ? `<span class="count">top ${mp.retrieved_top || 0} of ${total} experiences</span>` : "";
+  return `<div class="mem">
+    <div class="mem-head">Memory prior — past interventions on similar tasks ${count}</div>
+    ${inner}
+  </div>`;
+}
+
 function renderRounds(s) {
   const host = document.getElementById("rounds");
   let html = "";
@@ -348,17 +475,43 @@ function renderRounds(s) {
     const su = init.setup;
     const rows = (su.search_space||[]).map(sp =>
       `<tr><td class="mono">${esc(sp.name)}</td><td class="num">${specRange(sp)}</td><td>${esc(sp.rationale||"")}</td></tr>`).join("");
+    const assumptions = (su.assumptions||[]).filter(a => !/^prior knowledge from memory/i.test(a));
     html += `<div class="round"><div class="round-head">
         <span class="round-num" style="background:#0f172a">S₀</span>
         <b>Initial setup</b><span class="mono">${esc(su.setup_id||"")} · optimizer ${esc(su.optimizer?.name||"")} · ${su.budget?.max_trials??"?"} trials/phase</span>
         <span class="spacer"></span><span class="badge">confidence ${su.confidence ?? "—"}</span></div>
       <div class="round-body">
         <div class="action-why" style="margin:0 0 8px">${esc(init.how||"")}</div>
-        <table><tr><th>hyperparameter</th><th>initial range</th><th>rationale</th></tr>${rows}</table>
-        ${(su.assumptions||[]).length ? `<div style="margin-top:8px;font-size:12px;color:var(--muted)">assumptions: ${su.assumptions.map(esc).join(" · ")}</div>` : ""}
+        ${memPriorHtml(init.memory_prior)}
+        <table style="margin-top:10px"><tr><th>hyperparameter</th><th>initial range</th><th>rationale</th></tr>${rows}</table>
+        ${assumptions.length ? `<div class="chips" style="margin-top:8px">${assumptions.map(a=>`<span class="chip">${esc(a)}</span>`).join("")}</div>` : ""}
       </div></div>`;
+    html += `<div class="round-link"><div class="round-link-inner">
+      <span class="down">↓</span>
+      <span><span class="setup">${esc(su.setup_id||"S₀")}</span> feeds Round 0's search</span>
+    </div></div>`;
   }
-  s.rounds.forEach(r => { html += roundCard(s, r); });
+  s.rounds.forEach((r, i) => {
+    html += roundCard(s, r);
+    const next = s.rounds[i + 1];
+    if (r.new_setup_id) {
+      const rw = r.reward;
+      let rewardNote = "";
+      if (rw && rw.value !== undefined) {
+        const rel = rw.relative_improvement;
+        const relTxt = rel === null || rel === undefined ? "" : ` · Δ ${(rel>=0?"+":"")+pct(rel)}`;
+        rewardNote = `<span class="reward-note ${rw.value >= 0 ? "ok" : "bad"}">reward ${fmt(rw.value,4)}${relTxt} — outcome of R${r.round_index}'s action${next ? `, measured after R${next.round_index}'s search` : ""}</span>`;
+      } else if (r.action && next) {
+        rewardNote = `<span class="reward-note">outcome pending — evaluated during the next round</span>`;
+      }
+      const warm = next && next.warm_started ? ` · ${next.warm_started} past trials warm-start the optimizer` : "";
+      html += `<div class="round-link"><div class="round-link-inner">
+        <span class="down">↓</span>
+        <span><span class="setup">${esc(r.new_setup_id)}</span> becomes Round ${r.round_index + 1}'s setup${warm}</span>
+        ${rewardNote}
+      </div></div>`;
+    }
+  });
   host.innerHTML = html || '<div class="card"><div class="placeholder">waiting for the first round …</div></div>';
 }
 
@@ -409,48 +562,91 @@ function diagSummary(ds, action) {
 }
 
 function roundCard(s, r) {
-  const dir = s.task?.direction;
   const a = r.action;
   const meta = a ? ACTION_META[a.action] : null;
-  const stateLabel = {running:"HPO running", diagnosing:"diagnosing", deciding:"deciding (RL)", done:"done"}[r.state] || r.state;
+  const stateLabel = {running:"searching", diagnosing:"observing", deciding:"deciding", done:"done"}[r.state] || r.state;
   const rows = (r.search_space||[]).map(sp =>
     `<tr><td class="mono">${esc(sp.name)}</td><td class="num">${specRange(sp)}</td></tr>`).join("");
   const frozen = Object.entries(r.frozen||{}).map(([k,v]) => `<span class="chip">❄ ${esc(k)} = <b>${esc(JSON.stringify(v))}</b></span>`).join("");
 
-  let actionHtml = "";
+  /* ---- stage 1 · Search (input: this round's Setup — table below) ---- */
+  const done = r.trials.length;
+  const phaseProgress = r.phase_budget
+    ? `<div class="progress" style="max-width:340px"><div style="width:${Math.min(100, 100*done/r.phase_budget)}%"></div></div>` : "";
+  let s1Body = `<div class="chips">
+      <span class="chip">trials <b>${r.trials_used ?? done}${r.phase_budget ? " / " + r.phase_budget : ""}</b></span>
+      <span class="chip">phase best <b>${r.phase_best===null||r.phase_best===undefined?"—":fmt(raw(s,r.phase_best))}</b></span>
+      <span class="chip on">best so far <b>${r.cumulative_best===null||r.cumulative_best===undefined?"—":fmt(raw(s,r.cumulative_best))}</b></span>
+      ${r.warm_started?`<span class="chip">warm-started <b>${r.warm_started}</b> past trials</span>`:""}
+    </div>`;
+  if (r.state === "running") s1Body += phaseProgress;
+  s1Body += `<table style="margin-top:6px"><tr><th>hyperparameter</th><th>range searched this round (setup input)</th></tr>${rows}</table>`;
+  if (frozen) s1Body += `<div class="chips" style="margin-top:6px">${frozen}</div>`;
+  const s1Mode = r.state === "running" ? "active" : "";
+
+  /* ---- stage 2 · Observe ---- */
+  const dg = r.diagnosis;
+  let s2Body = "";
+  if (r.diagnostic) {
+    s2Body = (dg ? `<div style="font-size:11.5px;color:var(--muted);margin-bottom:4px">DIAGNOSIS: <span class="diagnosis"><b>${esc(dg.primary||"—")}</b> (confidence ${dg.confidence!=null?fmt(dg.confidence,2):"—"})</span></div>` : "")
+      + diagSummary(r.diagnostic, a);
+  } else if (r.state === "diagnosing") {
+    s2Body = `<div class="stage-wait">analyzing ${r.trials_used ?? "?"} trials …</div>`;
+  } else if (r.state === "running") {
+    s2Body = `<div class="stage-wait">waiting for this round's TrialLogs …</div>`;
+  }
+  const s2Mode = r.state === "diagnosing" ? "active" : (r.state === "running" ? "dim" : "");
+
+  /* ---- stage 3 · Decide ---- */
+  let s3Body = "";
   if (a && meta) {
-    actionHtml = `<div class="action-box ${meta.cls}">
+    s3Body = `<div class="action-box ${meta.cls}">
       <div class="a-head"><span class="action-name">${meta.label}</span>
         ${a.candidate_hyperparameter?`<span class="action-sub">target: ${esc(a.candidate_hyperparameter)}</span>`:""}
         ${a.parameters&&Object.keys(a.parameters).length?`<span class="action-sub">${esc(JSON.stringify(a.parameters))}</span>`:""}
         <span class="action-sub">q = ${fmt(a.q_value,3)} · confidence ${a.confidence===null||a.confidence===undefined?"—":fmt(a.confidence,2)}</span></div>
       ${a.reason?`<div class="action-why">${esc(a.reason)}</div>`:""}
     </div>`;
-  } else if (r.state === "done") {
-    actionHtml = `<div class="chips"><span class="chip">no further action selected — episode closing</span></div>`;
   } else if (r.state === "deciding") {
-    actionHtml = `<div class="placeholder" style="padding:8px 0">RL controller selecting intervention …</div>`;
+    s3Body = `<div class="stage-wait">selecting intervention over 7 actions (ε-greedy over the Q-table) …</div>`;
+  } else if (r.state === "done") {
+    s3Body = `<div class="stage-wait">no action selected — no further phase could evaluate it; the episode closes here.</div>`;
+  } else {
+    s3Body = `<div class="stage-wait">waiting for DiagnosticState …</div>`;
   }
-  let dg = r.diagnosis;
-  let diagHtml = "";
-  if (r.diagnostic) {
-    diagHtml = diagSummary(r.diagnostic, a);
-  } else if (r.state === "diagnosing") {
-    diagHtml = `<div class="placeholder" style="padding:8px 0">Diagnostic Engine analyzing ${r.trials_used??"?"} trials …</div>`;
-  }
+  const invalid = (r.invalid_actions||[]).map(iv =>
+    `<div class="chip warn">invalid: ${esc(shortAction(iv.action?.action||""))} @ ${esc(iv.action?.candidate_hyperparameter||"—")} → penalized ${fmt(iv.penalty,3)}, retried</div>`).join("");
+  if (invalid) s3Body += `<div class="chips" style="margin-top:6px">${invalid}</div>`;
+  const s3Mode = r.state === "deciding" ? "active" : (r.state === "done" || r.state === "diagnosing" ? "" : "dim");
 
-  let changesHtml = "";
+  /* ---- stage 4 · Execute ---- */
+  let s4Body = "", hasStage4 = false;
   if (r.changes && r.changes.length) {
-    changesHtml = `<div style="font-size:11.5px;color:var(--muted);margin:10px 0 2px">SETUP REVISION → ${esc(r.new_setup_id||"")}</div>` +
+    hasStage4 = true;
+    s4Body = `<div style="font-size:11.5px;color:var(--muted);margin-bottom:4px">revised setup → <b class="mono">${esc(r.new_setup_id||"")}</b></div>` +
       r.changes.map(c => `<div class="change">
         <span class="hp">${esc(c.hyperparameter)}</span>
         <span class="diff">${fmtChange(c)}</span>
         <span class="why">${esc(c.reason||"")}</span></div>`).join("");
+    if (r.terminated) s4Body += `<div class="chips" style="margin-top:6px"><span class="chip" style="border-color:#fecaca;background:#fef2f2;color:#b91c1c"><b>STOP</b> — episode terminated by the RL controller</span></div>`;
+  } else if (r.state === "done" && a) {
+    hasStage4 = true;
+    s4Body = `<div class="stage-wait">setup unchanged${r.terminated ? " — STOP terminates the episode" : ""}</div>`;
+  } else if (r.state === "running" || r.state === "diagnosing" || r.state === "deciding") {
+    hasStage4 = true;
+    s4Body = `<div class="stage-wait">waiting for RLAction …</div>`;
   }
-  const invalid = (r.invalid_actions||[]).map(iv =>
-    `<div class="chip warn">invalid: ${esc(iv.action?.action||"")} @ ${esc(iv.action?.candidate_hyperparameter||"—")} → penalized ${fmt(iv.penalty,3)}</div>`).join("");
-  const rewardChip = r.reward !== null && r.reward !== undefined
-    ? `<span class="chip ${r.reward>0?"ok":(r.reward<0?"warn":"")}">reward <b>${fmt(r.reward,4)}</b> <span style="color:var(--muted)">(outcome of this round's action)</span></span>` : "";
+  const s4Mode = r.state === "done" ? "" : "dim";
+
+  let stepper = stage(1, "Search", `Classical HPO · ${esc(r.optimizer?.name||"")}`, s1Mode, s1Body);
+  stepper += flow("TrialLogs", `${r.trials_used ?? done} evaluated configurations → Observe`);
+  stepper += stage(2, "Observe", "Diagnostic Engine (deterministic)", s2Mode, s2Body);
+  stepper += flow("DiagnosticState", "structured evidence → Decide");
+  stepper += stage(3, "Decide", "RL Controller · tabular Q-learning", s3Mode, s3Body);
+  if (hasStage4) {
+    stepper += flow(a ? "RLAction" : "no action", a ? `${shortAction(a.action)} @ ${a.candidate_hyperparameter || "—"} → Execute` : "episode closes");
+    stepper += stage(4, "Execute", "Revised Setup Agent (validator-gated)", s4Mode, s4Body);
+  }
 
   return `<div class="round" id="round-${r.round_index}">
     <div class="round-head">
@@ -461,21 +657,7 @@ function roundCard(s, r) {
       <span class="badge ${r.state==="done"?"finished":"running"}">${r.state==="done"?"✓":'<span class="spin"></span>'} ${stateLabel}</span>
     </div>
     <div class="round-body">
-      <div class="chips">
-        <span class="chip">trials this phase <b>${r.trials_used ?? r.trials.length}${r.phase_budget?" / "+r.phase_budget:""}</b></span>
-        <span class="chip">phase best <b>${r.phase_best===null||r.phase_best===undefined?"—":fmt(raw(s,r.phase_best))}</b></span>
-        <span class="chip on">cumulative best <b>${r.cumulative_best===null||r.cumulative_best===undefined?"—":fmt(raw(s,r.cumulative_best))}</b></span>
-        ${r.warm_started?`<span class="chip">warm-started <b>${r.warm_started}</b> past trials</span>`:""}
-        ${rewardChip}
-      </div>
-      ${dg?`<div style="font-size:11.5px;color:var(--muted);margin-bottom:0">DIAGNOSIS: <span class="diagnosis"><b>${esc(dg.primary||"—")}</b> (confidence ${dg.confidence!=null?fmt(dg.confidence,2):"—"})</span></div>`:""}
-      ${diagHtml}
-      ${actionHtml}
-      ${changesHtml}
-      ${invalid?`<div class="chips">${invalid}</div>`:""}
-      ${rows?`<table><tr><th>hyperparameter</th><th>search range this round</th></tr>${rows}</table>`:""}
-      ${frozen?`<div class="chips">${frozen}</div>`:""}
-      ${r.terminated?`<div class="chips"><span class="chip" style="border-color:#fecaca;background:#fef2f2;color:#b91c1c"><b>STOP</b> — episode terminated by RL controller</span></div>`:""}
+      <div class="stepper">${stepper}</div>
     </div>
   </div>`;
 }

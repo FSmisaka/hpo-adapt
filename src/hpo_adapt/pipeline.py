@@ -161,6 +161,29 @@ class AdaptationPipeline:
     def _emit(self, event_type: str, payload: dict[str, Any]) -> None:
         self.events.emit(event_type, payload)
 
+    def _memory_prior_summary(self) -> dict[str, Any]:
+        """Structured retrieval summary for observers (dashboard / logs)."""
+        entries = []
+        try:
+            retrieved = self.memory.retrieve(self._task_signature(), top_k=3)
+            for exp in retrieved:
+                entries.append(
+                    {
+                        "action": exp.action.type,
+                        "target": exp.action.target,
+                        "improvement": exp.outcome.relative_improvement,
+                        "success": bool(exp.success),
+                    }
+                )
+            total = self.memory.experience_count()
+        except Exception:
+            retrieved, total = [], 0
+        return {
+            "total_experiences": total,
+            "retrieved_top": len(entries),
+            "entries": entries,
+        }
+
     def _task_signature(self) -> TaskSignature:
         return TaskSignature(
             task_type=self.task.task_type,
@@ -234,6 +257,7 @@ class AdaptationPipeline:
                     "search space from the task's hyperparameter metadata, "
                     "picked the optimizer and split the global budget."
                 ),
+                "memory_prior": self._memory_prior_summary(),
             },
         )
 
@@ -338,6 +362,10 @@ class AdaptationPipeline:
                     trials_used=len(hpo_result.trials),
                 )
                 result.steps[-1].reward = reward
+                prev_best = pending["best_before"]
+                rel = None
+                if prev_best is not None and cumulative_best is not None:
+                    rel = (cumulative_best - prev_best) / (abs(prev_best) + 1e-8)
                 self._emit(
                     "reward",
                     {
@@ -346,6 +374,7 @@ class AdaptationPipeline:
                         "action": pending["action"].model_dump(by_alias=True, mode="json"),
                         "best_before": pending["best_before"],
                         "best_after": cumulative_best,
+                        "relative_improvement": rel,
                     },
                 )
 
@@ -419,6 +448,18 @@ class AdaptationPipeline:
                 step.reward = reward
                 step.terminated = True
                 step.setup_after_id = revision.new_setup.setup_id
+                self._emit(
+                    "reward",
+                    {
+                        "round_index": round_index,
+                        "reward": reward,
+                        "action": action.model_dump(by_alias=True, mode="json"),
+                        "best_before": cumulative_best,
+                        "best_after": cumulative_best,
+                        "relative_improvement": 0.0,
+                        "terminal": True,
+                    },
+                )
                 self._emit(
                     "revision",
                     {
