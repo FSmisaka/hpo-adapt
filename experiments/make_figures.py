@@ -3,8 +3,9 @@
 The paper figures themselves are drawn by hand; this script exports the exact
 data each figure needs (plus optional quick-look PNG previews with --render).
 
-Inputs : experiments/results/<tag>/runs/*.json + summary.csv
-Outputs: experiments/results/<tag>/figs/
+Inputs : experiments/results/<tag>/runs/*.json — runs produced by the four
+         experiment scripts (exp1..exp4), all of which default to tag "full"
+Outputs: experiments/results/<tags[0]>/figs/
     anytime.csv             Fig. "anytime": best-so-far curves per task/method
     main_summary.csv        Tab. "main": final best (mean+-std), rounds, overhead
     actions.csv             action-frequency distribution per task/method
@@ -12,6 +13,12 @@ Outputs: experiments/results/<tag>/figs/
     episodes_summary.csv    mean+-std per episode index
     case_study.json         Fig. "case": one full adaptation episode
     overhead.csv            observation+decision layer overhead shares
+
+Usage
+-----
+python experiments/make_figures.py                     # tag "full"
+python experiments/make_figures.py --tags full         # equivalent
+python experiments/make_figures.py --tags smoke        # after --smoke runs
 """
 
 from __future__ import annotations
@@ -19,13 +26,12 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import math
 import statistics
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-RESULTS_ROOT = Path(__file__).resolve().parent.parent / "experiments" / "results"
+RESULTS_ROOT = Path(__file__).resolve().parent / "results"
 
 METHOD_ORDER = [
     "static-random",
@@ -38,11 +44,16 @@ METHOD_ORDER = [
 ]
 
 
-def load_runs(tag: str, phase: str) -> list[dict]:
-    runs = []
-    for f in sorted((RESULTS_ROOT / tag / "runs").glob(f"{phase}__*.json")):
-        data = json.loads(f.read_text())
-        runs.append(data)
+def load_runs(tags: list[str], phase: str) -> list[dict]:
+    """Load <phase>__*.json from every tag; identical filenames (produced
+    deterministically by more than one experiment) are deduplicated."""
+    runs, seen = [], set()
+    for tag in tags:
+        for f in sorted((RESULTS_ROOT / tag / "runs").glob(f"{phase}__*.json")):
+            if f.name in seen:
+                continue
+            seen.add(f.name)
+            runs.append(json.loads(f.read_text()))
     return runs
 
 
@@ -79,15 +90,18 @@ def _is_min(run: dict) -> bool:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--tag", default="full")
+    parser.add_argument(
+        "--tags", nargs="+", default=["full"], help="results tags to aggregate (dedup by filename)"
+    )
     parser.add_argument("--render", action="store_true", help="quick-look PNG previews")
     args = parser.parse_args()
 
-    out = RESULTS_ROOT / args.tag / "figs"
+    tags = args.tags
+    out = RESULTS_ROOT / tags[0] / "figs"
     out.mkdir(parents=True, exist_ok=True)
 
     # ---------------------------------------------------------------- anytime
-    main_runs = load_runs(args.tag, "main")
+    main_runs = load_runs(tags, "main")
     rows = anytime_rows(main_runs)
     _write_csv(out / "anytime.csv", rows)
     print(f"anytime.csv: {len(rows)} rows")
@@ -166,7 +180,7 @@ def main() -> int:
     print(f"overhead_summary.csv: {len(osum)} rows")
 
     # --------------------------------------------------------------- episodes
-    ep_runs = load_runs(args.tag, "episodes")
+    ep_runs = load_runs(tags, "episodes")
     erows = []
     for run in ep_runs:
         for ep in run["episodes_data"]:
@@ -280,6 +294,23 @@ def _write_csv(path: Path, rows: list[dict]) -> None:
         writer.writerows(rows)
 
 
+METHOD_STYLE = {
+    "static-random": dict(color="#999999", linestyle="--", linewidth=1.1),
+    "static-tpe": dict(color="#444444", linestyle="--", linewidth=1.1),
+    "adapt-random-action": dict(color="#E69F00", linestyle="-", linewidth=1.3),
+    "adapt-rule-only": dict(color="#0072B2", linestyle="-", linewidth=1.5),
+    "adapt-rl-default": dict(color="#CC79A7", linestyle="-", linewidth=1.3),
+    "adapt-rl-guided": dict(color="#009E73", linestyle="-", linewidth=1.5),
+    "adapt-rl": dict(color="#0072B2", linestyle="-", linewidth=1.5),
+}
+
+TASK_PANELS = [
+    ("synthetic_mlp", "synthetic\\_mlp"),
+    ("branin", "Branin"),
+    ("rf_digits", "rf\\_digits"),
+]
+
+
 def _render(out: Path) -> None:
     try:
         import matplotlib
@@ -290,51 +321,155 @@ def _render(out: Path) -> None:
         return
     import csv as _csv
 
+    plt.rcParams.update({
+        "font.size": 8,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "legend.frameon": False,
+    })
+
     def read(name):
         with open(out / name) as fh:
             return list(_csv.DictReader(fh))
 
-    # anytime previews
+    def save(fig, stem):
+        fig.savefig(out / f"{stem}.png", dpi=200)
+        fig.savefig(out / f"{stem}.pdf")
+        plt.close(fig)
+
+    # ---------------------------------------------------- anytime (mean+-std)
     rows = read("anytime.csv")
-    for task in sorted({r["task"] for r in rows}):
-        fig, ax = plt.subplots(figsize=(5, 3.2))
+    tasks = [t for t, _ in TASK_PANELS if any(r["task"] == t for r in rows)]
+    fig, axes = plt.subplots(1, len(tasks), figsize=(1.9 * len(tasks) + 1.2, 1.9), sharey=False)
+    axes = [axes] if len(tasks) == 1 else axes
+    for ax, (task, label) in zip(axes, [(t, l) for t, l in TASK_PANELS if t in tasks]):
+        by_method = defaultdict(lambda: defaultdict(list))
+        for r in rows:
+            if r["task"] == task:
+                by_method[r["method"]][int(r["trial"])].append(float(r["best_so_far"]))
+        for method in METHOD_ORDER:
+            if method not in by_method:
+                continue
+            trials = sorted(by_method[method])
+            mean = [statistics.mean(by_method[method][t]) for t in trials]
+            std = [statistics.stdev(by_method[method][t]) if len(by_method[method][t]) > 1 else 0.0
+                   for t in trials]
+            style = METHOD_STYLE[method]
+            ax.plot(trials, mean, label=method, **style)
+            ax.fill_between(
+                trials, [m - s for m, s in zip(mean, std)], [m + s for m, s in zip(mean, std)],
+                color=style["color"], alpha=0.13, linewidth=0,
+            )
+        ax.set_title(label)
+        ax.set_xlabel("trials")
+    axes[0].set_ylabel("best-so-far")
+    axes[-1].legend(fontsize=5.5, loc="lower right")
+    fig.tight_layout()
+    save(fig, "preview_anytime")
+
+    # ------------------------------------------------- episodes (mean+-std)
+    rows = read("episodes_summary.csv")
+    tasks = sorted({r["task"] for r in rows})
+    fig, axes = plt.subplots(1, len(tasks), figsize=(1.9 * len(tasks) + 1.2, 1.9))
+    axes = [axes] if len(tasks) == 1 else axes
+    for ax, task in zip(axes, tasks):
         for method in METHOD_ORDER:
             pts = [
-                (int(r["trial"]), float(r["best_so_far"]))
-                for r in rows
-                if r["task"] == task and r["method"] == method and r["seed"] == "0"
-            ]
-            if pts:
-                xs, ys = zip(*pts)
-                ax.plot(xs, ys, label=method, linewidth=1.2)
-        ax.set_title(task)
-        ax.set_xlabel("trials")
-        ax.set_ylabel("best-so-far (raw)")
-        ax.legend(fontsize=6)
-        fig.tight_layout()
-        fig.savefig(out / f"preview_anytime_{task}.png", dpi=140)
-        plt.close(fig)
-    # episodes preview
-    rows = read("episodes_summary.csv")
-    for task in sorted({r["task"] for r in rows}):
-        fig, ax = plt.subplots(figsize=(5, 3.2))
-        for method in sorted({r["method"] for r in rows}):
-            pts = [
-                (int(r["episode"]), float(r["best_raw_mean"]))
+                (int(r["episode"]), float(r["best_raw_mean"]), float(r["best_raw_std"]))
                 for r in rows
                 if r["task"] == task and r["method"] == method
             ]
-            if pts:
-                xs, ys = zip(*pts)
-                ax.plot(xs, ys, marker="o", markersize=3, label=method, linewidth=1.2)
-        ax.set_title(f"{task} (per-episode best, mean over seeds)")
+            if not pts:
+                continue
+            xs, ys, std = zip(*pts)
+            style = METHOD_STYLE[method]
+            ax.plot(xs, ys, marker="o", markersize=2.5, label=method, **style)
+            ax.fill_between(xs, [y - s for y, s in zip(ys, std)], [y + s for y, s in zip(ys, std)],
+                            color=style["color"], alpha=0.13, linewidth=0)
+        ax.set_title(task)
         ax.set_xlabel("episode")
-        ax.set_ylabel("best raw")
-        ax.legend(fontsize=7)
-        fig.tight_layout()
-        fig.savefig(out / f"preview_episodes_{task}.png", dpi=140)
-        plt.close(fig)
+    axes[0].set_ylabel("per-episode best (mean$\\pm$std)")
+    axes[-1].legend(fontsize=5.5, loc="lower right")
+    fig.tight_layout()
+    save(fig, "preview_episodes")
+
+    # ------------------------------------- case-study (3 stacked mini-panels)
+    case_path = out / "case_study.json"
+    if case_path.exists():
+        _render_case(case_path, out, save)
     print("previews written")
+
+
+def _render_case(case_path: Path, out: Path, save) -> None:
+    import matplotlib.pyplot as plt
+
+    case = json.loads(case_path.read_text())
+    steps = case["steps"]
+    lr_bounds = []
+    for s in steps:
+        lr = next(spec for spec in s["search_space"] if spec["name"] == "learning_rate")
+        lr_bounds.append((float(lr["low"]), float(lr["high"])))
+
+    fig, axes = plt.subplots(3, 1, figsize=(5.5, 4.6), sharex=False,
+                             gridspec_kw={"height_ratios": [1.2, 1.2, 0.7]})
+
+    # (a) best-so-far with round boundaries + action annotations
+    ax = axes[0]
+    xs, ys, best, cum = [], [], None, 0
+    for s in steps:
+        for t in s["trials"]:
+            cum += 1
+            v = t["value"]
+            if v is not None and (best is None or v > best):
+                best = v
+            xs.append(cum)
+            ys.append(best)
+    ax.plot(xs, ys, color="#0072B2", linewidth=1.4)
+    cum = 0
+    for s in steps:
+        n = len(s["trials"])
+        cum += n
+        ax.axvline(cum, color="grey", linestyle="--", linewidth=0.6)
+        act = (s.get("action") or {}).get("action")
+        if act:
+            tgt = (s.get("action") or {}).get("candidate_hyperparameter") or "-"
+            short = "SHIFT" if "SHIFT" in act else "EXPAND" if "EXPAND" in act else act.split("_")[0]
+            ax.annotate(
+                f"{short}@{tgt}",
+                xy=(cum - n / 2, max(y for y in ys if y is not None)),
+                fontsize=6,
+                ha="center",
+            )
+    ax.set_ylabel("best-so-far")
+    ax.set_title(f"case study: {case['method']} (seed {case['seed']}) on synthetic MLP")
+
+    # (b) learning-rate search interval per round (log scale) + sampled points
+    ax = axes[1]
+    for i, ((lo, hi), s) in enumerate(zip(lr_bounds, steps)):
+        ax.hlines(i, lo, hi, linewidth=6, alpha=0.5, color="#0072B2")
+        lrs = [t["params"]["learning_rate"] for t in s["trials"] if t["value"] is not None]
+        good = [t["params"]["learning_rate"] for t in s["trials"]
+                if t["value"] is not None and t["value"] >= 0.9 * max(
+                    (tt["value"] for tt in s["trials"] if tt["value"] is not None), default=0)]
+        ax.scatter(lrs, [i] * len(lrs), s=6, color="#999999", zorder=3)
+        ax.scatter(good, [i] * len(good), s=14, color="#D55E00", zorder=4)
+    ax.axvline(0.45, color="red", linestyle=":", linewidth=1.0, label="ground truth lr = 0.45")
+    ax.set_xscale("log")
+    ax.set_yticks(range(len(steps)), [f"round {i}" for i in range(len(steps))])
+    ax.set_xlabel("learning-rate search interval (log scale)")
+    ax.legend(fontsize=6, loc="lower right")
+
+    # (c) reward per round
+    ax = axes[2]
+    rewards = [s.get("reward") for s in steps]
+    xs_r = [i for i, r in enumerate(rewards) if r is not None]
+    ax.bar(xs_r, [rewards[i] for i in xs_r], width=0.35, color="#009E73")
+    ax.axhline(0, color="grey", linewidth=0.6)
+    ax.set_xticks(range(len(steps)), [f"round {i}" for i in range(len(steps))])
+    ax.set_ylabel("reward")
+
+    fig.tight_layout()
+    save(fig, "preview_case_study")
 
 
 if __name__ == "__main__":

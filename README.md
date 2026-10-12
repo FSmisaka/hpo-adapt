@@ -1,22 +1,57 @@
 # HPO-Adapt: Diagnostic-Driven Adaptive HPO Setup Control
 
-Implementation of `spec.md`: combining **trajectory analysis** (CAVE-style diagnosis) with
-**agent-driven setup adaptation**, controlled by **tabular Q-Learning**.
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Quick start: wrap any ML task in ~10 lines (wandb-style)
+The performance of hyperparameter optimization (HPO) is largely decided
+**before** the first trial runs: the initial *setup* — search space,
+optimizer, budget — fixes what can be found at all. **HPO-Adapt** closes
+the loop: while the search is running, a deterministic **Diagnostic
+Engine** watches the trial trajectory, an RL **Controller** decides which
+of seven high-level interventions to apply, and a **Revised Setup Agent**
+executes it as a validated new setup. Every round is observable on a live
+local dashboard.
 
-Any ML task that satisfies the basic task contract — an objective
-`train_evaluate(params) -> float` plus a declarative search space — becomes a
-self-optimizing closed loop with a live local dashboard:
+```
+Task ──▶ Initial Setup Agent ──▶ S0 ──▶ Classical HPO ──▶ TrialLogs ──▶ Diagnostic Engine
+                                                               │
+               Memory ◀── Experience ◀── Outcome ◀── Revised Setup Agent ◀── RL Controller
+                  │                     (executes A_t)              (selects A_t: what to do)
+                  ▼
+         (prior knowledge for the next round)
+```
+
+- **Diagnostic Engine = Observe** — deterministic Python, no LLM in the metrics
+- **RL Controller = Decide** — tabular Q-Learning over 7 interventions
+- **Revised Setup Agent = Execute** — turns the intervention into a concrete, validated new Setup
+
+## 1. Quick start
+
+```bash
+make setup          # create .venv and install hpo-adapt + dev dependencies
+source .venv/bin/activate
+make demo           # live demo: real training task + dashboard (~5-6 min)
+```
+
+`make demo` runs [examples/demo_dashboard.py](examples/demo_dashboard.py):
+HistGradientBoosting on a hard synthetic dataset, 120 real training runs
+organized into 4 adaptive rounds. The terminal prints a dashboard URL —
+open it in a browser to watch, round by round: the setup actually used,
+every trial, all diagnostic metrics (importance, boundary concentration,
+good region, stagnation, ...), which action the controller picked and why,
+the concrete setup changes (old → new), and the reward each intervention
+earned. Zero extra dependencies: stdlib server + a single self-contained
+HTML page.
+
+Want it on your own task? The whole integration is ~10 lines, because the
+search space you provide is only an **initial guess** — the loop repairs
+it from evidence:
 
 ```python
 import hpo_adapt as ha
 
 def train_evaluate(params):        # 1. your existing training / evaluation code
-    ...
-    return cv_accuracy             #    the metric to maximize (or minimize)
+    ...                            #    (raise RuntimeError/ValueError on failure)
+    return holdout_accuracy        #    the metric to maximize (or minimize)
 
 run = ha.run(                      # 2. plug it in — everything else is automatic
     train_evaluate,
@@ -31,205 +66,79 @@ run = ha.run(                      # 2. plug it in — everything else is automa
 print(run.best_value, run.best_params)
 ```
 
-Running this prints a local URL in the terminal:
+> The `space` bounds do **not** require domain knowledge: give a rough,
+> default-centered range and the tool will shift/expand/freeze it based on
+> the experimental trajectory. Bounds only act as hard safety limits.
 
-```
-┌────────────────────────────────────────────────────────────┐
-│ hpo-adapt · adaptive HPO closed loop                        │
-│   task      : hgb_demo_abc123                              │
-│   objective : holdout_accuracy (maximize)                  │
-│   budget    : 120 trials · up to 5 rounds                   │
-│   memory    : examples/hgb_demo_memory.sqlite               │
-└────────────────────────────────────────────────────────────┘
+A detailed Chinese walkthrough lives in [examples/README.md](examples/README.md).
 
-  ▶ Dashboard live at  http://127.0.0.1:8710
-    Open this URL in your browser to watch the run in real time.
-```
+## 2. The core API
 
-The dashboard shows, round by round: how the initial setup (search space /
-optimizer / per-phase budget) was derived, every trial, the DiagnosticState
-(importance, boundary concentration, good region, stagnation, ...), which RL
-action was selected and why, the concrete setup changes old → new, and the
-reward each intervention earned. Zero extra dependencies — the server is
-Python stdlib and the page is a single self-contained HTML file.
+| Entry point | What it does |
+|---|---|
+| `ha.run(objective, space, ...)` | One-call wrapper: builds the `TaskSpec`, registers the objective, starts the dashboard, runs the closed loop. Covers 90% of use cases. |
+| `ha.Float / ha.Int / ha.Choice` | Space DSL: `low/high` are hard adaptation limits, `default` centers the initial compact range, `log=True` for log-scale parameters. |
+| `AdaptationPipeline(task, PipelineConfig())` | Fully configurable lower-level entry point (custom controller, memory, `event_sink=` observer) — what the experiments build on. |
+| `hpo-adapt` CLI | Built-in tasks: `hpo-adapt --task synthetic_mlp \| branin \| rf_digits [--dashboard] [--json]`. |
 
-**Live demo** (HistGradientBoosting on a hard synthetic dataset, ~5-6 min,
-120 real training runs — watch the setup ranges climb round after round on
-the dashboard as the best-so-far curve steps up):
+Key `ha.run` options: `direction`, `total_trials`, `max_rounds`,
+`trials_per_phase`, `memory_path` (SQLite file → experience persists
+across runs), `seed` (fixes every stochastic source), `dashboard`,
+`open_browser`. The returned `RunResult` exposes `best_value`,
+`best_params`, `rounds`, and `wait()`.
 
-```bash
-python examples/demo_dashboard.py            # terminal prints the dashboard URL
-python examples/demo_dashboard.py --fresh    # start with an empty agent memory
-```
-
-## The closed loop
-
-```
-Task ──▶ Initial Setup Agent ──▶ S0 ──▶ Classical HPO ──▶ TrialLogs ──▶ Diagnostic Engine
-                                                              │
-              Memory ◀── Experience ◀── Outcome ◀── Revised Setup Agent ◀── RL Controller
-                 │                     (executes A_t)              (selects A_t: what to do)
-                 ▼
-        (prior knowledge for the next round)
-```
-
-- **Diagnostic Engine = Observe** (deterministic Python, no LLM in the metrics)
-- **RL Controller = Decide** (tabular Q-Learning over 7 high-level interventions)
-- **Revised Setup Agent = Execute** (turns the intervention into a concrete new Setup)
-
-## Modules (implementation order as in spec)
-
-| Stage | Module | Path |
-|---|---|---|
-| 0 | Structured schemas + Tool Validator | `src/hpo_adapt/schemas/`, `src/hpo_adapt/validator.py` |
-| 1 | Classical HPO (Optuna) | `src/hpo_adapt/hpo/` |
-| 2 | Diagnostic Engine (fANOVA + LPI, boundary concentration, good region, diversity, coverage, budget) | `src/hpo_adapt/diagnostic/` |
-| 3 | Initial Setup Agent (heuristic + LLM backends) | `src/hpo_adapt/agents/initial_setup.py` |
-| 4 | Rule-based Adaptation (7 diagnostic patterns + CandidateScore ranking) | `src/hpo_adapt/rules/adaptation.py` |
-| 5 | Revised Setup Agent (executes the 7 actions) | `src/hpo_adapt/agents/revised_setup.py` |
-| 6 | Agent Memory (SQLite: `experiences` + `semantic_rules`) | `src/hpo_adapt/memory/store.py` |
-| 7 | RL Controller (tabular Q-Learning) | `src/hpo_adapt/rl/` |
-| 8 | Closed-loop pipeline + CLI | `src/hpo_adapt/pipeline.py` |
-| 9 | One-function user API (`ha.run`) | `src/hpo_adapt/api.py` |
-| 10 | Live dashboard (stdlib server + single-page app) | `src/hpo_adapt/dashboard/` |
-
-## Core data objects
-
-`TaskSpec`, `Setup` (search space / optimizer / budget / evaluation), `TrialLog`,
-`DiagnosticState` (every metric carries `VALID` / `INSUFFICIENT_DATA`), `RLAction`
-(`A_t = (ActionType, Target, Parameters)`), `Experience`.
-
-All inter-module communication goes through these pydantic schemas, and **every Setup
-must pass `validate_setup` before HPO is allowed to run it** (the validator rejects
-invented hyperparameters, invalid ranges, unknown optimizers, direction mismatches, ...).
-
-## Action space (first version, exactly the 7 from spec)
-
-`EXPAND_SEARCH_SPACE`, `SHIFT_SEARCH_REGION`, `SHRINK_SEARCH_SPACE`,
-`FREEZE_HYPERPARAMETER`, `INCREASE_EXPLORATION`, `INCREASE_BUDGET`, `STOP`
-
+**Action space** (7 interventions): `EXPAND_SEARCH_SPACE`,
+`SHIFT_SEARCH_REGION`, `SHRINK_SEARCH_SPACE`, `FREEZE_HYPERPARAMETER`,
+`INCREASE_EXPLORATION`, `INCREASE_BUDGET`, `STOP` (evidence-gated).
 Reward: `r = clip(Δ − λ·C − r_invalid, −r_max, r_max)` with
-`Δ = (B_{t+1} − B_t)/(|B_t|+ε)`, `C = N_phase/N_total`.
-Q-Learning defaults: `α=0.1, γ=0.9, ε: 1.0 → 0.05 (decay 0.995)`.
+`Δ = (B_{t+1} − B_t)/(|B_t|+ε)`.
 
-## Install & run
+**Design guarantees**: every setup passes `validate_setup` before HPO runs
+it; metrics below their minimum trial counts return `INSUFFICIENT_DATA`
+instead of fabricated values; new phases are warm-started with all past
+compatible trials (no re-evaluation, no budget cost); both setup agents
+have deterministic heuristic backends (default, used in all experiments)
+and optional LLM backends (`--backend llm`, any OpenAI-compatible
+endpoint, outputs still schema-validated).
 
-```bash
-pip install -e ".[dev]"
-pytest                                   # 147 tests
-hpo-adapt --task synthetic_mlp --max-rounds 4 --max-total-trials 120 --seed 3
-hpo-adapt --task branin --max-rounds 3                   # minimize-direction example
-hpo-adapt --task rf_digits                               # real-ML task (RandomForest + CV)
-hpo-adapt --task synthetic_mlp --dashboard               # ...with the live local dashboard
-hpo-adapt --task synthetic_mlp --json                    # machine-readable result
-```
+## 3. Experiments & reproduction
 
-Example output:
+Four experiments back four claims (all under an identical 120-trial
+budget, 10 seeds, heuristic backends, one command each):
 
-```
-Task: task_synth_001 (maximize)  backend=heuristic
-round 0: setup=setup_000 trials=40 phase_best=0.584 ... action=INCREASE_EXPLORATION@optimizer reward=-0.033
-round 1: setup=setup_001 trials=40 ... action=INCREASE_EXPLORATION@optimizer reward=-0.033
-round 2: setup=setup_002 trials=40 ... action=INCREASE_EXPLORATION@optimizer reward=None
-total_trials=120 best(raw)=0.584 best_params={...} q_states=3 experiences=2
-```
+| Claim | Experiment | Result (10 seeds) |
+|---|---|---|
+| **C1.** With a flawed initial setup, the adaptive loop beats equal-budget static HPO | `make exp1` — 6 methods × 3 tasks (180 runs) | synthetic_mlp: guided adapt **1.000±0.000** vs static-tpe 0.755±0.003 (+32% rel.); Branin: **0.498±0.198** vs 0.896±0.010 (global min 0.398); rf_digits: tied at the CV plateau — value = observability, "do no harm" |
+| **C2.** The gain comes from diagnosis *guidance*, not random wiggling (ablation) | `make exp2` — 4 deciders × 3 tasks (120 runs) | variance: guided 1.000**±0.000** (worst seed = best seed) vs random-action 0.873**±0.134** (~6× spread); Branin ordering 0.498 < 0.596 < 0.776 |
+| **C3.** The RL controller improves with accumulated experience | `make exp3` — 60 groups × 20 episodes, shared Q-table + memory | synthetic: per-episode best 0.892 → 0.949 (random control flat 0.867 → 0.855); Branin: 0.734 → 0.524 (control drifts 0.768 → 0.819) |
+| **C4.** The observe–decide layer is nearly free | `make exp4` — overhead on the real-ML task | diagnostics + RL + memory + agents = **1.4%** of wall-clock on rf_digits (worst case 1.7%) |
 
-Note: with ε-greedy exploration (ε starts at 1.0) some seeds randomly select `STOP`
-early — that is standard ε-greedy behavior over the 7-action space; change `--seed`
-to see different adaptation trajectories.
-
-### Python API
-
-```python
-from hpo_adapt.pipeline import AdaptationPipeline, PipelineConfig, synthetic_mlp_task
-
-task = synthetic_mlp_task(max_total_trials=120)
-result = AdaptationPipeline(task, PipelineConfig(max_rounds=4)).run()
-print(result.best_value_raw, result.best_params)
-```
-
-The `ha.run()` wrapper above builds the `TaskSpec`, registers the objective,
-starts the dashboard and prints the URL; `AdaptationPipeline` remains the
-fully configurable entry point (`event_sink=` accepts any
-`(event_type, payload) -> None` observer for custom live tooling).
-
-## Real ML task example (with full observability)
+Reproduce everything:
 
 ```bash
-python examples/real_ml_demo.py --fresh     # RandomForest on sklearn digits, 3 rounds
-hpo-adapt --task rf_digits                  # same task through the CLI
+make setup && source .venv/bin/activate
+make experiments     # exp1 + exp2 + exp3 + exp4 (~30 min total, N-1 workers)
+make figures         # tidy per-figure CSVs + PNG previews under experiments/results/full/figs/
+make smoke           # 2-minute sanity matrix first, if you like
+make test            # 149 unit tests
 ```
 
-The example is the template for plugging in your own task (register objective ->
-build `TaskSpec` -> run `AdaptationPipeline`) and prints, round by round: the search
-space actually used, all DiagnosticState metrics, the RL action and the applied
-changes, plus the final Agent Memory contents (`experiences` + `semantic_rules`) and
-the learned Q-table. The memory SQLite file is kept on disk so you can inspect it
-directly (`sqlite3 rf_digits_memory.sqlite ...`). See the Chinese walkthrough in
-[README_CN.md](README_CN.md) for a metric-by-metric reading guide.
+Results land in `experiments/results/full/` (`runs/*.json` per run,
+`summary_exp*.csv` per experiment); `make figures` produces
+`anytime.csv`, `main_summary.csv`, `episodes_summary.csv`,
+`actions.csv`, `overhead_summary.csv`, `case_study.json` (+ PNG
+previews). Experiment sources: [experiments/](experiments/) — one file
+per claim, shared harness in `common.py`.
 
-## Reproducible experiments & paper
+## Project layout
 
-Everything behind the tool paper lives in `experiments/` and `paper/`:
-
-```bash
-python experiments/run_all.py --phase all --tag full   # ~20 min, 240 runs (7 workers)
-python experiments/make_figures.py --tag full          # tidy CSVs per figure + case study
+```
+src/hpo_adapt/     the package (schemas, hpo, diagnostic, agents, rules, rl, memory, pipeline, api, dashboard)
+examples/          demo_dashboard.py + Chinese usage guide
+experiments/       exp1..exp4 (one per claim), common.py, make_figures.py
+tests/             149 unit tests
 ```
 
-`experiments/results/full/figs/` then contains the exact data for every
-figure/table (`anytime.csv`, `main_summary.csv`, `episodes_summary.csv`,
-`case_study.json`, `overhead_summary.csv`); figure specifications are in
-`paper/FIGURES.md`, and `paper/paper.pdf` is the compiled 4-page tool paper
-(LaTeX sources in `paper/`).
+## License
 
-## LLM backends (optional)
-
-Both Setup Agents have deterministic heuristic backends (default) and LLM backends that
-use the verbatim prompts from `spec.md`. To enable the LLM backend (no keys are ever
-hardcoded):
-
-```bash
-export OPENAI_API_KEY=...            # required
-export OPENAI_BASE_URL=...           # optional (OpenAI-compatible endpoints)
-export OPENAI_MODEL=gpt-4o-mini      # optional
-hpo-adapt --backend llm ...
-```
-
-LLM outputs are parsed and passed through the same Tool Validator; anything that
-violates the schema or the task constraints is rejected.
-
-## Conventions & notes
-
-- **Internal maximized space**: the Diagnostic Engine and rewards operate on
-  `ỹ = y (maximize) / −y (minimize)` per spec; `PipelineResult.best_value_raw` converts
-  back to the original task direction.
-- **Cumulative diagnostics**: each round's DiagnosticState is computed over the whole
-  episode trajectory so far (CAVE-style), so importance becomes available as soon as
-  30 cumulative trials exist — not 30 trials within a single phase.
-- **Warm-started phases**: every new phase's Optuna study is seeded with all past
-  completed trials compatible with the current search space (no re-evaluation, no
-  budget consumption), so setup revisions inherit all previous knowledge.
-- **Evidence-gated STOP**: `STOP` is only selectable when stagnation is observed AND at
-  least half the global budget is consumed — ε-greedy exploration can no longer
-  terminate an episode prematurely.
-- **Insufficient data**: metrics below their minimum trial counts (5 / 20 / 30) return
-  `INSUFFICIENT_DATA` instead of fabricated values; hyperparameter-targeted actions are
-  unavailable while importance is not `VALID`.
-- **Invalid actions** (e.g., expanding a categorical parameter) never consume budget;
-  they receive the fixed penalty reward and are retried within the round. When no
-  further phase can evaluate an action (budget exhausted or `max_rounds` reached), the
-  loop closes without selecting one — every executed action receives an outcome, a
-  reward, and a Q-update.
-- **Optimizers**: RANDOM, TPE (all tasks) and CMA-ES (purely numerical tasks such as
-  `branin`; the validator rejects it for tasks with categorical parameters).
-- **Memory writes** happen only after a complete adaptation step, and (by default) only
-  successful interventions and useful negative experiences are persisted —
-  `semantic_rules` aggregates every recorded outcome regardless.
-- **Seeding**: `--seed` / `PipelineConfig.seed` controls every stochastic source — HPO
-  sampling (via `evaluation.seed`), the RL controller, and the surrogate forests; a
-  given seed + fresh memory reproduces a run exactly.
-- **Observability**: `StepRecord` stores each round's search space, full
-  DiagnosticState, trial log projection, applied changes and (one-phase-delayed) reward;
-  `pipeline.timings` breaks wall-clock time into HPO vs. observe+decide layers
-  (`experiments/` builds all paper tables from these).
+MIT — see [LICENSE](LICENSE).
