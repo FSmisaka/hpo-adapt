@@ -789,6 +789,12 @@ def main(argv: Optional[list[str]] = None) -> int:
         recorder = RunRecorder()
         server = DashboardServer(recorder).start()
         event_sink = EventSink(handler=recorder)
+        if server.fallback_from is not None:
+            print(
+                f"\n  ⚠ port {server.fallback_from} is busy — an older run may still be alive;\n"
+                f"    THIS run's dashboard is on the URL below (close the old run to free the port)",
+                flush=True,
+            )
         print(
             f"\n  ▶ Dashboard live at  {server.url}\n"
             "    Open this URL in your browser to watch the run in real time.\n",

@@ -183,8 +183,8 @@ class HeuristicInitialSetupAgent:
         search_space = [_spec_from_metadata(meta) for meta in task.available_hyperparameters]
         optimizer_name = "TPE" if "TPE" in task.allowed_optimizers else task.allowed_optimizers[0]
         assumptions = [
-            "Search space constructed directly from available hyperparameter metadata.",
-            "No HPO trajectory exists yet; ranges reflect prior knowledge only.",
+            "Ranges derived from task metadata",
+            "No HPO trajectory yet",
         ]
         if memory_context:
             assumptions.append(f"Prior knowledge from memory: {memory_context}")

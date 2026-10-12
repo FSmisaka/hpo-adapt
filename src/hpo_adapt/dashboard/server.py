@@ -25,7 +25,9 @@ class _Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802 (http.server API)
         if self.path == "/api/state":
-            self._send_json(self.server.recorder.snapshot())  # type: ignore[attr-defined]
+            payload = self.server.recorder.snapshot()  # type: ignore[attr-defined]
+            payload["server_url"] = getattr(self.server, "url_label", "")  # type: ignore[attr-defined]
+            self._send_json(payload)
         elif self.path == "/api/health":
             self._send_json({"ok": True})
         elif self.path in ("/", "/index.html"):
@@ -64,6 +66,7 @@ class DashboardServer:
         self.recorder = recorder
         self.host = host
         self.port = port
+        self.fallback_from: int | None = None  # preferred port lost to an older run
         self._server: ThreadingHTTPServer | None = None
         self._thread: threading.Thread | None = None
 
@@ -76,21 +79,26 @@ class DashboardServer:
     def start(self) -> "DashboardServer":
         """Bind and serve in a daemon thread (non-blocking)."""
         candidates = [self.port] if self.port else list(_PREFERRED_PORTS)
-        last_error: Exception | None = None
+        preferred = candidates[0]
+        server: ThreadingHTTPServer | None = None
         for candidate in candidates:
             try:
-                self._server = ThreadingHTTPServer((self.host, int(candidate)), _Handler)
+                server = ThreadingHTTPServer((self.host, int(candidate)), _Handler)
                 break
-            except OSError as exc:  # port busy
-                last_error = exc
-        if self._server is None:
+            except OSError:  # port busy
+                continue
+        if server is None:
             # fall back to an ephemeral port
-            self._server = ThreadingHTTPServer((self.host, 0), _Handler)
-        self._server.recorder = self.recorder  # type: ignore[attr-defined]
-        self._server.daemon_threads = True
-        self.port = self._server.server_address[1]
+            server = ThreadingHTTPServer((self.host, 0), _Handler)
+        server.recorder = self.recorder  # type: ignore[attr-defined]
+        server.daemon_threads = True
+        self._server = server
+        self.port = server.server_address[1]
+        if self.port != preferred:
+            self.fallback_from = preferred
+        server.url_label = self.url  # type: ignore[attr-defined]
         self._thread = threading.Thread(
-            target=self._server.serve_forever,
+            target=server.serve_forever,
             name="hpo-adapt-dashboard",
             daemon=True,
         )

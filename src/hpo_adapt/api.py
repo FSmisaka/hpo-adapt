@@ -365,9 +365,14 @@ def run(
         url = server.url
         if open_browser:
             webbrowser.open(url)
-
     memory = MemoryStore(memory_path or ":memory:")
     view = _TerminalView(quiet=quiet, url=url)
+    if dashboard and server is not None and server.fallback_from is not None:
+        print(
+            f"  ⚠ port {server.fallback_from} is busy — an older run may still be alive;\n"
+            f"    THIS run's dashboard is on the URL below (close the old run to free the port)\n",
+            flush=True,
+        )
     view.banner(task, total_trials, max_rounds, memory_path or ":memory:")
 
     def _dispatch(event_type: str, payload: dict[str, Any]) -> None:

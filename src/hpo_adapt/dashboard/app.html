@@ -89,7 +89,6 @@
   .action-box { border: 1px solid; border-radius: 10px; padding: 10px 14px; margin: 12px 0 4px; }
   .action-box .a-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
   .action-name { font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: .02em; }
-  .action-sub { color: var(--muted); font-size: 12px; font-family: var(--mono); }
   .action-why { font-size: 12.5px; color: #334155; margin-top: 6px; }
   .a-expand  { border-color:#a7f3d0; background:#f0fdf9; } .a-expand .action-name{color:#047857;}
   .a-shift   { border-color:#bfdbfe; background:#eff6ff; } .a-shift .action-name{color:#1d4ed8;}
@@ -98,14 +97,6 @@
   .a-explore { border-color:#ddd6fe; background:#f5f3ff; } .a-explore .action-name{color:#6d28d9;}
   .a-budget  { border-color:#99f6e4; background:#f0fdfa; } .a-budget .action-name{color:#0f766e;}
   .a-stop    { border-color:#fecaca; background:#fef2f2; } .a-stop .action-name{color:#b91c1c;}
-
-  .change { display: grid; grid-template-columns: 150px 1fr; gap: 4px 12px; font-size: 12.5px;
-            padding: 8px 10px; background: #fbfcfe; border: 1px solid var(--line);
-            border-radius: 8px; margin: 6px 0; }
-  .change .hp { font-family: var(--mono); font-weight: 700; }
-  .change .diff { font-family: var(--mono); }
-  .change .diff .arrow { color: var(--accent); font-weight: 700; padding: 0 4px; }
-  .change .why { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
 
   .diagnosis { display: inline-flex; gap: 6px; align-items: center; font-family: var(--mono);
                font-size: 12px; color: #334155; }
@@ -191,12 +182,43 @@
   .lg .line { width: 16px; height: 2.5px; background: #0f172a; display: inline-block; border-radius: 2px; }
   .lg .dash { width: 1.5px; height: 12px; border-left: 2px dashed #94a3b8; display: inline-block; }
   .lg .x { color: var(--bad); font-weight: 700; font-family: var(--mono); }
+
+  /* ---- DECIDE: layered action tiles ---- */
+  .a-target { font-family: var(--mono); font-weight: 600; font-size: 13px; }
+  .a-tiles { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+  .tile { flex: 1 1 0; border: 1px solid var(--line); background: #fff; border-radius: 8px;
+          padding: 5px 12px; display: flex; flex-direction: column; min-width: 0; }
+  .tile .tk { font-size: 9.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .tile .tv { font-family: var(--mono); font-size: 13.5px; font-weight: 650; margin-top: 1px; }
+  .tile .ts { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+  .tile.note { flex: 0 0 auto; flex-direction: row; align-items: center; font-size: 11.5px; color: #475569; }
+
+  /* ---- EXECUTE: one chunk per change ---- */
+  .exec-head { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono);
+               font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .exec-head b { color: var(--accent); }
+  .change { border: 1px solid var(--line); border-radius: 10px; padding: 9px 13px;
+            margin: 6px 0; background: #fbfcfe; }
+  .change .ch-top { display: flex; align-items: baseline; justify-content: space-between;
+                    gap: 10px; flex-wrap: wrap; }
+  .change .ch-hp { font-weight: 700; font-family: var(--mono); font-size: 12.5px; }
+  .change .ch-diff { font-family: var(--mono); font-size: 13.5px; display: flex;
+                     flex-wrap: wrap; align-items: baseline; gap: 6px; }
+  .change .ch-old { color: var(--muted); }
+  .change .ch-arrow { color: var(--accent); font-weight: 700; }
+  .change .ch-new { font-weight: 700; color: var(--ink); }
+  .ch-bars { margin-top: 8px; display: flex; flex-direction: column; gap: 3px; }
+  .chbar { position: relative; height: 8px; background: #eef2f6; border-radius: 4px; overflow: hidden; }
+  .chbar i { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
+  .chbar.old i { background: #94a3b8; }
+  .chbar.new i { background: var(--accent); }
 </style>
 </head>
 <body>
 <div class="topbar"><div class="wrap">
   <div class="brand">hpo<span class="dot">-</span>adapt</div>
   <div class="taskname" id="taskname">waiting for run …</div>
+  <div class="taskname" id="srvurl"></div>
   <div class="spacer"></div>
   <div id="statusbadge" class="badge running"><span class="spin"></span>running</div>
   <div class="badge" id="elapsed">–</div>
@@ -221,6 +243,7 @@
       <div class="card">
         <h2>Closed loop</h2>
         <div class="legend-flow">
+          <span class="flow-step"><b>Search</b> Classical HPO</span><span class="arrowflow">→</span>
           <span class="flow-step"><b>Observe</b> Diagnostic Engine</span><span class="arrowflow">→</span>
           <span class="flow-step"><b>Decide</b> RL Controller (Q-learning)</span><span class="arrowflow">→</span>
           <span class="flow-step"><b>Execute</b> Revised Setup Agent</span><span class="arrowflow">→</span>
@@ -270,6 +293,7 @@ function render(s) {
   const task = s.task || {};
   document.getElementById("taskname").textContent =
     task.task_id ? `${task.task_id} · ${task.objective_name} (${task.direction} ${dirArrow(task.direction)})` : "waiting for run …";
+  document.getElementById("srvurl").textContent = s.server_url ? `@ ${s.server_url.replace("http://", "")}` : "";
 
   const badge = document.getElementById("statusbadge");
   badge.className = "badge " + s.status;
@@ -419,12 +443,11 @@ function metricVal(m) {
 }
 
 /* one stage of the per-round stepper: Search → Observe → Decide → Execute */
-function stage(idx, kicker, module, mode, bodyHtml) {
+function stage(idx, kicker, mode, bodyHtml) {
   return `<div class="stage ${mode}">
     <span class="stage-node"></span>
     <div class="stage-head">
       <span class="stage-kicker"><span class="idx">${idx}</span>${kicker}</span>
-      <span class="stage-module">${module}</span>
     </div>
     <div class="stage-body">${bodyHtml}</div>
   </div>`;
@@ -439,6 +462,25 @@ function flow(artifact, detail) {
 
 function shortAction(name) {
   return String(name || "").replace(/_(SEARCH_SPACE|SEARCH_REGION|HYPERPARAMETER)/g, "").replace(/_/g, " ");
+}
+
+/* dual mini-bars re-plotting the old vs. new numeric range (log scale when log-distributed) */
+function changeBars(c) {
+  const o = c.old, n = c.new;
+  if (!o || !n || o.low == null || o.high == null || n.low == null || n.high == null) return "";
+  const isLog = o.distribution === "log_uniform" || n.distribution === "log_uniform";
+  const tf = v => isLog ? Math.log10(Math.max(v, 1e-300)) : v;
+  const lo = Math.min(tf(o.low), tf(n.low)), hi = Math.max(tf(o.high), tf(n.high));
+  const span = (hi - lo) || 1;
+  const pos = d => {
+    const l = tf(d.low), h = tf(d.high);
+    return { left: 100 * (l - lo) / span, width: Math.max(100 * (h - l) / span, 1.5) };
+  };
+  const po = pos(o), pn = pos(n);
+  return `<div class="ch-bars">
+    <div class="chbar old" title="old range"><i style="left:${po.left}%;width:${po.width}%"></i></div>
+    <div class="chbar new" title="new range"><i style="left:${pn.left}%;width:${pn.width}%"></i></div>
+  </div>`;
 }
 
 function memPriorHtml(mp) {
@@ -488,26 +530,30 @@ function renderRounds(s) {
       </div></div>`;
     html += `<div class="round-link"><div class="round-link-inner">
       <span class="down">↓</span>
-      <span><span class="setup">${esc(su.setup_id||"S₀")}</span> feeds Round 0's search</span>
+      <span><span class="setup">Round 0's setup ← ${esc(su.setup_id || "S₀")}</span></span>
     </div></div>`;
   }
   s.rounds.forEach((r, i) => {
     html += roundCard(s, r);
     const next = s.rounds[i + 1];
     if (r.new_setup_id) {
-      const rw = r.reward;
       let rewardNote = "";
+      const rw = r.reward;
       if (rw && rw.value !== undefined) {
         const rel = rw.relative_improvement;
         const relTxt = rel === null || rel === undefined ? "" : ` · Δ ${(rel>=0?"+":"")+pct(rel)}`;
-        rewardNote = `<span class="reward-note ${rw.value >= 0 ? "ok" : "bad"}">reward ${fmt(rw.value,4)}${relTxt} — outcome of R${r.round_index}'s action${next ? `, measured after R${next.round_index}'s search` : ""}</span>`;
-      } else if (r.action && next) {
-        rewardNote = `<span class="reward-note">outcome pending — evaluated during the next round</span>`;
+        let cls = "";
+        const bothNeg = rel != null && rw.value < 0 && rel < 0;
+        if (bothNeg) cls = "bad";
+        else if (rel != null && rel > 0) cls = "ok";
+        rewardNote = `<span class="reward-note ${cls}">reward ${fmt(rw.value,4)}${relTxt}</span>`;
       }
-      const warm = next && next.warm_started ? ` · ${next.warm_started} past trials warm-start the optimizer` : "";
+      const head = r.terminated
+        ? `<span class="setup">${esc(r.new_setup_id)}</span> · episode terminated`
+        : `Round ${r.round_index + 1}'s setup ← <span class="setup">${esc(r.new_setup_id)}</span>`;
       html += `<div class="round-link"><div class="round-link-inner">
         <span class="down">↓</span>
-        <span><span class="setup">${esc(r.new_setup_id)}</span> becomes Round ${r.round_index + 1}'s setup${warm}</span>
+        <span>${head}</span>
         ${rewardNote}
       </div></div>`;
     }
@@ -538,7 +584,7 @@ function diagSummary(ds, action) {
     .sort((a,b) => b[1].global_importance - a[1].global_importance).slice(0,3);
   let impHtml = "";
   if (imps.length) {
-    impHtml = `<div style="margin-top:10px"><div style="font-size:11.5px;color:var(--muted);margin-bottom:2px">HYPERPARAMETER IMPORTANCE (fANOVA)</div>` +
+    impHtml = `<div style="margin-top:10px"><div style="font-size:11.5px;color:var(--muted);margin-bottom:2px">HYPERPARAMETER IMPORTANCE · fANOVA</div>` +
       imps.map(([name, v]) => `<div class="hbar"><span class="mono">${esc(name)}</span>
         <span class="track"><span class="fill" style="display:block;width:${100*v.global_importance}%"></span></span>
         <span class="val">${fmt(v.global_importance,3)}</span></div>`).join("") + "</div>";
@@ -600,12 +646,33 @@ function roundCard(s, r) {
   /* ---- stage 3 · Decide ---- */
   let s3Body = "";
   if (a && meta) {
+    const tiles = [];
+    tiles.push(
+      `<span class="tile" title="Q(s,a): the return this intervention earned in past, similar situations (learned by the Q-table)">` +
+      `<span class="tk">expected return</span><span class="tv">${fmt(a.q_value,3)}</span>` +
+      `<span class="ts">learned from past rounds</span></span>`);
+    tiles.push(
+      `<span class="tile" title="How strongly the controller prefers this action relative to the alternatives">` +
+      `<span class="tk">confidence</span><span class="tv">${a.confidence===null||a.confidence===undefined?"—":fmt(a.confidence,2)}</span>` +
+      `<span class="ts">vs. other actions</span></span>`);
+    const subs = {
+      direction: "side with more good trials",
+      target_region: "observed good-trial region",
+      additional_trials: "extra trials granted",
+      value: "frozen to this value",
+    };
+    for (const [k, v] of Object.entries(a.parameters || {})) {
+      const shown = Array.isArray(v) ? `[${v.map(x=>fmt(x,3)).join(" , ")}]` : esc(String(v));
+      tiles.push(
+        `<span class="tile"><span class="tk">${esc(k)}</span><span class="tv">${shown}</span>` +
+        (subs[k] ? `<span class="ts">${subs[k]}</span>` : "") + `</span>`);
+    }
+    if ((a.reason||"").includes("agrees"))
+      tiles.push(`<span class="tile note">✓ agrees with rule-based recommendation</span>`);
     s3Body = `<div class="action-box ${meta.cls}">
       <div class="a-head"><span class="action-name">${meta.label}</span>
-        ${a.candidate_hyperparameter?`<span class="action-sub">target: ${esc(a.candidate_hyperparameter)}</span>`:""}
-        ${a.parameters&&Object.keys(a.parameters).length?`<span class="action-sub">${esc(JSON.stringify(a.parameters))}</span>`:""}
-        <span class="action-sub">q = ${fmt(a.q_value,3)} · confidence ${a.confidence===null||a.confidence===undefined?"—":fmt(a.confidence,2)}</span></div>
-      ${a.reason?`<div class="action-why">${esc(a.reason)}</div>`:""}
+        ${a.candidate_hyperparameter?`<span class="a-target">@ ${esc(a.candidate_hyperparameter)}</span>`:""}</div>
+      <div class="a-tiles">${tiles.join("")}</div>
     </div>`;
   } else if (r.state === "deciding") {
     s3Body = `<div class="stage-wait">selecting intervention over 7 actions (ε-greedy over the Q-table) …</div>`;
@@ -623,11 +690,12 @@ function roundCard(s, r) {
   let s4Body = "", hasStage4 = false;
   if (r.changes && r.changes.length) {
     hasStage4 = true;
-    s4Body = `<div style="font-size:11.5px;color:var(--muted);margin-bottom:4px">revised setup → <b class="mono">${esc(r.new_setup_id||"")}</b></div>` +
-      r.changes.map(c => `<div class="change">
-        <span class="hp">${esc(c.hyperparameter)}</span>
-        <span class="diff">${fmtChange(c)}</span>
-        <span class="why">${esc(c.reason||"")}</span></div>`).join("");
+    s4Body = `<div class="exec-head">revised setup → <b>${esc(r.new_setup_id||"")}</b></div>` +
+      r.changes.map(c => `<div class="change" title="${esc(c.reason||"")}">
+        <div class="ch-top">
+          <span class="ch-hp">${esc(c.hyperparameter)}</span>
+          <span class="ch-diff">${fmtChange(c)}</span>
+        </div>${changeBars(c)}</div>`).join("");
     if (r.terminated) s4Body += `<div class="chips" style="margin-top:6px"><span class="chip" style="border-color:#fecaca;background:#fef2f2;color:#b91c1c"><b>STOP</b> — episode terminated by the RL controller</span></div>`;
   } else if (r.state === "done" && a) {
     hasStage4 = true;
@@ -638,14 +706,15 @@ function roundCard(s, r) {
   }
   const s4Mode = r.state === "done" ? "" : "dim";
 
-  let stepper = stage(1, "Search", `Classical HPO · ${esc(r.optimizer?.name||"")}`, s1Mode, s1Body);
-  stepper += flow("TrialLogs", `${r.trials_used ?? done} evaluated configurations → Observe`);
-  stepper += stage(2, "Observe", "Diagnostic Engine (deterministic)", s2Mode, s2Body);
-  stepper += flow("DiagnosticState", "structured evidence → Decide");
-  stepper += stage(3, "Decide", "RL Controller · tabular Q-learning", s3Mode, s3Body);
+  let stepper = stage(1, "Search", s1Mode, s1Body);
+  stepper += flow("TrialLogs");
+  stepper += stage(2, "Observe", s2Mode, s2Body);
+  stepper += flow("DiagnosticState");
+  stepper += stage(3, "Decide", s3Mode, s3Body);
   if (hasStage4) {
-    stepper += flow(a ? "RLAction" : "no action", a ? `${shortAction(a.action)} @ ${a.candidate_hyperparameter || "—"} → Execute` : "episode closes");
-    stepper += stage(4, "Execute", "Revised Setup Agent (validator-gated)", s4Mode, s4Body);
+    stepper += flow(a ? "RLAction" : "no action",
+      a ? `${shortAction(a.action)}${a.candidate_hyperparameter ? " @ " + esc(a.candidate_hyperparameter) : ""}` : "");
+    stepper += stage(4, "Execute", s4Mode, s4Body);
   }
 
   return `<div class="round" id="round-${r.round_index}">
@@ -663,7 +732,7 @@ function roundCard(s, r) {
 }
 
 function fmtChange(c) {
-    const fmtSide = d => {
+  const fmtSide = d => {
     if (d === null || d === undefined) return "∅";
     if (d.choices) return "{" + d.choices.map(x => esc(String(x))).join("|") + "}";
     if (d.max_trials !== undefined) return esc(String(d.max_trials)) + " trials";
@@ -672,7 +741,7 @@ function fmtChange(c) {
     if (d.name !== undefined) return esc(d.name) + (d.n_startup_trials !== undefined ? " (startup " + d.n_startup_trials + ")" : "");
     return esc(JSON.stringify(d));
   };
-  return `<span>${fmtSide(c.old)}</span><span class="arrow">→</span><span><b>${fmtSide(c.new)}</b></span>`;
+  return `<span class="ch-old">${fmtSide(c.old)}</span><span class="ch-arrow">→</span><span class="ch-new">${fmtSide(c.new)}</span>`;
 }
 
 /* -------------------------------------------------------------------- live */
@@ -686,7 +755,7 @@ function renderLive(s) {
         <span class="k">trials used</span><span class="v">${sum.total_trials_used} / ${sum.total_budget}</span>
         <span class="k">rounds</span><span class="v">${sum.rounds}</span>
         <span class="k">terminated by STOP</span><span class="v">${sum.terminated ? "yes" : "no"}</span>
-        <span class="k">wall time</span><span class="v">${fmt(sum.timings?.total,3)} s (adapt layer ${fmt(sum.timings?.adapt,3)} s)</span>
+        <span class="k">wall time</span><span class="v">${fmt(sum.timings?.total,1)} s</span>
       </div>
       <div style="font-size:11.5px;color:var(--muted);margin:12px 0 4px">BEST PARAMS</div>
       <pre class="params">${esc(JSON.stringify(sum.best_params ?? {}, null, 2))}</pre>`;
