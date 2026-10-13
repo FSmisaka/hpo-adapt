@@ -295,20 +295,41 @@ def _write_csv(path: Path, rows: list[dict]) -> None:
 
 
 METHOD_STYLE = {
-    "static-random": dict(color="#999999", linestyle="--", linewidth=1.1),
-    "static-tpe": dict(color="#444444", linestyle="--", linewidth=1.1),
+    "static-random": dict(color="#BBBBBB", linestyle="--", linewidth=1.1),
+    "static-tpe": dict(color="#000000", linestyle="--", linewidth=1.1),
     "adapt-random-action": dict(color="#E69F00", linestyle="-", linewidth=1.3),
     "adapt-rule-only": dict(color="#0072B2", linestyle="-", linewidth=1.5),
-    "adapt-rl-default": dict(color="#CC79A7", linestyle="-", linewidth=1.3),
-    "adapt-rl-guided": dict(color="#009E73", linestyle="-", linewidth=1.5),
+    "adapt-rl-default": dict(color="#CC79A7", linestyle=":", linewidth=1.3),
+    "adapt-rl-guided": dict(color="#D55E00", linestyle="-", linewidth=1.5),
     "adapt-rl": dict(color="#0072B2", linestyle="-", linewidth=1.5),
 }
 
 TASK_PANELS = [
-    ("synthetic_mlp", "synthetic\\_mlp"),
+    ("synthetic_mlp", "synthetic_mlp"),
     ("branin", "Branin"),
-    ("rf_digits", "rf\\_digits"),
+    ("rf_digits", "rf_digits"),
 ]
+
+# Methods hidden in the anytime preview: adapt-rl-default coincides with the
+# unguided control within a single episode, so the two curves would overplot.
+ANYTIME_HIDDEN = {"adapt-rl-default"}
+
+RENDER_RC = {
+    "font.family": "serif",
+    "font.serif": ["Times New Roman", "Nimbus Roman", "STIXGeneral", "DejaVu Serif"],
+    "mathtext.fontset": "stix",
+    "font.size": 9,
+    "axes.labelsize": 9,
+    "axes.titlesize": 9,
+    "xtick.labelsize": 8,
+    "ytick.labelsize": 8,
+    "legend.fontsize": 7.5,
+    "axes.spines.top": False,
+    "axes.spines.right": False,
+    "legend.frameon": False,
+    "pdf.fonttype": 42,
+    "axes.unicode_minus": False,
+}
 
 
 def _render(out: Path) -> None:
@@ -321,12 +342,7 @@ def _render(out: Path) -> None:
         return
     import csv as _csv
 
-    plt.rcParams.update({
-        "font.size": 8,
-        "axes.spines.top": False,
-        "axes.spines.right": False,
-        "legend.frameon": False,
-    })
+    plt.rcParams.update(RENDER_RC)
 
     def read(name):
         with open(out / name) as fh:
@@ -340,7 +356,9 @@ def _render(out: Path) -> None:
     # ---------------------------------------------------- anytime (mean+-std)
     rows = read("anytime.csv")
     tasks = [t for t, _ in TASK_PANELS if any(r["task"] == t for r in rows)]
-    fig, axes = plt.subplots(1, len(tasks), figsize=(1.9 * len(tasks) + 1.2, 1.9), sharey=False)
+    fig, axes = plt.subplots(
+        1, len(tasks), figsize=(5.5, 1.95), sharey=False, layout="constrained"
+    )
     axes = [axes] if len(tasks) == 1 else axes
     for ax, (task, label) in zip(axes, [(t, l) for t, l in TASK_PANELS if t in tasks]):
         by_method = defaultdict(lambda: defaultdict(list))
@@ -348,7 +366,7 @@ def _render(out: Path) -> None:
             if r["task"] == task:
                 by_method[r["method"]][int(r["trial"])].append(float(r["best_so_far"]))
         for method in METHOD_ORDER:
-            if method not in by_method:
+            if method not in by_method or method in ANYTIME_HIDDEN:
                 continue
             trials = sorted(by_method[method])
             mean = [statistics.mean(by_method[method][t]) for t in trials]
@@ -363,16 +381,18 @@ def _render(out: Path) -> None:
         ax.set_title(label)
         ax.set_xlabel("trials")
     axes[0].set_ylabel("best-so-far")
-    axes[-1].legend(fontsize=5.5, loc="lower right")
-    fig.tight_layout()
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="outside lower center", ncol=3)
     save(fig, "preview_anytime")
 
     # ------------------------------------------------- episodes (mean+-std)
     rows = read("episodes_summary.csv")
-    tasks = sorted({r["task"] for r in rows})
-    fig, axes = plt.subplots(1, len(tasks), figsize=(1.9 * len(tasks) + 1.2, 1.9))
+    tasks = [t for t, _ in TASK_PANELS if any(r["task"] == t for r in rows)]
+    fig, axes = plt.subplots(
+        1, len(tasks), figsize=(5.5, 1.95), layout="constrained"
+    )
     axes = [axes] if len(tasks) == 1 else axes
-    for ax, task in zip(axes, tasks):
+    for ax, (task, label) in zip(axes, [(t, l) for t, l in TASK_PANELS if t in tasks]):
         for method in METHOD_ORDER:
             pts = [
                 (int(r["episode"]), float(r["best_raw_mean"]), float(r["best_raw_std"]))
@@ -386,11 +406,11 @@ def _render(out: Path) -> None:
             ax.plot(xs, ys, marker="o", markersize=2.5, label=method, **style)
             ax.fill_between(xs, [y - s for y, s in zip(ys, std)], [y + s for y, s in zip(ys, std)],
                             color=style["color"], alpha=0.13, linewidth=0)
-        ax.set_title(task)
+        ax.set_title(label)
         ax.set_xlabel("episode")
-    axes[0].set_ylabel("per-episode best (mean$\\pm$std)")
-    axes[-1].legend(fontsize=5.5, loc="lower right")
-    fig.tight_layout()
+    axes[0].set_ylabel("per-episode best")
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="outside lower center", ncol=3)
     save(fig, "preview_episodes")
 
     # ------------------------------------- case-study (3 stacked mini-panels)
@@ -398,6 +418,46 @@ def _render(out: Path) -> None:
     if case_path.exists():
         _render_case(case_path, out, save)
     print("previews written")
+
+
+def _line_label_below_xaxis(fig, ax, x_data, parts, fontsize=7.5, gap_pt=4.5):
+    """One horizontal label in several colours, just below the x axis.
+
+    parts: list of (text, color), drawn left to right as a single line.
+    The line is centered near x_data (data coords) and shifted sideways to
+    clear the x tick labels; gap_pt sets the distance from the axis line.
+    """
+    fig.canvas.draw()
+    tmp = [ax.text(0, 0, s, fontsize=fontsize, alpha=0, transform=ax.transAxes)
+           for s, _ in parts]
+    fig.canvas.draw()
+    rend = fig.canvas.get_renderer()
+    widths = [t.get_window_extent(rend).width for t in tmp]
+    text_h = max(t.get_window_extent(rend).height for t in tmp)
+    for t in tmp:
+        t.remove()
+    total = sum(widths)
+    px = fig.dpi / 72.0
+    x_v = ax.transData.transform((x_data, 0.0))[0]
+    y_spine = ax.transAxes.transform((0.0, 0.0))[1]
+    x_left = x_v - total / 2.0
+    y_top = y_spine - gap_pt * px
+    y_bot = y_top - text_h
+    ticks = [lb.get_window_extent(rend) for lb in ax.get_xticklabels() if lb.get_text()]
+    for b in sorted(ticks, key=lambda b: b.x0):
+        same_band = b.y1 > y_bot and b.y0 < y_top
+        if same_band and x_left + total > b.x0 and x_left < b.x1:
+            x_left = (b.x0 - total - 2.0 * px) if b.x0 >= x_v else (b.x1 + 2.0 * px)
+    ax_x0 = ax.transAxes.transform((0.0, 0.0))[0]
+    ax_x1 = ax.transAxes.transform((1.0, 0.0))[0]
+    x_left = min(max(x_left, ax_x0 + 1.0), ax_x1 - total - 1.0)
+    inv = ax.transAxes.inverted()
+    cur = x_left
+    for (s, color), w in zip(parts, widths):
+        xf, yf = inv.transform((cur, y_top))
+        ax.text(xf, yf, s, fontsize=fontsize, color=color, ha="left", va="top",
+                transform=ax.transAxes)
+        cur += w
 
 
 def _render_case(case_path: Path, out: Path, save) -> None:
@@ -410,65 +470,93 @@ def _render_case(case_path: Path, out: Path, save) -> None:
         lr = next(spec for spec in s["search_space"] if spec["name"] == "learning_rate")
         lr_bounds.append((float(lr["low"]), float(lr["high"])))
 
-    fig, axes = plt.subplots(3, 1, figsize=(5.5, 4.6), sharex=False,
-                             gridspec_kw={"height_ratios": [1.2, 1.2, 0.7]})
+    fig, axes = plt.subplots(
+        3, 1, figsize=(5.5, 3.0), sharex=False, layout="constrained",
+        gridspec_kw={"height_ratios": [1.35, 1.0, 0.7]},
+    )
 
-    # (a) best-so-far with round boundaries + action annotations
+    def tag(ax, s):
+        ax.text(0.01, 0.96, s, transform=ax.transAxes, fontsize=8, va="top", color="#333333")
+
+    # (a) trial objectives + best-so-far, round boundaries, actions on top
     ax = axes[0]
-    xs, ys, best, cum = [], [], None, 0
+    tx, ty, bx, by, best, cum = [], [], [], [], None, 0
     for s in steps:
         for t in s["trials"]:
             cum += 1
             v = t["value"]
-            if v is not None and (best is None or v > best):
+            if v is None:
+                continue
+            tx.append(cum)
+            ty.append(v)
+            if best is None or v > best:
                 best = v
-            xs.append(cum)
-            ys.append(best)
-    ax.plot(xs, ys, color="#0072B2", linewidth=1.4)
+            bx.append(cum)
+            by.append(best)
+    ax.scatter(tx, ty, s=5, color="#999999", alpha=0.55, linewidths=0, zorder=2)
+    ax.plot(bx, by, color="#0072B2", linewidth=1.6, zorder=3)
+    lo, hi = min(ty), max(ty)
+    span = hi - lo if hi > lo else 1.0
+    ax.set_ylim(lo - 0.05 * span, hi + 0.36 * span)
     cum = 0
     for s in steps:
         n = len(s["trials"])
         cum += n
-        ax.axvline(cum, color="grey", linestyle="--", linewidth=0.6)
+        ax.axvline(cum, color="#CCCCCC", linestyle="--", linewidth=0.7, zorder=1)
         act = (s.get("action") or {}).get("action")
         if act:
             tgt = (s.get("action") or {}).get("candidate_hyperparameter") or "-"
             short = "SHIFT" if "SHIFT" in act else "EXPAND" if "EXPAND" in act else act.split("_")[0]
-            ax.annotate(
-                f"{short}@{tgt}",
-                xy=(cum - n / 2, max(y for y in ys if y is not None)),
-                fontsize=6,
-                ha="center",
-            )
-    ax.set_ylabel("best-so-far")
-    ax.set_title(f"case study: {case['method']} (seed {case['seed']}) on synthetic MLP")
+            ax.text(cum - n / 2, hi + 0.18 * span, f"{short}@{tgt}",
+                    fontsize=7.5, ha="center", va="bottom", color="#333333")
+    ax.set_ylabel("objective")
+    tag(ax, "(a)")
 
     # (b) learning-rate search interval per round (log scale) + sampled points
     ax = axes[1]
     for i, ((lo, hi), s) in enumerate(zip(lr_bounds, steps)):
-        ax.hlines(i, lo, hi, linewidth=6, alpha=0.5, color="#0072B2")
+        ax.hlines(i, lo, hi, linewidth=7, alpha=0.22, color="#0072B2", zorder=2)
         lrs = [t["params"]["learning_rate"] for t in s["trials"] if t["value"] is not None]
         good = [t["params"]["learning_rate"] for t in s["trials"]
                 if t["value"] is not None and t["value"] >= 0.9 * max(
                     (tt["value"] for tt in s["trials"] if tt["value"] is not None), default=0)]
-        ax.scatter(lrs, [i] * len(lrs), s=6, color="#999999", zorder=3)
-        ax.scatter(good, [i] * len(good), s=14, color="#D55E00", zorder=4)
-    ax.axvline(0.45, color="red", linestyle=":", linewidth=1.0, label="ground truth lr = 0.45")
+        ax.scatter(lrs, [i] * len(lrs), s=7, color="#999999", zorder=3, linewidths=0)
+        ax.scatter(good, [i] * len(good), s=16, color="#E69F00", zorder=4, linewidths=0)
+    ax.axvline(0.45, color="#D55E00", linestyle=":", linewidth=1.1)
     ax.set_xscale("log")
+    ax.set_ylim(-0.55, len(steps) - 0.5)
     ax.set_yticks(range(len(steps)), [f"round {i}" for i in range(len(steps))])
+    ax.xaxis.tick_top()
     ax.set_xlabel("learning-rate search interval (log scale)")
-    ax.legend(fontsize=6, loc="lower right")
+    ax.xaxis.labelpad = 16
+    tag(ax, "(b)")
 
-    # (c) reward per round
+    # (c) reward per round, colored by sign
     ax = axes[2]
     rewards = [s.get("reward") for s in steps]
     xs_r = [i for i, r in enumerate(rewards) if r is not None]
-    ax.bar(xs_r, [rewards[i] for i in xs_r], width=0.35, color="#009E73")
-    ax.axhline(0, color="grey", linewidth=0.6)
+    vals = [rewards[i] for i in xs_r]
+    ax.bar(xs_r, vals, width=0.5,
+           color=["#0072B2" if v >= 0 else "#D55E00" for v in vals], zorder=2)
+    ax.axhline(0, color="#999999", linewidth=0.6)
+    for i in range(len(steps)):
+        if i not in xs_r:
+            ax.text(i, 0, "no action", ha="center", va="bottom",
+                    fontsize=7, color="#999999")
+    flo = min(min(vals), 0) if vals else 0.0
+    fhi = max(max(vals), 0) if vals else 1.0
+    pad = 0.15 * (fhi - flo) if fhi > flo else 0.1
+    ax.set_ylim(flo - pad, fhi + pad)
+    ax.set_xlim(-0.6, len(steps) - 0.4)
     ax.set_xticks(range(len(steps)), [f"round {i}" for i in range(len(steps))])
     ax.set_ylabel("reward")
+    tag(ax, "(c)")
 
-    fig.tight_layout()
+    # deferred until every artist exists, so the layout below (b) is final
+    _line_label_below_xaxis(fig, axes[1], 0.45, [
+        ("ground truth ", "#000000"), ("lr", "#D55E00"), (" = 0.45", "#000000"),
+    ])
+
     save(fig, "preview_case_study")
 
 
